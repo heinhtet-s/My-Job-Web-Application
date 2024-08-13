@@ -25,7 +25,7 @@ const Login = () => {
       <div className="hidden lg:flex lg:w-1/2 relative h-full flex-col">
         <div className="absolute top-[40%] left-[20%] flex flex-col text-center">
           <h1 className="text-[32px] font-bold mb-4 text-[#111111]">
-            Welcome Back Job Seeker
+            Welcome Back Job Seekerddd
           </h1>
 
           <p className="text-[20px] font-[500] text-[#666]">
