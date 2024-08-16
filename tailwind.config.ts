@@ -3,15 +3,21 @@ import type { Config } from "tailwindcss";
 const config: Config = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
-    './app/**/*.{ts,tsx,jsx}',
-    './src/**/*.{ts,tsx,jsx}',
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx,jsx}",
+    "./src/**/*.{ts,tsx,jsx}",
   ],
   theme: {
     extend: {
+      colors: {
+        primary: "#F08000", // Example: Add a primary color
+        bg: "#DBEDFF", // Example: Add a secondary color
+        secondary: "#04157d",
+        accent: "#38b2ac", // Example: Add an accent color
+      },
       fontFamily: {
-        poppins: ['Poppins', 'sans-serif'],
+        poppins: ["Poppins", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
