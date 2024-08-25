@@ -1,13 +1,21 @@
 import { odataQueryHandler } from "@/lib/apiQueryHandler";
-import { SeekersConst,  EmployersConst } from "@/lib/queryConst";
+import {
+  SeekersConst,
+  EmployersConst,
+  IndustriesConst,
+  EmployerJobPosts,
+} from "@/lib/queryConst";
 import { GetSeekerList } from "@/modules/services/seeker_service";
-import {GetEmployersList} from '@/modules/services/employer_service'
+import { GetEmployersList } from "@/modules/services/employer_service";
+import { GetInsdustriesList } from "@/modules/services/industries";
+import { GetEmployerJobPostList } from "@/modules/services/employer_jobposts";
 import HomePage from "./home";
+
 
 export default async function Home() {
   try {
-    // Call all APIs in parallel
-    const [data1, data2] = await Promise.all([
+ 
+    const [candidates,companies, industries,jobPosts] = await Promise.all([
       odataQueryHandler(
         SeekersConst,
         SeekersConst.filter,
@@ -26,15 +34,25 @@ export default async function Home() {
         { top: 10, skip: 0 },
         GetEmployersList
       ),
-      // odataQueryHandler(
-      //   AnotherConst,
-      //   AnotherConst.filter,
-      //   AnotherConst.order,
-      //   AnotherConst.fields,
-      //   "no_child",
-      //   { top: 10, skip: 0 },
-      //   GetAnotherList
-      // ),
+      odataQueryHandler(
+        IndustriesConst,
+        IndustriesConst.filter,
+        IndustriesConst.order,
+        IndustriesConst.fields,
+        "no_child",
+        { top: 10, skip: 0 },
+        GetInsdustriesList
+      ),
+       odataQueryHandler(
+        EmployerJobPosts,
+        EmployerJobPosts.filter,
+        EmployerJobPosts.order,
+        EmployerJobPosts.fields,
+        "normal",
+        { top: 10, skip: 0 },
+        GetEmployerJobPostList
+      )
+
       // odataQueryHandler(
       //   ThirdConst,
       //   ThirdConst.filter,
@@ -54,15 +72,26 @@ export default async function Home() {
       //   GetFourthList
       // ),
     ]);
-    console.log(data1)
-    console.log(data2)
-    console.log('first')
-
-    // Pass the data to the HomePage component
-    return <HomePage data1={data1} data2={data2} data3={data3} data4={data4} />;
+  
+console.log(jobPosts.value)
+    return (
+      <HomePage
+        companies={companies.value}
+        candidates={candidates.value}
+        industries={industries.value}
+       jobPosts ={jobPosts.value}
+      />
+    );
   } catch (error) {
-    console.error('Error fetching data:', error);
-    // Handle error by sending empty data to the HomePage
-    return <HomePage data1={{ count: 0, value: [] }} data2={{ count: 0, value: [] }} data3={{ count: 0, value: [] }} data4={{ count: 0, value: [] }} />;
+    console.error("Error fetching data:", error);
+
+    return (
+      <HomePage
+        data1={{ count: 0, value: [] }}
+        data2={{ count: 0, value: [] }}
+        data3={{ count: 0, value: [] }}
+        data4={{ count: 0, value: [] }}
+      />
+    );
   }
 }

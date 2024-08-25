@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import SearchIcon from "@/asset/Icon/SearchIcon";
@@ -12,14 +12,32 @@ import HilightIcon from "@/asset/Icon/HilightIcon";
 import ArrowLeft from "@/asset/Icon/ArrowLeft";
 import { BriefcaseBusiness, MapPin } from "lucide-react";
 import PaginatedItems from "@/components/share/pagination";
+import axios from "axios";
+import { formatDistanceToNow } from "date-fns";
 
-const HomePage = () => {
+const HomePage = ({ companies, candidates, industries ,jobPosts}) => {
+  // console.log(jobPosts)
+  // useEffect(() => {
+  //   const fetchEmployer = async () => {
+  //     try {
+  //       const { data } = await axios.get(`/api/job_lists/getJobPostById`, {
+  //         params: {id:"0969489b-f275-4849-8442-08d6b63edb48"},
+  //       });
+  //       console.log(data)
+  //       // setEmployer(data);
+  //     } catch (error) {
+  //       console.error("Failed to fetch employer:", error);
+  //     }
+  //   };
+
+  //   fetchEmployer();
+  // }, []);
   return (
     <>
       <BannerComponent />
-      <FilterJobComponent />
-      <FeatureCampanyComponent />
-      <FeatureJobPostComponent />
+      <FilterJobComponent industries={industries} />
+      <FeatureCampanyComponent companies={companies} />
+      <FeatureJobPostComponent jobPosts={jobPosts} />
       <SubBannerComponent />
       {/* <PaginatedItems
         itemsPerPage={10}
@@ -37,44 +55,45 @@ const HomePage = () => {
           Discover top candidates who perfectly match your company's success.
         </p>
         <div className="max-w-[1250px] mx-auto my-8 grid grid-cols-6 gap-4">
-          {Array(11)
-            .fill("")
-            .map((str, index) => (
-              <div className="rounded-lg cursor-pointer  bg-white flex p-4 flex-col items-center gap-4 relative overflow-hidden w-[195px] h-[240px] transition-all duration-300 ease hover:bg-[#eee]">
-                <img
-                  src="https://myjobs-user-image.s3.ap-south-1.amazonaws.com/7addaa62-cf67-469e-be40-6134671e8eed.jpg"
-                  alt="description"
-                  className="w-[81px] h-[81px] object-cover rounded-full"
-                />
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col items-center justify-center gap-1">
-                    <p className="text-black mb-[1rem] text-sm font-semibold leading-normal">
-                      Yee Wai Wai Kyi
-                    </p>
-                    <p className="text-white text-center font-normal text-[10px] leading-normal flex items-center gap-2 p-[4px_6px_4px_8px] rounded-br-[12px] bg-[#F47920] absolute top-0 left-0">
-                      full time
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
-                    <BriefcaseBusiness width={"12px"} />
-                    Information Technology
-                  </div>
-                  <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
-                    <MapPin width={"12px"} />
-                    Myeik, Myanmar
-                  </div>
+          {candidates?.map((str, index) => (
+            <div className="rounded-lg cursor-pointer  bg-white flex p-4 flex-col items-center gap-4 relative overflow-hidden w-[195px] h-[240px] transition-all duration-300 ease hover:bg-[#eee]">
+              <img
+                src="https://myjobs-user-image.s3.ap-south-1.amazonaws.com/7addaa62-cf67-469e-be40-6134671e8eed.jpg"
+                alt="description"
+                className="w-[81px] h-[81px] object-cover rounded-full"
+              />
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col items-center justify-center gap-1">
+                  <p className="text-black mb-[1rem] text-sm font-semibold leading-normal">
+                    {str?.FirstName?.charAt(0).toUpperCase() +
+                      str?.FirstName?.slice(1)}{" "}
+                    {str?.LastName?.charAt(0)?.toUpperCase() +
+                      str?.LastName?.slice(1)}
+                  </p>
+                  <p className="text-white text-center font-normal text-[10px] leading-normal flex items-center gap-2 p-[4px_6px_4px_8px] rounded-br-[12px] bg-[#F47920] absolute top-0 left-0">
+                    full time
+                  </p>
                 </div>
               </div>
-            ))}
+              <div>
+                <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
+                  <BriefcaseBusiness width={"12px"} />
+                  Information Technology
+                </div>
+                <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
+                  <MapPin width={"12px"} />
+                  Myeik, Myanmar
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <ViewMoreBtn text={"View All Candidates"} />
       </div>
     </>
   );
 };
-const FeatureJobPostComponent = () => {
+const FeatureJobPostComponent = ({jobPosts}) => {
   return (
     <div className="bg-jobBg">
       <div className="max-w-[1280px] mx-auto p-8 px-4">
@@ -111,11 +130,9 @@ const FeatureJobPostComponent = () => {
               modules={[Autoplay, Navigation]}
               className="mySwiper"
             >
-              {Array(11)
-                .fill("")
-                .map((str, index) => (
+              {jobPosts?.map((str, index) => (
                   <SwiperSlide>
-                    <JobCardComponent isFeatureCard={true} />
+                    <JobCardComponent isFeatureCard={true} jobPost={str}/>
                   </SwiperSlide>
                 ))}
             </Swiper>
@@ -129,10 +146,8 @@ const FeatureJobPostComponent = () => {
             </p>
           </div>
           <div className="relative flex-wrap	 flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden  gap-4 my-2 mb-6">
-            {Array(11)
-              .fill("")
-              .map((str, index) => (
-                <JobCardComponent isFeatureCard={false} />
+            {jobPosts.map((str, index) => (
+                <JobCardComponent isFeatureCard={false} jobPost={str}/>
               ))}
           </div>
         </div>
@@ -149,7 +164,8 @@ const ViewMoreBtn = ({ text }) => {
     </div>
   );
 };
-const FeatureCampanyComponent = () => {
+const FeatureCampanyComponent = ({ companies }) => {
+  console.log(companies)
   return (
     <div
       className="w-full  bg-cover bg-no-repeat pt-[40px] overflow-x-hidden  "
@@ -166,36 +182,34 @@ const FeatureCampanyComponent = () => {
       </p>
       <div className="w-full flex  mx-auto overflow-x-scroll scrollable-no-scrollbar pr-10">
         <div className="flex gap-4 cursor-pointer my-10 mr-10  ">
-          {Array(11)
-            .fill("")
-            .map((str, index) => (
-              <div
-                className={cn(
-                  "cursor-pointer hover:translate-y-[-10px] relative flex flex-col min-w-0 break-words flex-none basis-[200px] h-[260px] p-4 pt-2 items-center rounded-md bg-white border border-[rgba(0,0,0,0.125)] gap-1 transition-all duration-500 ease-in-out",
-                  index === 0 ? "ml-[8rem]" : ""
-                )}
-              >
-                <div>
-                  <img
-                    className="w-[120px] h-[120px] object-contain"
-                    src="https://myjobs-company-logo.s3.ap-south-1.amazonaws.com/bb2e01ff-5e10-4ee0-8ba6-2bf377fbb865.jfif"
-                    alt="logo"
-                  />
-                </div>
-                <p className="text-[#111] mb-[16px] text-center font-poppins text-sm font-medium leading-normal">
-                  First National Insurance (General) Co., Ltd
-                </p>
-                <p className="text-[#f47920] text-center font-poppins text-xs font-normal leading-normal">
-                  12 Open Positions
-                </p>
+          {companies?.map((str, index) => (
+            <div
+              className={cn(
+                "cursor-pointer hover:translate-y-[-10px] relative flex flex-col min-w-0 break-words flex-none basis-[200px] h-[260px] p-4 pt-2 items-center rounded-md bg-white border border-[rgba(0,0,0,0.125)] gap-1 transition-all duration-500 ease-in-out",
+                index === 0 ? "ml-[8rem]" : ""
+              )}
+            >
+              <div>
+                <img
+                  className="w-[120px] h-[120px] object-contain"
+                  src="https://myjobs-company-logo.s3.ap-south-1.amazonaws.com/bb2e01ff-5e10-4ee0-8ba6-2bf377fbb865.jfif"
+                  alt="logo"
+                />
               </div>
-            ))}
+              <p className="text-[#111] mb-[16px] text-center font-poppins text-sm font-medium leading-normal">
+                {str?.CompanyName}
+              </p>
+              <p className="text-[#f47920] text-center font-poppins text-xs font-normal leading-normal">
+                12 Open Positions
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
 };
-const FilterJobComponent = () => {
+const FilterJobComponent = ({ industries }) => {
   return (
     <div
       style={{
@@ -227,6 +241,11 @@ const FilterJobComponent = () => {
               }}
             >
               <option>Select Industry</option>
+              {industries?.map((industry) => (
+                <option key={industry.Id} value={industry.Title}>
+                  {industry.Title}
+                </option>
+              ))}
             </select>
           </div>
           <div className="h-12 w-px bg-[#ccc]" />
@@ -250,7 +269,19 @@ const FilterJobComponent = () => {
     </div>
   );
 };
-const JobCardComponent = ({ isFeatureCard }) => {
+const JobCardComponent = ({ isFeatureCard ,jobPost}) => {
+  let parsedDate;
+  try {
+    if (jobPost?.CreatedAt) {
+      parsedDate = new Date(jobPost.CreatedAt);
+      if (isNaN(parsedDate.getTime())) {
+        throw new Error('Invalid date');
+      }
+    }
+  } catch (error) {
+    console.error('Error parsing date:', error);
+    parsedDate = null;
+  }
   return (
     <div
       className={cn(
@@ -267,8 +298,7 @@ const JobCardComponent = ({ isFeatureCard }) => {
             isFeatureCard && "text-white"
           )}
         >
-          {" "}
-          Medical Sales Specialist
+         {jobPost?.Title}
         </p>
         <p
           className={cn(
@@ -276,7 +306,7 @@ const JobCardComponent = ({ isFeatureCard }) => {
             isFeatureCard && "text-white"
           )}
         >
-          1 month ago
+          {parsedDate ? formatDistanceToNow(parsedDate, { addSuffix: true }) : "Date not available"}
         </p>
       </div>
       <div className="flex justify-center items-center gap-2">
@@ -290,7 +320,7 @@ const JobCardComponent = ({ isFeatureCard }) => {
           Hlaing Township, Myanmar
         </p>
         <div className="flex items-center gap-2 p-1 px-2 text-[#f69322] text-[10px] font-poppins font-normal leading-normal rounded-md bg-[#ffefdc] text-center">
-          Full Time
+          {jobPost?.JobType}
         </div>
       </div>
       <div className="flex justify-between items-end gap-6">
@@ -309,7 +339,7 @@ const JobCardComponent = ({ isFeatureCard }) => {
               isFeatureCard && "text-white"
             )}
           >
-            Orb Design Co., Ltd.
+            {jobPost.Employer.CompanyName}
           </p>
         </div>
         <button

@@ -43,8 +43,7 @@ const EmployersConst = {
     "ContactPersonName",
     "Email",
     "PhoneNum",
-    "Password",
-    "ConfirmPassword",
+  
     "LoginType",
     "CompanyPhoneNum",
     "CompanyLogo",
@@ -82,13 +81,10 @@ const EmployersConst = {
   skip: 0,
 };
 
-
 const EmployerConst = {
-  fields: [
-   "CompanyName"
-  ],
+  fields: ["CompanyName"],
   filter: {},
-  order: { updatedAt: "desc"} ,
+  order: { updatedAt: "desc" },
   childrens: [],
   top: 10,
   skip: 0,
@@ -132,7 +128,6 @@ const EmployerJobPosts = {
   filter: {},
   order: { updatedAt: "desc" },
   children: [
- 
     {
       name: "Employer",
       type: "no_child",
@@ -143,102 +138,21 @@ const EmployerJobPosts = {
   skip: 0,
 };
 
-// const QUERY_SERIES_CONST = {
-//   fields: [
-//     "id",
-//     "keywords",
-//     "titleEn",
-//     "titleMm",
-//     "descriptionEn",
-//     "descriptionMm",
-//     "type",
-//     "isPremium",
-//     "resolution",
-//     "rating",
-//     "sorting",
-//     "status",
-//     "statusType",
-//     "createdAt",
-//     "updatedAt",
-//     "createdBy",
-//     "updatedBy",
-//   ],
+const IndustriesConst = {
+  fields: [
+    "Title",
+    "TitleEng",
+    "Id",
+    "CreatedAt",
+    "UpdatedAt",
+    "CreatedBy",
+    "UpdatedBy",
+  ],
+  filter: {},
+  order: { updatedAt: "desc" },
+  children: [],
+  top: 10,
+  skip: 0,
+};
 
-//   order: { createdAt: "", updatedAt: "" },
-//   childrens: [
-//     {
-//       name: "Series",
-//       type: "normal",
-//       data: QUERY_CONTENT_SERIES_CONST,
-//     },
-//     {
-//       name: "GenreTitles",
-//       type: "multi",
-//       data: QUERY_GENRE_TITLE_CONST,
-//     },
-//     {
-//       name: "TagTitles",
-//       type: "multi",
-//       data: QUERY_TAG_TITLE_CONST,
-//     },
-
-//     {
-//       name: "TitleCredit",
-//       type: "multi",
-//       data: QUERY_TITLE_CREDIT_CONST,
-//     },
-//   ],
-//   filter: {
-//     titleEn: { value: "", type: "string", label: "EN Title" },
-//     titleMm: { value: "", type: "string", label: "MM Title" },
-//     keywords: { value: "", type: "string", label: "keyword" },
-
-//     Type: {
-//       value: "series",
-//       type: "enum",
-//       label: "Series",
-//       enum: CONTENT_MOVIE_ENUM,
-//     },
-//     Series: {
-//       value: "ne",
-//       type: "isNull",
-//       label: "Series",
-//       enum: IS_NULL_ENUM,
-//     },
-//     status: {
-//       value: "true",
-//       type: "boolean",
-//       label: "Is Active",
-//       enum: BOOLEAN_ENUM,
-//     },
-//   },
-//   // filter: {
-
-//   //     titleMm: { value: "", type: "string", label: "MM Title" },
-//   //     titleEn: { value: "", type: "string", label: "EN Title" },
-//   //   },
-//   //   Type: {
-//   //     value: "series",
-//   //     type: "enum",
-//   //     label: "Series",
-//   //     enum: CONTENT_MOVIE_ENUM,
-//   //   },
-//   //   Series: {
-//   //     value: "ne",
-//   //     type: "isNull",
-//   //     label: "Series",
-//   //     enum: IS_NULL_ENUM,
-//   //   },
-//   //   status: {
-//   //     value: "true",
-//   //     type: "boolean",
-//   //     label: "Is Active",
-//   //     enum: BOOLEAN_ENUM,
-//   //   },
-//   // },
-
-//   top: 10,
-//   skip: 0,
-// };
-
-export { SeekersConst, EmployersConst, EmployerJobPosts };
+export { SeekersConst, EmployersConst, EmployerJobPosts,IndustriesConst };
