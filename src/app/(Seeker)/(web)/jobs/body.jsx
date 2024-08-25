@@ -1,5 +1,6 @@
 "use client";
 import SeekerSelectBox from "@/components/share/SeekerSelectBox";
+import { formatDistanceToNow } from 'date-fns';
 import {
   BriefcaseBusiness,
   CalendarDays,
@@ -14,7 +15,8 @@ import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/components/ui/button";
 
-const page = () => {
+const JobPostPage = ({data}) => {
+    console.log(data)
   return (
     <>
       <div className="bg-searchJobBg py-[60px] ">
@@ -95,11 +97,9 @@ const page = () => {
               modules={[Autoplay, Navigation]}
               className="mySwiper"
             >
-              {Array(5)
-                .fill("")
-                .map((str: string, index: number) => (
+              {data?.map((str, index) => (
                   <SwiperSlide>
-                    <JobPostComponent />
+                    <JobPostComponent job={str} />
                   </SwiperSlide>
                 ))}
             </Swiper>
@@ -143,11 +143,10 @@ const page = () => {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                {Array(5)
-                  .fill("")
-                  .map((str: string, index: number) => (
+                {data?.map((str, index) => (
+                
                     <div key={index} className="col-span-1">
-                      <JobPostComponent />
+                      <JobPostComponent job={str}/>
                     </div>
                   ))}
               </div>
@@ -158,7 +157,9 @@ const page = () => {
     </>
   );
 };
-const JobPostComponent = () => {
+const JobPostComponent = ({job}) => {
+  console.log(job)
+  const parsedDate = new Date(job.CreatedAt);
   return (
     <div
       className="bg-white p-8 mr-5 cursor-pointer rounded-[30px] text-decoration-none flex flex-col justify-between h-full border border-[#dcdcdc]"
@@ -178,20 +179,20 @@ const JobPostComponent = () => {
         </div>
       </div>
       <div className="min-h-[54px] overflow-hidden font-semibold text-[18px] mt-[30px] transition-colors duration-300 ease-in-out text-widgetColor hover:text-widgetHoverColor">
-        Chief Accountant ( Manufacturing) For Vietnam & Myanmar Female (2)
+        {job?.Title}
       </div>
       <div className="mt-[25px]  flex items-center justify-between text-[14px] text-widgetColor">
         <div className=" flex  gap-1 text-sm text-widgetColor">
           <Earth width="12px" height="12px" className="mt-[3px]" />
           Hlaingthaya Township, Yangon, Myanmar
         </div>
-        <p className="font-light">Full time</p>
+        <p className="font-light">{job.JobType}</p>
       </div>
       <div className="flex mt-10 items-center justify-between">
         <div>
-          <p className="text-[13px] "> 1 month ago</p>
+          <p className="text-[13px] "> { formatDistanceToNow(parsedDate, { addSuffix: true })}</p>
           <p className="block text-sm font-medium mt-2.5 text-widgetColor transition-colors duration-300 no-underline">
-            Pioneer Special Poly Bag Industrial Co., Ltd
+           {job.Employer.CompanyName}
           </p>
         </div>
         <img
@@ -203,4 +204,4 @@ const JobPostComponent = () => {
     </div>
   );
 };
-export default page;
+export default JobPostPage;

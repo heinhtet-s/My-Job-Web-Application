@@ -246,7 +246,10 @@ async function odataQueryHandler(
   odataFunction
 ) {
   // create basic query string
- 
+  console.log(have_childs)
+ console.log(queryObject)
+ console.log(query_filter)
+ console.log(query_order)
   let queryString = `?$count=true`;
   // addSelect
   let selectFields = queryObject?.fields.filter((value) =>
@@ -259,20 +262,23 @@ async function odataQueryHandler(
   } else {
     queryString = `${queryString}&$select=${selectFields.toString()}`;
   }
-
+console.log(queryString)
   // add expand child tables
   if (CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs)) {
     // console.log(queryObject);
+    console.log('hheheh')
+    console.log(CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs))
     switch (true) {
       case have_childs === "normal":
-        for (const child of queryObject?.childrens) {
+        for (const child of queryObject?.children) {
+          console.log(child)
           queryString = `${queryString}&$expand=${
-            child.name
+            child?.name
           }(${await odataExpandQueryHandler(
-            child.data,
-            child.data.filter,
-            child.data.order,
-            child.type
+            child?.data,
+            child?.data?.filter,
+            child?.data?.order,
+            child?.type
           )})`;
         }
         break;
@@ -286,6 +292,7 @@ async function odataQueryHandler(
     }
   }
   // add filters
+  console.log('hh')
   const filterString = await filterHandler(filter, query_filter);
   if (filterString !== "") {
     queryString = `${queryString}&$filter=${filterString}`;
@@ -321,6 +328,7 @@ async function odataExpandQueryHandler(
   query_order,
   type
 ) {
+  console.log("HELL")
   let queryString = `${
     type === "multi" ? "" : ""
   }$select=${queryObject.fields.toString()}`;
