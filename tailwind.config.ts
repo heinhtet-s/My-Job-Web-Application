@@ -11,6 +11,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        muteColor: "#6c757d",
         jobBg: "#dceeff",
         bannerText: "#f47920",
         primary: "#F08000", // Example: Add a primary color
