@@ -2,20 +2,20 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { LoginIcon } from "@/asset/Icon";
+import Footer from "../Footer";
 
 const SeekerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="mb-[74px]">
+    <div className="mt-[74px]">
       <Nav />
-      {
-        children
-      }
+      {children}
+      <Footer />
     </div>
   );
 };
 const Nav = () => {
   return (
-    <nav className="bg-primary ">
+    <nav className="bg-primary fixed top-0 left-0 w-full z-50 ">
       <div className="max-w-screen-xl fix flex flex-wrap items-center justify-between mx-auto p-4">
         <a href="/" className="flex items-center space-x-3 rtl:space-x-reverse">
           <img
