@@ -246,10 +246,7 @@ async function odataQueryHandler(
   odataFunction
 ) {
   // create basic query string
-  console.log(have_childs)
- console.log(queryObject)
- console.log(query_filter)
- console.log(query_order)
+
   let queryString = `?$count=true`;
   // addSelect
   let selectFields = queryObject?.fields.filter((value) =>
@@ -262,11 +259,11 @@ async function odataQueryHandler(
   } else {
     queryString = `${queryString}&$select=${selectFields.toString()}`;
   }
-console.log(queryString)
+
   // add expand child tables
   if (CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs)) {
     // console.log(queryObject);
-    console.log('hheheh')
+ 
     console.log(CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs))
     switch (true) {
       case have_childs === "normal":
