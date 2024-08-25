@@ -37,39 +37,36 @@ const Register = () => {
         </div>
         <div className="mt-8 flex">
           <Link href="/login">
-            <Button
-            className=" rounded-lg ml-[-8px]  bg-[#f2f2f2]  hover:bg-[#f2f2f2]"
-            
-            >
-              <span
-               className="mr-2 text-[#666666]" 
-              >
-                Login
-              </span>
-              <LogIn
-              className="text-[#666666]"
-               
-              />
+            <Button className=" rounded-lg ml-[-8px]  bg-[#f2f2f2]  hover:bg-[#f2f2f2]">
+              <span className="mr-2 text-[#666666]">Login</span>
+              <LogIn className="text-[#666666]" />
             </Button>
           </Link>
           <Link href="/register">
-            <Button   className={`flex items-center px-4 py-2 rounded-lg z-100  ${
+            <Button
+              className={`flex items-center px-4 py-2 rounded-lg z-100  ${
                 pathName === "/register" ? "bg-[#F47920]" : ""
-              } ${pathName ? "hover:bg-[#F47920]" : ""}`}>
-              <span  className={`mr-2 ${
+              } ${pathName ? "hover:bg-[#F47920]" : ""}`}
+            >
+              <span
+                className={`mr-2 ${
                   pathName === "/login" ? "text-[#ffffff]" : ""
-                }`}>Register</span>
-              <UserRoundPlus  className={`mr-4 ${
+                }`}
+              >
+                Register
+              </span>
+              <UserRoundPlus
+                className={`mr-4 ${
                   pathName === "/register" ? "text-[#ffffff]" : ""
-                }`} />
+                }`}
+              />
             </Button>
           </Link>
         </div>
         <div className="shadow-xl mt-8 p-12 text-center  rounded-xl">
           <p className="mb-4 text-gray-600">
-            Are you an employer?{" "}
+            Are you an employer?
             <a href="#" className="text-blue-900 font-bold">
-              {" "}
               Go to Employer Register
             </a>
           </p>

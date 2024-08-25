@@ -11,9 +11,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        jobBg: "#dceeff",
+        bannerText: "#f47920",
         primary: "#F08000", // Example: Add a primary color
         bg: "#DBEDFF", // Example: Add a secondary color
         secondary: "#04157d",
+        secondaryHover: "#0a0a45",
+        textBlack: "#111",
+        searchJobBg: "#f7e2cb",
+        widgetBgColor: "#e6f0f9",
+        widgetColor: "#17171d",
+        borderColor: "#dedede",
+        widgetHoverColor: "#c36d0b",
         accent: "#38b2ac", // Example: Add an accent color
       },
       fontFamily: {

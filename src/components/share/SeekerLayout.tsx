@@ -3,11 +3,14 @@ import React from "react";
 import { Button } from "../ui/button";
 import { LoginIcon } from "@/asset/Icon";
 
-const SeekerLayout = () => {
+const SeekerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <>
+    <div className="mb-[74px]">
       <Nav />
-    </>
+      {
+        children
+      }
+    </div>
   );
 };
 const Nav = () => {
