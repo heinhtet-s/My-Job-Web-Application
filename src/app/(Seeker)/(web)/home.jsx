@@ -13,7 +13,7 @@ import ArrowLeft from "@/asset/Icon/ArrowLeft";
 import { BriefcaseBusiness, MapPin } from "lucide-react";
 import PaginatedItems from "@/components/share/pagination";
 
-const page = () => {
+const HomePage = () => {
   return (
     <>
       <BannerComponent />
@@ -39,7 +39,7 @@ const page = () => {
         <div className="max-w-[1250px] mx-auto my-8 grid grid-cols-6 gap-4">
           {Array(11)
             .fill("")
-            .map((str: string, index: number) => (
+            .map((str, index) => (
               <div className="rounded-lg cursor-pointer  bg-white flex p-4 flex-col items-center gap-4 relative overflow-hidden w-[195px] h-[240px] transition-all duration-300 ease hover:bg-[#eee]">
                 <img
                   src="https://myjobs-user-image.s3.ap-south-1.amazonaws.com/7addaa62-cf67-469e-be40-6134671e8eed.jpg"
@@ -113,7 +113,7 @@ const FeatureJobPostComponent = () => {
             >
               {Array(11)
                 .fill("")
-                .map((str: string, index: number) => (
+                .map((str, index) => (
                   <SwiperSlide>
                     <JobCardComponent isFeatureCard={true} />
                   </SwiperSlide>
@@ -131,7 +131,7 @@ const FeatureJobPostComponent = () => {
           <div className="relative flex-wrap	 flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden  gap-4 my-2 mb-6">
             {Array(11)
               .fill("")
-              .map((str: string, index: number) => (
+              .map((str, index) => (
                 <JobCardComponent isFeatureCard={false} />
               ))}
           </div>
@@ -141,7 +141,7 @@ const FeatureJobPostComponent = () => {
     </div>
   );
 };
-const ViewMoreBtn = ({ text }: { text: string }) => {
+const ViewMoreBtn = ({ text }) => {
   return (
     <div className="flex w-fit cursor-pointer px-5 py-2 justify-center items-center gap-2 rounded-full bg-[#f47920] text-white font-poppins text-[14px] font-medium leading-normal mx-auto mt-8 border-none">
       {text}
@@ -168,7 +168,7 @@ const FeatureCampanyComponent = () => {
         <div className="flex gap-4 cursor-pointer my-10 mr-10  ">
           {Array(11)
             .fill("")
-            .map((str: string, index: number) => (
+            .map((str, index) => (
               <div
                 className={cn(
                   "cursor-pointer hover:translate-y-[-10px] relative flex flex-col min-w-0 break-words flex-none basis-[200px] h-[260px] p-4 pt-2 items-center rounded-md bg-white border border-[rgba(0,0,0,0.125)] gap-1 transition-all duration-500 ease-in-out",
@@ -250,7 +250,7 @@ const FilterJobComponent = () => {
     </div>
   );
 };
-const JobCardComponent = ({ isFeatureCard }: { isFeatureCard: boolean }) => {
+const JobCardComponent = ({ isFeatureCard }) => {
   return (
     <div
       className={cn(
@@ -427,4 +427,4 @@ const SubBannerComponent = () => {
   );
 };
 
-export default page;
+export default HomePage;

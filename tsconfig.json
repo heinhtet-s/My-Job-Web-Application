@@ -21,6 +21,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/(Seeker)/(web)/jobs/page.jsx", "src/app/(Seeker)/(web)/jobs/page.jsx", "src/app/(Seeker)/(web)/jobs/body.jsx", "src/app/(Seeker)/(web)/page.jsx"],
   "exclude": ["node_modules"]
 }
