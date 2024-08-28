@@ -13,7 +13,7 @@ export async function GET(req) {
 
   try {
     const response = await fetch(
-      `https://myjobs.dev/seeker/v1/Seekers?&$filter=Email eq '${encodeURI(
+      `https://myjobs.dev/employer/v1/Employers?&$filter=Email eq '${encodeURI(
         email
       )}' `,
       {

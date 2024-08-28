@@ -3,9 +3,12 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import React from "react";
 import QueryProvider from "./QueryProvider";
+import NextAuthProvider from "./SessionProvider";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css";
+import { Toaster } from "react-hot-toast";
+
 export const metadata: Metadata = {
   title: "My Job",
   description: "MyJob",
@@ -19,7 +22,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <QueryProvider>{children}</QueryProvider>
+        <NextAuthProvider>
+          <QueryProvider>
+            {children}
+            <Toaster position="top-right" />
+          </QueryProvider>
+        </NextAuthProvider>
       </body>
     </html>
   );

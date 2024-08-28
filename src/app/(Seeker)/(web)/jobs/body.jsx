@@ -1,6 +1,6 @@
 "use client";
 import SeekerSelectBox from "@/components/share/SeekerSelectBox";
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow } from "date-fns";
 import {
   BriefcaseBusiness,
   CalendarDays,
@@ -14,9 +14,10 @@ import "./job.css";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
-const JobPostPage = ({data}) => {
-    console.log(data)
+const JobPostPage = ({ data }) => {
+  const router = useRouter();
   return (
     <>
       <div className="bg-searchJobBg py-[60px] ">
@@ -98,10 +99,10 @@ const JobPostPage = ({data}) => {
               className="mySwiper"
             >
               {data?.map((str, index) => (
-                  <SwiperSlide>
-                    <JobPostComponent job={str} />
-                  </SwiperSlide>
-                ))}
+                <SwiperSlide>
+                  <JobPostComponent job={str} />
+                </SwiperSlide>
+              ))}
             </Swiper>
           </div>
         </div>
@@ -144,11 +145,10 @@ const JobPostPage = ({data}) => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {data?.map((str, index) => (
-                
-                    <div key={index} className="col-span-1">
-                      <JobPostComponent job={str}/>
-                    </div>
-                  ))}
+                  <div key={index} className="col-span-1">
+                    <JobPostComponent job={str} />
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -157,11 +157,13 @@ const JobPostPage = ({data}) => {
     </>
   );
 };
-const JobPostComponent = ({job}) => {
-  console.log(job)
+const JobPostComponent = ({ job }) => {
+  console.log(job);
   const parsedDate = new Date(job.CreatedAt);
+  const router = useRouter();
   return (
     <div
+      onClick={() => router.push(`/jobs/${id}`)}
       className="bg-white p-8 mr-5 cursor-pointer rounded-[30px] text-decoration-none flex flex-col justify-between h-full border border-[#dcdcdc]"
       style={{
         width: "100%",
@@ -190,9 +192,12 @@ const JobPostComponent = ({job}) => {
       </div>
       <div className="flex mt-10 items-center justify-between">
         <div>
-          <p className="text-[13px] "> { formatDistanceToNow(parsedDate, { addSuffix: true })}</p>
+          <p className="text-[13px] ">
+            {" "}
+            {formatDistanceToNow(parsedDate, { addSuffix: true })}
+          </p>
           <p className="block text-sm font-medium mt-2.5 text-widgetColor transition-colors duration-300 no-underline">
-           {job.Employer.CompanyName}
+            {job.Employer.CompanyName}
           </p>
         </div>
         <img

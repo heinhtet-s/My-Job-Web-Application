@@ -14,16 +14,18 @@ import { BriefcaseBusiness, MapPin } from "lucide-react";
 import PaginatedItems from "@/components/share/pagination";
 import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-const HomePage = ({ companies, candidates, industries ,jobPosts}) => {
-  // console.log(jobPosts)
+const HomePage = ({ companies, candidates, industries, jobPosts }) => {
+  const { data: session } = useSession();
   // useEffect(() => {
   //   const fetchEmployer = async () => {
   //     try {
   //       const { data } = await axios.get(`/api/job_lists/getJobPostById`, {
-  //         params: {id:"0969489b-f275-4849-8442-08d6b63edb48"},
+  //         params: { email: "0969489b-f275-4849-8442-08d6b63edb48" },
   //       });
-  //       console.log(data)
+  //       console.log(data);
   //       // setEmployer(data);
   //     } catch (error) {
   //       console.error("Failed to fetch employer:", error);
@@ -32,6 +34,8 @@ const HomePage = ({ companies, candidates, industries ,jobPosts}) => {
 
   //   fetchEmployer();
   // }, []);
+  const router = useRouter();
+
   return (
     <>
       <BannerComponent />
@@ -93,7 +97,9 @@ const HomePage = ({ companies, candidates, industries ,jobPosts}) => {
     </>
   );
 };
-const FeatureJobPostComponent = ({jobPosts}) => {
+const FeatureJobPostComponent = ({ jobPosts }) => {
+  const router = useRouter();
+
   return (
     <div className="bg-jobBg">
       <div className="max-w-[1280px] mx-auto p-8 px-4">
@@ -131,10 +137,10 @@ const FeatureJobPostComponent = ({jobPosts}) => {
               className="mySwiper"
             >
               {jobPosts?.map((str, index) => (
-                  <SwiperSlide>
-                    <JobCardComponent isFeatureCard={true} jobPost={str}/>
-                  </SwiperSlide>
-                ))}
+                <SwiperSlide>
+                  <JobCardComponent isFeatureCard={true} jobPost={str} />
+                </SwiperSlide>
+              ))}
             </Swiper>
           </div>
         </div>
@@ -147,8 +153,8 @@ const FeatureJobPostComponent = ({jobPosts}) => {
           </div>
           <div className="relative flex-wrap	 flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden  gap-4 my-2 mb-6">
             {jobPosts.map((str, index) => (
-                <JobCardComponent isFeatureCard={false} jobPost={str}/>
-              ))}
+              <JobCardComponent isFeatureCard={false} jobPost={str} />
+            ))}
           </div>
         </div>
         <ViewMoreBtn text={"View All Job"} />
@@ -165,7 +171,8 @@ const ViewMoreBtn = ({ text }) => {
   );
 };
 const FeatureCampanyComponent = ({ companies }) => {
-  console.log(companies)
+  console.log(companies);
+  const router = useRouter();
   return (
     <div
       className="w-full  bg-cover bg-no-repeat pt-[40px] overflow-x-hidden  "
@@ -184,6 +191,7 @@ const FeatureCampanyComponent = ({ companies }) => {
         <div className="flex gap-4 cursor-pointer my-10 mr-10  ">
           {companies?.map((str, index) => (
             <div
+              onClick={() => router.push(`/companies/${str.Id}`)}
               className={cn(
                 "cursor-pointer hover:translate-y-[-10px] relative flex flex-col min-w-0 break-words flex-none basis-[200px] h-[260px] p-4 pt-2 items-center rounded-md bg-white border border-[rgba(0,0,0,0.125)] gap-1 transition-all duration-500 ease-in-out",
                 index === 0 ? "ml-[8rem]" : ""
@@ -269,21 +277,24 @@ const FilterJobComponent = ({ industries }) => {
     </div>
   );
 };
-const JobCardComponent = ({ isFeatureCard ,jobPost}) => {
+const JobCardComponent = ({ isFeatureCard, jobPost }) => {
   let parsedDate;
   try {
     if (jobPost?.CreatedAt) {
       parsedDate = new Date(jobPost.CreatedAt);
       if (isNaN(parsedDate.getTime())) {
-        throw new Error('Invalid date');
+        throw new Error("Invalid date");
       }
     }
   } catch (error) {
-    console.error('Error parsing date:', error);
+    console.error("Error parsing date:", error);
     parsedDate = null;
   }
+  const router = useRouter();
+
   return (
     <div
+      onClick={() => router.push(`/jobs/${jobPost?.Id}`)}
       className={cn(
         "flex  h-[230px] p-4 flex-col items-start gap-3 rounded-lg flex-nowrap transition-all duration-300 ease-in-out ",
         isFeatureCard
@@ -298,7 +309,7 @@ const JobCardComponent = ({ isFeatureCard ,jobPost}) => {
             isFeatureCard && "text-white"
           )}
         >
-         {jobPost?.Title}
+          {jobPost?.Title}
         </p>
         <p
           className={cn(
@@ -306,7 +317,9 @@ const JobCardComponent = ({ isFeatureCard ,jobPost}) => {
             isFeatureCard && "text-white"
           )}
         >
-          {parsedDate ? formatDistanceToNow(parsedDate, { addSuffix: true }) : "Date not available"}
+          {parsedDate
+            ? formatDistanceToNow(parsedDate, { addSuffix: true })
+            : "Date not available"}
         </p>
       </div>
       <div className="flex justify-center items-center gap-2">
@@ -396,8 +409,8 @@ const BannerComponent = () => {
                 className="w-full"
               />
             </div>
-            <div className="flex justify-between items-center text-sm gap-[13px]">
-              <p>Adminstrative</p>
+            <div className="flex justify-between  items-center text-sm gap-[13px]">
+              <p className="text-white">Adminstrative</p>
               <p className="text-right text-bannerText font-bold text-xs">
                 7{" "}
                 <span className="text-right text-[#f2f2f2] text-[10px] font-bold transition-all duration-300 ease-linear group-hover:text-[#666]">
@@ -414,8 +427,8 @@ const BannerComponent = () => {
               />
             </div>
             <div>
-              <p className="font-thin text-[14px]">View More</p>
-              <p className="font-thin  text-[14px] ">Industries</p>
+              <p className="font-thin text-[14px] text-white">View More</p>
+              <p className="font-thin  text-[14px] text-white ">Industries</p>
             </div>
           </div>
         </div>

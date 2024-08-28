@@ -40,7 +40,7 @@ const DashboardConst = [
         strokeWidth={1.75}
       />
     ),
-    header: "Edit Profile",
+    header: "Manage Profile",
   },
 
   {
@@ -51,7 +51,7 @@ const DashboardConst = [
         strokeWidth={1.75}
       />
     ),
-    header: "Manage CV",
+    header: "Manage Jobs",
   },
   {
     icon: (
@@ -61,7 +61,7 @@ const DashboardConst = [
         strokeWidth={1.75}
       />
     ),
-    header: "Applications",
+    header: "Manage Applications",
   },
   {
     icon: (
@@ -71,7 +71,7 @@ const DashboardConst = [
         strokeWidth={1.75}
       />
     ),
-    header: "Job Alerts",
+    header: "Job Report",
   },
   {
     icon: (
@@ -81,7 +81,7 @@ const DashboardConst = [
         strokeWidth={1.75}
       />
     ),
-    header: "Save Jobs",
+    header: "Schedule",
   },
   {
     icon: (
@@ -91,7 +91,7 @@ const DashboardConst = [
         strokeWidth={1.75}
       />
     ),
-    header: "Account Settings",
+    header: "Widget",
   },
 ];
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -105,7 +105,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="bg-widgetBgColor min-h-screen">
       <div className="fixed w-[320px] bg-widgetBgColor top-0 left-0 bottom-0 overflow-y-auto p-7 hidden lg:block">
         <div className="ml-[1.4rem]" onClick={() => router.push("/")}>
-          <img className="w-[130px]" src="image/logo.png" alt="logo" />
+          <img className="w-[130px]" src="/image/logo.png" alt="logo" />
         </div>
         <div className="pb-[100px] mt-3 lg:mt-6 justify-between flex-col">
           {DashboardConst?.map((el) => (
@@ -172,10 +172,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               Find Jobs
             </div>
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
-              My Profile
+              Products{" "}
             </div>
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
-              Employer View
+              Accounts{" "}
             </div>
             <div className="mx-3">
               <Bell strokeWidth={1.75} width="18px" />

@@ -15,7 +15,6 @@ const groupByHeader = (footer) => {
 
 export default function Footer() {
   const groupedFooter = groupByHeader(footer);
-  console.log(groupedFooter);
 
   return (
     <>

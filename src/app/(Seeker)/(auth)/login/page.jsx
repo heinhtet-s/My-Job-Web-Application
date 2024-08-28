@@ -5,8 +5,11 @@ import { LogIn, UserRoundPlus, PhoneCall } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import DynamicButton from "@/components/Button";
-import { usePathname } from "next/navigation";
-
+import { usePathname, useRouter } from "next/navigation";
+import { getSession, signIn } from "next-auth/react";
+import toast from "react-hot-toast";
+import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
+import { app } from "../../../../../firebaseConfig";
 const Login = () => {
   const {
     register,
@@ -15,11 +18,98 @@ const Login = () => {
     formState: { errors },
   } = useForm();
   const pathName = usePathname();
-  console.log(pathName);
-  const onSubmit = (data) => {
-    console.log(data);
+  const router = useRouter();
+  const [error, setError] = useState("");
+  const auth = getAuth(app);
+  const [googleErrorMessage, setGoogleErrorMessage] = useState("");
+  const handleGoogleSignUp = async (e) => {
+    e.preventDefault();
+
+    // Instantiate a GoogleAuthProvider object
+    const provider = new GoogleAuthProvider();
+
+    try {
+      // Sign in with a pop-up window
+      const result = await signInWithPopup(auth, provider);
+
+      // Pull signed-in user credential.
+      const user = result.user;
+      console.log({
+        isSso: true,
+        token: user.accessToken,
+        email: user.email,
+        role: "seeker",
+      });
+      const res = await signIn("credentials", {
+        credentials: JSON.stringify({
+          isSso: true,
+          token: user.accessToken,
+          email: user.email,
+          role: "seeker",
+        }),
+        redirect: false,
+        callbackUrl: "/login",
+      });
+      if (res?.error) {
+        throw res?.error;
+      }
+      toast.success("Successfully  Login");
+      router.push("/");
+      console.log(user);
+    } catch (err) {
+      // Handle errors here.
+      const errorMessage = err.message;
+      const errorCode = err.code;
+
+      // setError(true);
+
+      switch (errorCode) {
+        case "auth/operation-not-allowed":
+          setGoogleErrorMessage("Email/password accounts are not enabled.");
+          break;
+        case "auth/operation-not-supported-in-this-environment":
+          setGoogleErrorMessage(
+            "HTTP protocol is not supported. Please use HTTPS."
+          );
+          break;
+        case "auth/popup-blocked":
+          setGoogleErrorMessage(
+            "Popup has been blocked by the browser. Please allow popups for this website."
+          );
+          break;
+        case "auth/popup-closed-by-user":
+          setGoogleErrorMessage(
+            "Popup has been closed by the user before finalizing the operation. Please try again."
+          );
+          break;
+        default:
+          setGoogleErrorMessage(errorMessage);
+          break;
+      }
+    }
   };
-  const [activeButton, setActiveButton] = useState("login");
+  const onSubmit = async (data) => {
+    console.log(data, "hello");
+    try {
+      setError("");
+      const res = await signIn("credentials", {
+        credentials: JSON.stringify({
+          ...data,
+          role: "seeker",
+        }),
+        redirect: false,
+        callbackUrl: "/login",
+      });
+      if (res?.error) {
+        throw res?.error;
+      }
+      toast.success("Successfully  Login");
+      router.push("/");
+    } catch (error) {
+      console.log(error);
+      setError("Invalid Email or Password");
+    }
+  };
   return (
     <div className="w-full h-screen flex items-start">
       <div className="hidden lg:flex lg:w-1/2 relative h-full flex-col">
@@ -39,14 +129,15 @@ const Login = () => {
       </div>
       <div className="w-full lg:w-1/2 flex flex-col items-center h-full p-8 ">
         <div>
-          <span>My Job.com</span>
+          <img
+            src="https://myjobs.com.mm/auth_page_theme/images/logo.svg"
+            className="w-[109px]"
+          />
         </div>
         <div className="mt-8 flex">
           <Link href="/login">
             <Button
-              className={`flex items-center px-4 py-2 rounded-lg z-100  ${
-                pathName === "/login" ? "bg-[#F47920]" : ""
-              } ${pathName ? "hover:bg-[#F47920]" : ""}`}
+              className={`flex items-center relative left-[0.7rem] px-4 py-2   rounded-lg z-100  bg-[#F47920] z-20 hover:bg-[#F47920] `}
             >
               <span
                 className={`mr-2 ${
@@ -55,29 +146,28 @@ const Login = () => {
               >
                 Login
               </span>
-              <LogIn  className={`mr-4 ${
-                  pathName === "/login" ? "text-[#ffffff]" : ""
-                }`} />
+              <LogIn color="#ffff" />
             </Button>
           </Link>
           <Link href="/register">
-            <Button className=" rounded-lg ml-[-8px]  bg-[#f2f2f2]  hover:bg-[#f2f2f2]">
+            <Button className=" rounded-lg bg-[#f2f2f2] pl-[20px]  hover:bg-[#f2f2f2]">
               <span className="mr-4 text-[#666666]">Register</span>
               <UserRoundPlus className="text-[#666666]" />
             </Button>
           </Link>
         </div>
         <div className="shadow-xl mt-8 p-12 text-center  rounded-xl">
-          <p className="mb-4 text-gray-600">
-            Are you an employer?{" "}
-            <a href="#" className="text-blue-900 font-bold">
+          <p className="mb-4 text-[13px] text-gray-600">
+            Are you an employer? &nbsp; &nbsp;
+            <a href="#" className="text-blue-900 text-[13px] font-[500] ">
               {" "}
               Go to Employer Register
             </a>
           </p>
-          <h2 className="font-bold mb-4 text-2xl">
+          <h2 className="font-[600] mb-4 text-2xl">
             Log in To Your Personal Profile
           </h2>
+          <p className="text-red-500 text-start my-4 text-xs">{error}</p>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 ">
             <div>
               <input
@@ -88,7 +178,7 @@ const Login = () => {
                 className="mt-1 w-full border rounded-lg p-2"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs italic">
+                <p className="text-red-500 text-start text-xs italic">
                   {errors.email.message}
                 </p>
               )}
@@ -102,29 +192,9 @@ const Login = () => {
                 className="mt-1 w-full border rounded-lg p-2"
               />
               {errors.password && (
-                <p className="text-red-500 text-xs italic">
+                <p className="text-red-500 text-start text-xs italic">
                   {errors.password.message}
                 </p>
-              )}
-            </div>
-
-            <p className="text-start text-gray-600">
-              By Clicking, I agree to Myjob's Myanmar
-            </p>
-            <div className="text-start">
-              <input
-                type="checkbox"
-                className="mr-2"
-                {...register("terms", { required: true })}
-              />
-              <label
-                htmlFor="terms"
-                className="text-[#F47920] font-bold text-sm"
-              >
-                Terms and Conditions
-              </label>
-              {errors.terms && (
-                <span>You must agree to the terms and conditions</span>
               )}
             </div>
 
@@ -135,7 +205,7 @@ const Login = () => {
               Login
             </Button>
             <div>
-              <p className="text-gray-500">
+              <p className="text-gray-500 text-[14px] ">
                 {" "}
                 Don't you have an account?{" "}
                 <Link href="/login" className="text-[#F47920] font-bold">
@@ -151,7 +221,10 @@ const Login = () => {
             <p className="text-center text-gray-500 mb-4">Continue with</p>
 
             <div className="flex space-x-4 justify-center mt-4">
-              <Button className="flex items-center bg-white border border-gray-300 rounded-lg max-w-xs  p-8 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+              <Button
+                onClick={handleGoogleSignUp}
+                className="flex items-center w-1/2  bg-white border border-gray-300 rounded-lg max-w-xs  py-7 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none "
+              >
                 <svg
                   className="h-6 w-6 mr-2"
                   xmlns="http://www.w3.org/2000/svg"
@@ -201,7 +274,7 @@ const Login = () => {
                 <span> Google</span>
               </Button>
 
-              <Button className="flex items-center bg-white border border-gray-300 rounded-lg max-w-xs px-6 py-8 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+              <Button className="flex items-center w-1/2 bg-white border border-gray-300 rounded-lg max-w-xs  py-7 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none ">
                 <svg
                   className="h-6 w-6 mr-2"
                   xmlns="http://www.w3.org/2000/svg"

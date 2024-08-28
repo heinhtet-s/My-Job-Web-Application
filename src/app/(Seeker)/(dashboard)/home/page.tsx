@@ -1,10 +1,13 @@
+"use client";
 import DotIcon from "@/asset/Icon/DotIcon";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { CircleUser, FileText, Mail } from "lucide-react";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 const page = () => {
+  const { data: session } = useSession() as any;
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Welcome</h1>
@@ -30,7 +33,11 @@ const page = () => {
               src="/image/no-image.png"
               className="w-[150px] h-[150px] rounded-full"
             />
-            <p className="text-[1.5rem] mb-[0.5rem[">Zaio Chu</p>
+            <p className="text-[1.5rem] mb-[0.5rem[">
+              {session?.user?.FirstName
+                ? session?.user?.FirstName + "  " + session?.user?.LastName
+                : session?.user?.email}
+            </p>
           </div>
           <div className="col-span-9 flex">
             <div className="w-1/2 flex-wrap lg:flex-nowrap flex gap-[10px]  ">
@@ -38,12 +45,14 @@ const page = () => {
                 <div className="mb-2">
                   <p className="mb-1 text-muteColor font-[400]">Eamil</p>
                   <p className="mb-1 font-[400] break-words ">
-                    heinh9540@gmail.com
+                    {session?.user?.email}
                   </p>
                 </div>
                 <div className="mb-2">
                   <p className="mb-1 text-muteColor font-[400]">Phone</p>
-                  <p className="mb-1 font-[400] break-words ">+959771955315</p>
+                  <p className="mb-1 font-[400] break-words ">
+                    {session?.user?.PhoneNum}
+                  </p>
                 </div>
               </div>
               <div className="w-full lg:w-1/2">

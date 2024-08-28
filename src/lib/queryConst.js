@@ -43,7 +43,7 @@ const EmployersConst = {
     "ContactPersonName",
     "Email",
     "PhoneNum",
-  
+    "Id",
     "LoginType",
     "CompanyPhoneNum",
     "CompanyLogo",
@@ -93,6 +93,7 @@ const EmployerConst = {
 const EmployerJobPosts = {
   fields: [
     "Title",
+    "Id",
     "Description",
     "Requirement",
     "CountryId",
@@ -155,4 +156,4 @@ const IndustriesConst = {
   skip: 0,
 };
 
-export { SeekersConst, EmployersConst, EmployerJobPosts,IndustriesConst };
+export { SeekersConst, EmployersConst, EmployerJobPosts, IndustriesConst };

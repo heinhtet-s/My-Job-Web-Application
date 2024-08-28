@@ -1,3 +1,4 @@
+"use client";
 import CardLayout from "@/components/share/CardLayout";
 import { ChevronRight, Earth, Search } from "lucide-react";
 import React from "react";

@@ -1,9 +1,17 @@
+"use client";
 import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { LoginIcon } from "@/asset/Icon";
 import Footer from "../Footer";
-
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 const SeekerLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="mt-[74px]">
@@ -14,6 +22,12 @@ const SeekerLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 const Nav = () => {
+  const router = useRouter();
+  const { data: session, status } = useSession() as any;
+  const Logout = async () => {
+    await signOut({ redirect: false });
+    router.push("/login");
+  };
   return (
     <nav className="bg-primary fixed top-0 left-0 w-full z-50 ">
       <div className="max-w-screen-xl fix flex flex-wrap items-center justify-between mx-auto p-4">
@@ -51,22 +65,22 @@ const Nav = () => {
         <div className="hidden w-full md:block md:w-auto" id="navbar-default">
           <ul className="font-medium flex flex-col p-4 md:p-0 mt-4   md:flex-row md:space-x-8 rtl:space-x-reverse md:mt-0   ">
             <li>
-              <Link href="" className={headerStyle} aria-current="page">
+              <Link href="/" className={headerStyle} aria-current="page">
                 Home
               </Link>
             </li>
             <li>
-              <Link href="" className={headerStyle}>
+              <Link href="/jobs" className={headerStyle}>
                 Jobs
               </Link>
             </li>
             <li>
-              <Link href="" className={headerStyle}>
+              <Link href="/companies" className={headerStyle}>
                 Companies
               </Link>
             </li>
             <li>
-              <Link href="" className={headerStyle}>
+              <Link href="/job-seekers" className={headerStyle}>
                 Candidates
               </Link>
             </li>
@@ -77,11 +91,63 @@ const Nav = () => {
             </li>
           </ul>
         </div>
-        <div className="flex items-center">
-          <SeekerLoginBtn />
-          <Divider />
-          <EmployerLoginBtn />
-        </div>
+        {status === "authenticated" ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                className="   ring-0 outline-none  p-0 bg-transparent hover:bg-transparent border-none focus:ring-0  "
+                variant="outline"
+                style={{
+                  outline: "none",
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <img
+                    src="image/no-image.png"
+                    className="w-[35px] h-[35px] rounded-[35px]"
+                  />
+                  <p className="text-white cursor-pointer">
+                    {session.user?.FirstName
+                      ? session?.user?.FirstName + "  " + session.user?.LastName
+                      : session?.user?.email}
+                  </p>
+                </div>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="bg-white w-[200px] p-[20px] shadow-none rounded-xl">
+              <DropdownMenuItem
+                onClick={() => {
+                  if (session?.user?.role === "employer") {
+                    router.push("/employer/home");
+                  } else {
+                    router.push("/home");
+                  }
+                }}
+              >
+                Dashboard
+              </DropdownMenuItem>
+              <DropdownMenuItem>Public Profile</DropdownMenuItem>
+              <DropdownMenuItem>
+                <button
+                  className="bg-[#f69322] w-full border-none text-white text-[18px] font-medium px-5 py-2.5 transition duration-300 ease-in-out hover:bg-[#f69322] outline-none focus:none  focus:outline-none focus-visible:ring-0 focus-visible:outline-none focus:ring-0 hover:border-none focus:border-none"
+                  // style={{
+                  //   outline: "none !important",
+                  // }}
+
+                  onClick={Logout}
+                >
+                  Logout
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="flex items-center">
+            <SeekerLoginBtn />
+            <Divider />
+            <EmployerLoginBtn />
+          </div>
+        )}
       </div>
     </nav>
   );
@@ -102,16 +168,21 @@ const Divider = () => {
   );
 };
 const SeekerLoginBtn = () => {
+  const router = useRouter();
   return (
     <Button
       className="
   text-primary
   bg-white
+  hover:bg-slate-200
   font-[300]
 text-[16px]
   flex items-center
   gap-[8px]
   "
+      onClick={() => {
+        router.push("/login");
+      }}
     >
       Login
       <LoginIcon />

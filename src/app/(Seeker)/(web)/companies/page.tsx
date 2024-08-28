@@ -1,9 +1,12 @@
+"use client";
 import CardLayout from "@/components/share/CardLayout";
 import SeekerSelectBox from "@/components/share/SeekerSelectBox";
 import { Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const page = () => {
+  const router = useRouter();
   return (
     <div>
       <div className="py-[60px]">
@@ -47,7 +50,11 @@ const page = () => {
             {Array(5)
               .fill("")
               .map((str: string, index: number) => (
-                <div className="col-span-1 min-h-[300px]" key={index}>
+                <div
+                  className="col-span-1 min-h-[300px]"
+                  onClick={() => router.push("/companies/id")}
+                  key={index}
+                >
                   <div className="shadow-[0_10px_20px_rgba(0,0,0,0.04)] bg-white p-[30px] rounded-[30px] flex flex-col justify-between h-full no-underline">
                     <img
                       className="w-[80px] h-[80px] object-contain"
