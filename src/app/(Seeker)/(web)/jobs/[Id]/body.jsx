@@ -9,6 +9,7 @@ import { Button, Modal } from "flowbite-react";
 import { Input } from "@/components/ui/input";
 
 const JobDetailComponent = ({ data }) => {
+  console.log(data);
   const [openModal, setOpenModal] = useState(false);
   return (
     <div>
