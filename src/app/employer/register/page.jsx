@@ -2,7 +2,7 @@ import { odataQueryHandler } from "@/lib/apiQueryHandler";
 import { IndustriesConst } from "@/lib/queryConst";
 import { GetInsdustriesList } from "@/modules/services/industries";
 import React from "react";
-import RegisterComponent from "./RegisterComponent";
+import RegisterComponent from "./registerComponent";
 
 export default async function page() {
   try {

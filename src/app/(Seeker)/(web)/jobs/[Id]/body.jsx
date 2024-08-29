@@ -6,35 +6,64 @@ import React, { useState } from "react";
 import moment from "moment";
 import ModalBox from "@/components/ui/CustomModal";
 import { Button, Modal } from "flowbite-react";
+import { Input } from "@/components/ui/input";
 
 const JobDetailComponent = ({ data }) => {
   const [openModal, setOpenModal] = useState(false);
   return (
     <div>
-      <Modal show={openModal} onClose={() => setOpenModal(false)}>
-        <Modal.Header>Terms of Service</Modal.Header>
+      <Modal
+        show={openModal}
+        className="rounded-3xl"
+        onClose={() => setOpenModal(false)}
+      >
+        <Modal.Header className="font-[600]">Apply Now</Modal.Header>
         <Modal.Body>
-          <div className="space-y-6">
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              With less than a month to go before the European Union enacts new
-              consumer privacy laws for its citizens, companies around the world
-              are updating their terms of service agreements to comply.
+          <div className="space-y-3">
+            <p className=" leading-relaxed font-[600] text-[20px]">
+              {data?.Title}
             </p>
-            <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-              The European Union’s General Data Protection Regulation (G.D.P.R.)
-              goes into effect on May 25 and is meant to ensure a common set of
-              data rights in the European Union. It requires organizations to
-              notify users as soon as possible of high-risk data breaches that
-              could personally affect them.
+            <p className=" text-[13px]  leading-relaxed ">
+              Your default CV attachment is ready to apply
             </p>
+            <div className=" grid grid-cols-12 items-center gap-[15px]">
+              <div className="col-span-5">
+                <select
+                  id="countries"
+                  class=" border border-[#ced4da]   bg-white text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none ring-0 "
+                >
+                  <option selected value={null}>
+                    Select CV
+                  </option>
+                </select>
+              </div>
+              <div className="col-span-2 text-[13px] text-center">OR</div>
+              <div className="col-span-5">
+                <input
+                  class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none "
+                  id="file_input"
+                  type="file"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-center my-10">
+            <button
+              onClick={() => {
+                setOpenModal(false);
+              }}
+              className="bg-primary text-white text-[18px] font-medium px-10 py-1.5 transition-[background-color] rounded-full"
+            >
+              Apply Now
+            </button>
           </div>
         </Modal.Body>
-        <Modal.Footer>
+        {/* <Modal.Footer>
           <Button onClick={() => setOpenModal(false)}>I accept</Button>
           <Button color="gray" onClick={() => setOpenModal(false)}>
             Decline
           </Button>
-        </Modal.Footer>
+        </Modal.Footer> */}
       </Modal>
       <CardLayout>
         <div className="mx-[-15px] flex justify-center">
@@ -71,7 +100,12 @@ const JobDetailComponent = ({ data }) => {
                     className="group-hover:stroke-white"
                   />
                 </div>
-                <PrimaryBtn text="Apply Now" />
+                <PrimaryBtn
+                  text="Apply Now"
+                  handleClick={() => {
+                    setOpenModal(true);
+                  }}
+                />
               </div>
             </div>
             <div className="flex mt-5 justify-center">
