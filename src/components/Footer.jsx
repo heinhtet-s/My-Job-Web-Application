@@ -15,8 +15,7 @@ const groupByHeader = (footer) => {
 
 export default function Footer() {
   const groupedFooter = groupByHeader(footer);
-  console.log(groupedFooter)
- 
+
   return (
     <>
     <footer className=" text-white py-8 w-full bg-[#dceeff]">

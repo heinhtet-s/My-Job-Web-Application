@@ -16,7 +16,6 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/components/ui/button";
 
 const JobPostPage = ({data}) => {
-    console.log(data)
   return (
     <>
       <div className="bg-searchJobBg py-[60px] ">
@@ -158,7 +157,7 @@ const JobPostPage = ({data}) => {
   );
 };
 const JobPostComponent = ({job}) => {
-  console.log(job)
+ 
   const parsedDate = new Date(job.CreatedAt);
   return (
     <div

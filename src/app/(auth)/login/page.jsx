@@ -15,9 +15,9 @@ const Login = () => {
     formState: { errors },
   } = useForm();
   const pathName = usePathname();
-  console.log(pathName);
+
   const onSubmit = (data) => {
-    console.log(data);
+
   };
   const [activeButton, setActiveButton] = useState("login");
   return (

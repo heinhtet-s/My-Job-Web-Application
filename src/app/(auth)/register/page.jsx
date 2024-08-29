@@ -15,7 +15,7 @@ const Register = () => {
   } = useForm();
   const pathName = usePathname();
   const onSubmit = (data) => {
-    console.log(data);
+   
   };
   const [activeButton, setActiveButton] = useState("register");
   return (

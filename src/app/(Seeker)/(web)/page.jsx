@@ -53,27 +53,8 @@ export default async function Home() {
         GetEmployerJobPostList
       )
 
-      // odataQueryHandler(
-      //   ThirdConst,
-      //   ThirdConst.filter,
-      //   ThirdConst.order,
-      //   ThirdConst.fields,
-      //   "no_child",
-      //   { top: 10, skip: 0 },
-      //   GetThirdList
-      // ),
-      // odataQueryHandler(
-      //   FourthConst,
-      //   FourthConst.filter,
-      //   FourthConst.order,
-      //   FourthConst.fields,
-      //   "no_child",
-      //   { top: 10, skip: 0 },
-      //   GetFourthList
-      // ),
-    ]);
   
-console.log(jobPosts.value)
+    ]);
     return (
       <HomePage
         companies={companies.value}

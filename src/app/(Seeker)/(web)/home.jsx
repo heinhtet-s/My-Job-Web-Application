@@ -16,22 +16,7 @@ import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 
 const HomePage = ({ companies, candidates, industries ,jobPosts}) => {
-  // console.log(jobPosts)
-  // useEffect(() => {
-  //   const fetchEmployer = async () => {
-  //     try {
-  //       const { data } = await axios.get(`/api/job_lists/getJobPostById`, {
-  //         params: {id:"0969489b-f275-4849-8442-08d6b63edb48"},
-  //       });
-  //       console.log(data)
-  //       // setEmployer(data);
-  //     } catch (error) {
-  //       console.error("Failed to fetch employer:", error);
-  //     }
-  //   };
-
-  //   fetchEmployer();
-  // }, []);
+ 
   return (
     <>
       <BannerComponent />
@@ -39,14 +24,7 @@ const HomePage = ({ companies, candidates, industries ,jobPosts}) => {
       <FeatureCampanyComponent companies={companies} />
       <FeatureJobPostComponent jobPosts={jobPosts} />
       <SubBannerComponent />
-      {/* <PaginatedItems
-        itemsPerPage={10}
-        totalPage={50}
-        currentPage={1}
-        setCurrentPage={() => {
-          console.log("gewg");
-        }}
-      /> */}
+     
       <div className="w-full py-10 bg-[#ffefdc]">
         <p className="text-[#111] text-4xl font-poppins font-semibold leading-normal text-center">
           Candidates Showcase for Organizations
@@ -131,7 +109,7 @@ const FeatureJobPostComponent = ({jobPosts}) => {
               className="mySwiper"
             >
               {jobPosts?.map((str, index) => (
-                  <SwiperSlide>
+                  <SwiperSlide key={index}>
                     <JobCardComponent isFeatureCard={true} jobPost={str}/>
                   </SwiperSlide>
                 ))}
@@ -165,7 +143,7 @@ const ViewMoreBtn = ({ text }) => {
   );
 };
 const FeatureCampanyComponent = ({ companies }) => {
-  console.log(companies)
+
   return (
     <div
       className="w-full  bg-cover bg-no-repeat pt-[40px] overflow-x-hidden  "
