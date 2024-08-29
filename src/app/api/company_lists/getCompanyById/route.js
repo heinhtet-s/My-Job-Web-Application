@@ -6,7 +6,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const companyId = searchParams.get("id");
 
-  console.log(`https://myjobs.dev/employer/v1/Employers/${companyId}`);
+
   try {
     const companyResponse = await fetch(
       `https://myjobs.dev/employer/v1/Employers/${companyId}`,
@@ -26,7 +26,7 @@ export async function GET(req) {
     }
 
     const companyData = await companyResponse.json();
-    console.log(companyData,"CD")
+   
    
     let Industry = null;
     if (companyData.IndustryId) {

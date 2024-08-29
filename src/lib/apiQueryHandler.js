@@ -159,8 +159,8 @@ async function filterHandler(filter, query_filter) {
       }
     }
   }
-  console.log(filterString)
-  // console.log(filterString);
+
+
   return filterString;
 }
 
@@ -262,13 +262,12 @@ async function odataQueryHandler(
 
   // add expand child tables
   if (CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs)) {
-    // console.log(queryObject);
- 
-    console.log(CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs))
+   
+
     switch (true) {
       case have_childs === "normal":
         for (const child of queryObject?.children) {
-          console.log(child)
+         
           queryString = `${queryString}&$expand=${
             child?.name
           }(${await odataExpandQueryHandler(
@@ -289,7 +288,7 @@ async function odataQueryHandler(
     }
   }
   // add filters
-  console.log('hh')
+
   const filterString = await filterHandler(filter, query_filter);
   if (filterString !== "") {
     queryString = `${queryString}&$filter=${filterString}`;
@@ -325,7 +324,7 @@ async function odataExpandQueryHandler(
   query_order,
   type
 ) {
-  console.log("HELL")
+
   let queryString = `${
     type === "multi" ? "" : ""
   }$select=${queryObject.fields.toString()}`;
@@ -353,17 +352,13 @@ async function odataExpandQueryHandler(
   // order by
 
   const orderString = await orderHandler(order, query_order);
-console.log(orderString)
+
   // );
 
   if (orderString !== "") {
     queryString = `${queryString};$orderBy=${orderString}`;
   }
-  // console.log(
-  //   `${queryString};$top=${queryObject.top};$skip=${queryObject.skip}`,
-  //   "HJKLNMdjs"
-  // );
-  // pagination
+
   return `${queryString};$top=${queryObject.top};$skip=${queryObject.skip}`;
 }
 

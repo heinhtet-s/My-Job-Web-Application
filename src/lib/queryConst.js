@@ -36,6 +36,22 @@ const SeekersConst = {
   top: 10,
   skip: 0,
 };
+const IndustriesConst = {
+  fields: [
+    "Title",
+    "TitleEng",
+    "Id",
+    "CreatedAt",
+    "UpdatedAt",
+    "CreatedBy",
+    "UpdatedBy",
+  ],
+  filter: {},
+  order: { updatedAt: "desc" },
+  children: [],
+  top: 10,
+  skip: 0,
+};
 
 const EmployersConst = {
   fields: [
@@ -74,9 +90,15 @@ const EmployersConst = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
-  order: { updatedAt: "desc" },
-  children: [],
+  filter: { CompanyName: { value: "", type: "string", label: "CompanyName" } },
+  order: { CompanyName: "asc" },
+  children: [
+    {
+      name: "Industry",
+      type: "no_child",
+      data: IndustriesConst,
+    },
+  ],
   top: 10,
   skip: 0,
 };
@@ -135,23 +157,6 @@ const EmployerJobPosts = {
       data: EmployerConst,
     },
   ],
-  top: 10,
-  skip: 0,
-};
-
-const IndustriesConst = {
-  fields: [
-    "Title",
-    "TitleEng",
-    "Id",
-    "CreatedAt",
-    "UpdatedAt",
-    "CreatedBy",
-    "UpdatedBy",
-  ],
-  filter: {},
-  order: { updatedAt: "desc" },
-  children: [],
   top: 10,
   skip: 0,
 };

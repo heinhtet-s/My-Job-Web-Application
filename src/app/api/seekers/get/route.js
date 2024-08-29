@@ -5,7 +5,7 @@ import {SeekersConst} from '@/lib/queryConst'
 export async function GET (request){
     
     const query = await getQuery(request)
-    console.log(query,"QUERY")
+
     // Pagingation 
     const getData = await apiGetData(query,SeekersConst)
     if(getData.error){

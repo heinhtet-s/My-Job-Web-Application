@@ -6,7 +6,6 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const seekerId = searchParams.get("id");
 
-  console.log(`https://myjobs.dev/seeker/v1/Seekers/${seekerId}`);
   try {
     const seekerResponse = await fetch(
       `https://myjobs.dev/seeker/v1/Seekers/${seekerId}`,
