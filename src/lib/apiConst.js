@@ -6,6 +6,7 @@ const EmployerJobPostURL = "https://myjobs.dev/employer/v1/JobPosts";
 const IndustriesURL = "https://myjobs.dev/employer/v1/Industries";
 const SeekerAuth = "https://myjobs.dev/seeker/v1/Logins/";
 const EmployeerAuth = "https://myjobs.dev/employer/v1/Auth";
+const FunctionalAreaURL ="https://myjobs.dev/employer/v1/FunctionalAreas"
 
 export {
   SeekersURL,
@@ -14,4 +15,5 @@ export {
   IndustriesURL,
   SeekerAuth,
   EmployeerAuth,
+  FunctionalAreaURL
 };
