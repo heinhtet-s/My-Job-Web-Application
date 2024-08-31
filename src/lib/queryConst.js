@@ -52,6 +52,22 @@ const IndustriesConst = {
   top: 10,
   skip: 0,
 };
+const FunctionalAreasConst = {
+  fields: [
+    "Title",
+    "TitleEng",
+    "Id",
+    "CreatedAt",
+    "UpdatedAt",
+    "CreatedBy",
+    "UpdatedBy",
+  ],
+  filter: {},
+  order: { updatedAt: "desc" },
+  children: [],
+  top: 10,
+  skip: 0,
+};
 
 const EmployersConst = {
   fields: [
@@ -148,7 +164,19 @@ const EmployerJobPosts = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
+  filter: {
+    Title: { value: "", type: "string", label: "Title" },
+    FunctionalAreaId: {
+      value: "33b661f8-bef3-42aa-8ded-9d7f562e55ea",
+      type: "foreign",
+      label: "FunctionalAreaId",
+    },
+    IndustryId: {
+      value: "6e593523-7a90-4785-b58d-dba2c9d4bb5e",
+      type: "foreign",
+      label: "IndustryId",
+    },
+  },
   order: { updatedAt: "desc" },
   children: [
     {
@@ -156,9 +184,20 @@ const EmployerJobPosts = {
       type: "no_child",
       data: EmployerConst,
     },
+    {
+      name: "FunctionalArea",
+      type: "no_child",
+      data: FunctionalAreasConst,
+    },
   ],
   top: 10,
   skip: 0,
 };
 
-export { SeekersConst, EmployersConst, EmployerJobPosts, IndustriesConst };
+export {
+  SeekersConst,
+  EmployersConst,
+  EmployerJobPosts,
+  IndustriesConst,
+  FunctionalAreasConst,
+};

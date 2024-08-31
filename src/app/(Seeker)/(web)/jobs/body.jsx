@@ -9,14 +9,20 @@ import {
   Search,
   Volume,
 } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import "./job.css";
 import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { workTypes,chooseTime } from "@/lib/const";
+const JobPostPage = ({ data ,industries,functionalAreas}) => {
 
-const JobPostPage = ({ data }) => {
+  const [industry,setIndustry] = useState(industries?.value)
+  const [functionalArea,setFuncaionalArea] = useState(functionalAreas.value)
+  console.log(industry)
+  console.log(functionalArea)
+
   const router = useRouter();
   return (
     <>
@@ -41,26 +47,106 @@ const JobPostPage = ({ data }) => {
               <div className="flex flex-col flex-1   px-[16px] border-s border-[#dedede]  lg:flex-row lg:flex-grow col-full row">
                 <div className="relative flex  items-center w-full">
                   <Folder width={"18px"} strokeWidth="1.5" />
-                  <SeekerSelectBox placeholder="Select Industry" />
+                  <select
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    // onChange={orderHandler}
+                    placeholder="Select Industry"
+                    style={{
+                      padding: "0.375rem 1.5rem 0.375rem 0.75rem",
+                      backgroundImage:
+                        "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 0.75rem center",
+                      backgroundSize: "16px 12px",
+                    }}
+                  >
+                    <option>Select Industry</option>
+                    {
+                      industry?.map(work => {
+                        return <option key={work.Id} value={work.Id}>{work.Title}</option>
+                      })
+                    }
+                  </select>
+                  {/* <SeekerSelectBox placeholder="Select Industry" /> */}
                 </div>
               </div>
               <div className="flex flex-col border-s px-[16px] border-[#dedede]  flex-1   lg:flex-row lg:flex-grow col-full row">
                 <div className="relative flex  items-center w-full">
                   <BriefcaseBusiness width={"18px"} strokeWidth={1.75} />
-                  <SeekerSelectBox placeholder="Select Work Type" />
+                  <select
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    // onChange={orderHandler}
+                    placeholder="Select Industry"
+                    style={{
+                      padding: "0.375rem 1.5rem 0.375rem 0.75rem",
+                      backgroundImage:
+                        "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 0.75rem center",
+                      backgroundSize: "16px 12px",
+                    }}
+                  >
+                    <option>Select Work Type</option>
+                    {
+                      workTypes?.map(work => {
+                        return <option key={work.label} value={work.value}>{work.label}</option>
+                      })
+                    }
+
+                  </select>
+
                 </div>
               </div>
 
               <div className="flex flex-col  flex-1   px-[16px] border-s border-[#dedede]   lg:flex-row lg:flex-grow col-full row">
                 <div className="relative flex  items-center w-full">
                   <Folder width={"18px"} strokeWidth="1.5" />
-                  <SeekerSelectBox placeholder="Select Functional Area " />
+                  <select
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    // onChange={orderHandler}
+                    placeholder="Select Industry"
+                    style={{
+                      padding: "0.375rem 1.5rem 0.375rem 0.75rem",
+                      backgroundImage:
+                        "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "right 0.75rem center",
+                      backgroundSize: "16px 12px",
+                    }}
+                  >
+                    <option>Select Functional Area</option>
+                    {
+                      functionalArea?.map(work => {
+                        return <option key={work.Id} value={work.Id}>{work.TitleEng}</option>
+                      })
+                    }
+                  </select>
+                  {/* <SeekerSelectBox placeholder="Select Functional Area " /> */}
                 </div>
               </div>
               <div className="flex flex-col  flex-1   px-[16px] border-s border-[#dedede]   lg:flex-row lg:flex-grow col-full row">
                 <div className="relative flex  items-center w-full">
                   <CalendarDays width={"18px"} strokeWidth="1.5" />
-                  <SeekerSelectBox placeholder="Any Time" />
+                  <select
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    // onChange={orderHandler}
+                    placeholder="Select Industry"
+                    style={{
+                      padding: "0.375rem 1.5rem 0.375rem 0.75rem",
+                      // backgroundImage:
+                      //   "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                      // backgroundRepeat: "no-repeat",
+                      // backgroundPosition: "right 0.75rem center",
+                      // backgroundSize: "16px 12px",
+                    }}
+                  >
+                    <option>Any Time</option>
+                    {
+                      chooseTime?.map(work => {
+                        return <option key={work.label} value={work.value}>{work.label}</option>
+                      })
+                    }
+                  </select>
                 </div>
               </div>
               <div

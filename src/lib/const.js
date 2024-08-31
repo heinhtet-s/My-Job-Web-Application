@@ -1,4 +1,4 @@
-import { Facebook, Linkedin, Viber, Telegram, Youtube } from 'lucide-react';
+import { Facebook, Linkedin, Viber, Telegram, Youtube } from "lucide-react";
 const CHILDREN_TABLES_HANDLER_ENUM = ["normal", "only_count", "no_child"];
 const ORDER_ENUM = ["asc", "desc"];
 
@@ -25,7 +25,7 @@ const footer = [
     id: 4,
     header: "Job Seekers",
     name: "Upload CV with AI",
-    link:""
+    link: "",
   },
   {
     id: 5,
@@ -67,111 +67,130 @@ const footer = [
     id: 11,
     header: "About My Jobs",
     name: "Overviews",
-   link:""
+    link: "",
   },
   {
     id: 12,
     header: "About My Jobs",
     name: "Carrier Opportunities",
-   link:""
+    link: "",
   },
   {
     id: 13,
     header: "About My Jobs",
     name: "Contact My Jobs",
-   link:"contact"
+    link: "contact",
   },
   {
     id: 14,
     header: "About My Jobs",
     name: "Blogs",
-   link:"blog"
+    link: "blog",
   },
   {
     id: 15,
     header: "About My Jobs",
     name: "NewsLetter",
-   link:""
+    link: "",
   },
   {
     id: 16,
     header: "About My Jobs",
     name: "About Us",
-   link:"aboutus"
+    link: "aboutus",
   },
   {
     id: 17,
     header: "About My Jobs",
     name: "Terms of Use",
-   link:"terms"
+    link: "terms",
   },
   {
     id: 18,
     header: "About My Jobs",
     name: "Privacy Policy",
-   link:"privacy"
+    link: "privacy",
   },
   {
     id: 19,
     header: "About My Jobs",
     name: "Safe Job Hunting",
-   link:"jobhunt"
+    link: "jobhunt",
   },
   {
     id: 20,
     header: "About My Jobs",
     name: "Testimonials",
-   link:""
+    link: "",
   },
   {
     id: 21,
     header: "Contact Us",
     name: "info@myjobs.com.mm",
-   link:"email"
+    link: "email",
   },
-
 
   {
     id: 22,
     header: "Contact Us",
     name: "+95 9880141136",
-   link:"no1"
+    link: "no1",
   },
   {
     id: 23,
     header: "Contact Us",
     name: "+95 9880141137",
-   link:"no2"
+    link: "no2",
   },
 ];
 
 const socialLinks = [
-    {
-      id: 1,
-      icon: <Facebook />,
-      url: "https://www.facebook.com/MyJobsMyanmar",
-    },
-    {
-      id: 2,
-      icon: <Linkedin />,
-      url: "https://www.linkedin.com/company/myjobsmyanmar/",
-    },
-    {
-      id: 3,
-      icon: <Viber />,
-      url: "https://invite.viber.com/?g2=AQB5dKmasEkSskshfzPT9MHDsTXWrkyf6i0N4Kf82lz6%2B%2F7JOWfRKLpLLE7gvydu&lang=en",
-    },
-    {
-      id: 4,
-      icon: <Telegram />,
-      url: "https://t.me/myjobsmyanmartelegram",
-    },
-    {
-      id: 5,
-      icon: <Youtube />,
-      url: "https://www.youtube.com/@MyJobsMyanmarMyJobsMyanmar",
-    },
-  ];
+  {
+    id: 1,
+    icon: <Facebook />,
+    url: "https://www.facebook.com/MyJobsMyanmar",
+  },
+  {
+    id: 2,
+    icon: <Linkedin />,
+    url: "https://www.linkedin.com/company/myjobsmyanmar/",
+  },
+  {
+    id: 3,
+    icon: <Viber />,
+    url: "https://invite.viber.com/?g2=AQB5dKmasEkSskshfzPT9MHDsTXWrkyf6i0N4Kf82lz6%2B%2F7JOWfRKLpLLE7gvydu&lang=en",
+  },
+  {
+    id: 4,
+    icon: <Telegram />,
+    url: "https://t.me/myjobsmyanmartelegram",
+  },
+  {
+    id: 5,
+    icon: <Youtube />,
+    url: "https://www.youtube.com/@MyJobsMyanmarMyJobsMyanmar",
+  },
+];
 
+const workTypes = [
+  { label: "Select Work Type", value: "" },
+  { label: "Contract", value: "contract" },
+  { label: "Full Time", value: "FullTime" },
+  { label: "Part Time", value: "PartTime" },
+  {label:"Internship",value:"Internship"},
+  {label:"Remote",value:"Remote"},
+  {label:"Freelance",value:"Freelance"},
+  {label:"Any Work Type",value:""},
+  {label:"Other Work Type",value:""}
+];
 
-export { CHILDREN_TABLES_HANDLER_ENUM, ORDER_ENUM ,footer,socialLinks};
+const chooseTime = [
+  { label: "Select Work Type", value: "" },
+  { label: "Last 3 days", value: "contract" },
+  { label: "Last 7 days", value: "FullTime" },
+  { label: "Last 24 days", value: "Part Time" },
+  { label: "Last 30 days", value: "Part Time" },
+
+];
+
+export { CHILDREN_TABLES_HANDLER_ENUM, ORDER_ENUM, footer, socialLinks,workTypes,chooseTime };
