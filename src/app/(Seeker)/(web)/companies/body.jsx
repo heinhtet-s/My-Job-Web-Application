@@ -48,10 +48,8 @@ const CompanyPage = ({ companyLists }) => {
           perPage,
           total: res["@odata.count"],
         });
-
-        if (res.data.value && res.data.value.length !== 0) {
-          setData(res.data.value);
-        }
+        setData(res.data.value);
+    
       })
       .catch((error) => {
         console.log(error);
@@ -66,10 +64,10 @@ const CompanyPage = ({ companyLists }) => {
   }, [filter, order, fetchCompanyList]);
 
   useEffect(() => {
-    // Check if the URL search query is present when navigating back
+ 
     const handlePopState = () => {
       if (!router?.query?.search) {
-        // Reset the filter and data to the initial state
+       
         setFilter(EmployersConst.filter);
         setData(initialData);
       }

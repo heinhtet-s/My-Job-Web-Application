@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import * as url from "url";
 
 async function getQuery(urlString) {

@@ -173,11 +173,11 @@ const socialLinks = [
 ];
 
 const workTypes = [
-  { label: "Select Work Type", value: "" },
-  { label: "Contract", value: "contract" },
+
+  { label: "Contract", value: "Contract" },
   { label: "Full Time", value: "FullTime" },
   { label: "Part Time", value: "PartTime" },
-  {label:"Internship",value:"Internship"},
+  {label:"Internship",value:"internship"},
   {label:"Remote",value:"Remote"},
   {label:"Freelance",value:"Freelance"},
   {label:"Any Work Type",value:""},

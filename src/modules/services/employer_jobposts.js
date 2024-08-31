@@ -3,6 +3,7 @@ import { EmployerJobPostURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetEmployerJobPostList(url) {
+  console.log('first')
 console.log(`${EmployerJobPostURL}${url}`)
   return await axios
     .get(encodeURI(`${EmployerJobPostURL}${url}`), REQUEST_HEADER)

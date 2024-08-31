@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import SearchIcon from "@/asset/Icon/SearchIcon";
@@ -16,24 +16,11 @@ import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { workTypes } from "@/lib/const";
 
 const HomePage = ({ companies, candidates, industries, jobPosts }) => {
   const { data: session } = useSession();
-  // useEffect(() => {
-  //   const fetchEmployer = async () => {
-  //     try {
-  //       const { data } = await axios.get(`/api/job_lists/getJobPostById`, {
-  //         params: { email: "0969489b-f275-4849-8442-08d6b63edb48" },
-  //       });
-  //       console.log(data);
-  //       // setEmployer(data);
-  //     } catch (error) {
-  //       console.error("Failed to fetch employer:", error);
-  //     }
-  //   };
 
-  //   fetchEmployer();
-  // }, []);
   const router = useRouter();
 
   return (
@@ -210,7 +197,22 @@ const FeatureCampanyComponent = ({ companies }) => {
     </div>
   );
 };
+
 const FilterJobComponent = ({ industries }) => {
+
+  const router = useRouter()
+const [title,setTitle]= useState('')
+const [jobType,setJobType] = useState('')
+const [industrialId,setIndustrialId] = useState('')
+  const handleSearch =()=>{
+    const queryParams = new URLSearchParams({
+      title: title.toLowerCase(), 
+      jobType:jobType,
+      industryId: industrialId,
+   
+    });
+  router.push(`/jobs?${queryParams.toString()}`);
+  }
   return (
     <div
       style={{
@@ -225,6 +227,8 @@ const FilterJobComponent = ({ industries }) => {
             <SearchIcon />
             <input
               type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
               placeholder="Job Title or Keyword"
               className="text-[#666] font-poppins text-base font-normal leading-normal border-0 outline-none"
             />
@@ -233,6 +237,8 @@ const FilterJobComponent = ({ industries }) => {
           <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
               className="block w-full py-1 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none  "
+              value={industrialId}
+              onChange={(e) => setIndustrialId(e.target.value)}
               style={{
                 backgroundImage:
                   "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
@@ -243,7 +249,7 @@ const FilterJobComponent = ({ industries }) => {
             >
               <option>Select Industry</option>
               {industries?.map((industry) => (
-                <option key={industry.Id} value={industry.Title}>
+                <option key={industry.Id} value={industry.Id}>
                   {industry.Title}
                 </option>
               ))}
@@ -253,6 +259,8 @@ const FilterJobComponent = ({ industries }) => {
           <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
               className="block font w-full text-[14px] py-1 px-3  font-normal text-gray-800 bg-white  border-none rounded-md appearance-none outline-none"
+              value={jobType}
+              onChange={(e) => setJobType(e.target.value)}
               style={{
                 backgroundImage:
                   "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
@@ -262,10 +270,25 @@ const FilterJobComponent = ({ industries }) => {
               }}
             >
               <option>Select Work Type Industry</option>
+              {
+                      workTypes?.map(work => {
+                        return <option key={work.label} value={work.value}>{work.label}</option>
+                      })
+                    }
             </select>
           </div>
           <FilterIcon />
         </div>
+        <div
+                style={{
+                  flex: "0 0 auto",
+                  width: "auto",
+                }}
+              >
+                <button className=" h-14 border-0 px-[20px] mr-[13px] rounded-[27px] text-white bg-primary transition-colors"  onClick={handleSearch}  >
+                  Find Jobs
+                </button>
+              </div>
       </div>
     </div>
   );
