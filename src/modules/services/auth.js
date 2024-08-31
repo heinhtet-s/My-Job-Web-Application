@@ -23,7 +23,7 @@ async function SeekerLogin({ email, password }) {
   }
 }
 async function SeekerSsoLogin({ token, email }) {
-  const urlString = `https://myjobs.dev/seeker/v1/SignIns/seeker`;
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/SignIns/seeker`;
   try {
     await axios.post(urlString, {
       accesstoken: token,
@@ -42,7 +42,7 @@ async function SeekerSsoLogin({ token, email }) {
   }
 }
 async function EmployerSsoLogin({ token, email }) {
-  const urlString = `https://myjobs.dev/employer/v1/Auth/SSO`;
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}employer/v1/Auth/SSO`;
   try {
     await axios.post(urlString, {
       accesstoken: token,
@@ -60,7 +60,7 @@ async function EmployerSsoLogin({ token, email }) {
   }
 }
 async function EmployerLogin({ email, password }) {
-  const urlString = `https://myjobs.dev/employer/v1/Auth/login`;
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}employer/v1/Auth/login`;
   console.log(email, "datassss");
   try {
     await axios.post(urlString, {
@@ -96,18 +96,40 @@ async function SeekerRegister(data) {
   }
 }
 async function EmployeerRegister(data) {
-  const urlString = `https://myjobs.dev/employer/v1/Auth/register`;
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}employer/v1/Auth/register`;
   console.log(data);
   try {
     await axios.post(urlString, {
       ...data,
     });
-
-    console.log(data, "datassss");
-    return data;
   } catch (e) {
     console.log(e?.response?.data, "error");
     throw e;
+  }
+}
+async function ResetPasswordEmployer({ email }) {
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}employer/v1/Auth/password-reset?Email=${email}`;
+  console.log(email, "datassss");
+  try {
+    await axios.post(urlString, {});
+    return data;
+  } catch (e) {
+    console.log(e?.response?.data);
+    throw e?.response?.data;
+  }
+}
+async function ResetPasswordSeeker(email) {
+  console.log(email);
+  console.log(
+    `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/Auth/password-reset?Email=${email}`
+  );
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/Logins/resetpassword?Email=${email}`;
+  console.log(urlString, "fwf");
+  try {
+    await axios.post(urlString);
+  } catch (e) {
+    console.log(e);
+    throw e?.response?.data;
   }
 }
 async function Logout() {
@@ -116,6 +138,8 @@ async function Logout() {
 }
 export {
   SeekerLogin,
+  ResetPasswordSeeker,
+  ResetPasswordEmployer,
   EmployerLogin,
   SeekerRegister,
   Logout,

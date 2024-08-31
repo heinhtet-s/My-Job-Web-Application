@@ -19,7 +19,7 @@
 /* Pagination container styles */
 .pagination {
   display: flex;
-  justify-content: center;
+
   align-items: center;
   margin-top: 20px;
 }
@@ -86,9 +86,9 @@
 
 /* Active page item styles */
 .pagination-item.active {
-  background-color: #c36d0b;
+  background-color: #f08000;
   color: #fff;
-  border-color: #c36d0b;
+  border-color: #f08000;
 }
 
 /* Previous and Next button styles */
