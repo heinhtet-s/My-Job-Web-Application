@@ -20,7 +20,7 @@ export default async function JobPost() {
     );
     const industries = await odataQueryHandler(IndustriesConst,IndustriesConst.fields,IndustriesConst.order,IndustriesConst.fields,"no_child",   { top: 10, skip: 0 },GetInsdustriesList)
     const functionalAreas = await odataQueryHandler(FunctionalAreasConst,FunctionalAreasConst.fields,FunctionalAreasConst.order,FunctionalAreasConst.fields,"no_child",   { top: 10, skip: 0 },GetFunctionalAreaLists)
-   console.log(data,"DATA")
+ 
 
     return <JobPostPage data={data.value} industries={industries} functionalAreas={functionalAreas}/>;
   } catch (error) {
@@ -31,4 +31,3 @@ export default async function JobPost() {
 
 
 
-// https://myjobs.dev/employer/v1/JobPosts?$count=true&$select=Title,Id,Description,Requirement,CountryId,TownshipId,CityId,JobType,CareerLevel,Benefits,Fromsalary,Tosalary,HideSalary,Anonymous,SalaryOption,Currency,NoOfPosition,Gender,YearsOfExperience,OtherSkill,Active,Applie,RejectReason,JobStatus,DegreelevelId,JobUnitType,FunctionalAreaId,EmployerId,CreatedAt,UpdatedAt,CreatedBy,UpdatedBy&$expand=Employer($select=CompanyName;$orderBy=updatedAt desc;$top=10;$skip=0)&$expand=FunctionalArea($select=Title,TitleEng,Id,CreatedAt,UpdatedAt,CreatedBy,UpdatedBy;$orderBy=updatedAt desc;$top=10;$skip=0)&$filter=FunctionalAreaId eq 49e58d80-d5c4-4c6e-8751-ee06b8cac45c&$orderBy=updatedAt desc&$top=10&$skip=0

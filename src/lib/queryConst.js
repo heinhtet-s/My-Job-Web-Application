@@ -164,19 +164,26 @@ const EmployerJobPosts = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {
-    Title: { value: "", type: "string", label: "Title" },
+
+ 
+    filter: { 
+      Title: { value: "", type: "string", label: "Title" },
     FunctionalAreaId: {
-      value: "33b661f8-bef3-42aa-8ded-9d7f562e55ea",
+      value: "",
       type: "foreign",
       label: "FunctionalAreaId",
     },
+    JobType:{
+      value:"",
+      type: "foreign",
+      label:"JobType"
+    },
     IndustryId: {
-      value: "6e593523-7a90-4785-b58d-dba2c9d4bb5e",
+      value: "",
       type: "foreign",
       label: "IndustryId",
     },
-  },
+    },
   order: { updatedAt: "desc" },
   children: [
     {
