@@ -199,20 +199,18 @@ const FeatureCampanyComponent = ({ companies }) => {
 };
 
 const FilterJobComponent = ({ industries }) => {
-
-  const router = useRouter()
-const [title,setTitle]= useState('')
-const [jobType,setJobType] = useState('')
-const [industrialId,setIndustrialId] = useState('')
-  const handleSearch =()=>{
+  const router = useRouter();
+  const [title, setTitle] = useState("");
+  const [jobType, setJobType] = useState("");
+  const [industrialId, setIndustrialId] = useState("");
+  const handleSearch = () => {
     const queryParams = new URLSearchParams({
-      title: title.toLowerCase(), 
-      jobType:jobType,
+      title: title.toLowerCase(),
+      jobType: jobType,
       industryId: industrialId,
-   
     });
-  router.push(`/jobs?${queryParams.toString()}`);
-  }
+    router.push(`/jobs?${queryParams.toString()}`);
+  };
   return (
     <div
       style={{
@@ -221,7 +219,7 @@ const [industrialId,setIndustrialId] = useState('')
       }}
       className="w-full  bg-cover bg-no-repeat relative flex flex-col items-center justify-center gap-2.5 py-10"
     >
-      <div className="flex justify-center items-center">
+      <div className="flex justify-center gap-4 items-center">
         <div className="flex items-center justify-center gap-4 p-2 rounded-[8px] border-2 border-[#f47920] bg-white">
           <div className="flex justify-center items-center gap-4 mx-4">
             <SearchIcon />
@@ -230,13 +228,13 @@ const [industrialId,setIndustrialId] = useState('')
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Job Title or Keyword"
-              className="text-[#666] font-poppins text-base font-normal leading-normal border-0 outline-none"
+              className="text-[#666] font-poppins border-none outline-none  text-base font-normal leading-normal border-0 focus:ring-0 "
             />
           </div>
           <div className="h-12 w-px bg-[#ccc]" />
           <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
-              className="block w-full py-1 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none  "
+              className="block w-full py-1 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
               value={industrialId}
               onChange={(e) => setIndustrialId(e.target.value)}
               style={{
@@ -258,7 +256,7 @@ const [industrialId,setIndustrialId] = useState('')
           <div className="h-12 w-px bg-[#ccc]" />
           <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
-              className="block font w-full text-[14px] py-1 px-3  font-normal text-gray-800 bg-white  border-none rounded-md appearance-none outline-none"
+              className="block font w-full text-[14px] py-1 px-3  font-normal text-gray-800 bg-white  border-none rounded-md appearance-none outline-none focus:ring-0 "
               value={jobType}
               onChange={(e) => setJobType(e.target.value)}
               style={{
@@ -270,25 +268,30 @@ const [industrialId,setIndustrialId] = useState('')
               }}
             >
               <option>Select Work Type Industry</option>
-              {
-                      workTypes?.map(work => {
-                        return <option key={work.label} value={work.value}>{work.label}</option>
-                      })
-                    }
+              {workTypes?.map((work) => {
+                return (
+                  <option key={work.label} value={work.value}>
+                    {work.label}
+                  </option>
+                );
+              })}
             </select>
           </div>
           <FilterIcon />
         </div>
         <div
-                style={{
-                  flex: "0 0 auto",
-                  width: "auto",
-                }}
-              >
-                <button className=" h-14 border-0 px-[20px] mr-[13px] rounded-[27px] text-white bg-primary transition-colors"  onClick={handleSearch}  >
-                  Find Jobs
-                </button>
-              </div>
+          style={{
+            flex: "0 0 auto",
+            width: "auto",
+          }}
+        >
+          <button
+            className=" h-[56px] border-0 px-[20px] mr-[13px] rounded-[8px] text-white bg-primary transition-colors"
+            onClick={handleSearch}
+          >
+            Find Jobs
+          </button>
+        </div>
       </div>
     </div>
   );

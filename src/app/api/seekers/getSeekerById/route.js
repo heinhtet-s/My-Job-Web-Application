@@ -1,5 +1,3 @@
-
-
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
@@ -25,8 +23,6 @@ export async function GET(req) {
     }
 
     const seekerData = await seekerResponse.json();
-   
-  
 
     return NextResponse.json(seekerData);
   } catch (err) {

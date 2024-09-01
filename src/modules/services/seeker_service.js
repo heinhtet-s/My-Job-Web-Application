@@ -3,28 +3,35 @@ import { SeekersURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetSeekerList(url) {
- 
-    return await axios
-      .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
-      .then(({ data }) => {
-        return data;
-      })
-      .catch(() => {
-        return { error: "Client and server connection error" };
-      });
-  }
+  return await axios
+    .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch(() => {
+      return { error: "Client and server connection error" };
+    });
+}
+async function UpdateSeekerList(data, id) {
+  return await axios
+    .patch(encodeURI(`${SeekersURL}(${id})`), data, REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch(() => {
+      return { error: "Client and server connection error" };
+    });
+}
 
+async function GetSeekerById(url) {
+  return await axios
+    .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch(() => {
+      return { error: "Client and server connection error" };
+    });
+}
 
-  async function GetSeekerById(url) {
- 
-    return await axios
-      .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
-      .then(({ data }) => {
-        return data;
-      })
-      .catch(() => {
-        return { error: "Client and server connection error" };
-      });
-  }
-
-  export {GetSeekerList}
+export { GetSeekerList, UpdateSeekerList };

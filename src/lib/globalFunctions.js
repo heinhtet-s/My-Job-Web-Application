@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import * as url from "url";
 
 async function getQuery(urlString) {
-
   return url.parse(urlString, true).query;
 }
 
@@ -12,7 +11,10 @@ function errorResponse(error) {
     { status: 400 }
   );
 }
-
-
-export { getQuery ,errorResponse};
-
+function getCurrentDate() {
+  return new Date().toISOString();
+}
+function successResponse() {
+  return NextResponse.json({ success: true }, { status: 200 });
+}
+export { getQuery, errorResponse, successResponse, getCurrentDate };

@@ -27,7 +27,6 @@ export const authOptions = {
       },
       authorize: async (credentials) => {
         const maxAge = 24 * 60 * 60;
-
         const user = JSON.parse(credentials?.credentials);
         if (user.role === "seeker") {
           if (user.isSso) {
