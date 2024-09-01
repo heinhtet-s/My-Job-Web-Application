@@ -165,25 +165,24 @@ const EmployerJobPosts = {
     "UpdatedBy",
   ],
 
- 
-    filter: { 
-      Title: { value: "", type: "string", label: "Title" },
+  filter: {
+    Title: { value: "", type: "string", label: "Title" },
     FunctionalAreaId: {
       value: "",
       type: "foreign",
       label: "FunctionalAreaId",
     },
-    JobType:{
-      value:"",
+    JobType: {
+      value: "",
       type: "foreign",
-      label:"JobType"
+      label: "JobType",
     },
     IndustryId: {
       value: "",
       type: "foreign",
       label: "IndustryId",
     },
-    },
+  },
   order: { updatedAt: "desc" },
   children: [
     {
@@ -201,10 +200,42 @@ const EmployerJobPosts = {
   skip: 0,
 };
 
+const GeneratedCvConst = {
+  fields: [
+    "ImageUrl",
+    "CvGeneratedUIType",
+    "FullName",
+    "Email",
+    "PhoneNumber",
+    "Address",
+    "Education",
+    "Experience",
+    "Skills",
+    "Lanuages",
+    "Certifications",
+    "Projects",
+    "ExpectedSalary",
+    "Other",
+    "SeekerId",
+    "Id",
+    "CreatedAt",
+    "UpdatedAt",
+    "CreatedBy",
+    "UpdatedBy"
+  ],
+  filter: {},
+  order: { updatedAt: "desc" },
+  childrens: [],
+  top: 10,
+  skip: 0,
+};
 export {
   SeekersConst,
   EmployersConst,
   EmployerJobPosts,
   IndustriesConst,
   FunctionalAreasConst,
+  GeneratedCvConst,
 };
+
+

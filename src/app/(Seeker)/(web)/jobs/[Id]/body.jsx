@@ -2,15 +2,64 @@
 import CardLayout from "@/components/share/CardLayout";
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import { Heart, Share2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
 import ModalBox from "@/components/ui/CustomModal";
 import { Button, Modal } from "flowbite-react";
 import { Input } from "@/components/ui/input";
+import { useParams, useRouter } from "next/navigation";
+import { useSearchParams } from 'next/navigation'
+import { useSession } from "next-auth/react";
+import axios from "axios";
+import { UploadCv } from "@/modules/services/auth";
 
 const JobDetailComponent = ({ data }) => {
-  console.log(data);
   const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const params = useParams()
+  const { Id: JobId } = params
+  const { data: session } = useSession();
+  const [selectedFile, setSelectedFile] = useState(null);
+  const seerkerId = data?.Id;
+  const router = useRouter()
+  const EmployerId = data.EmployerId
+console.log(data.EmployerId)
+const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/20240901163848_Profile.pdf"
+
+  if (!seerkerId) {
+    router.push('/login')
+  }
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+  };
+
+
+  const handleApplyNow = async () => {
+    // if (!selectedFile) {
+    //   alert("Please select a CV file.");
+    //   return;
+    // }
+  
+    // const formData = new FormData();
+    // formData.append("file", selectedFile);
+    
+    try {
+      
+      // const uploadResponse = await UploadCv({ file: formData }, '167553d6-a4bd-4c22-89a2-2a2c7fa215e2');
+      
+  
+      // Now, use the URL to create a CV
+      const response = await axios.post('/api/generate_cv/create', { imageUrl: imageURLfromUpload });
+      const appliedJob = await axios.post('/api/appliedJobpost/create',{JobId,EmployerId,})
+      // console.log(response.data);
+      console.log(appliedJob)
+      
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  
+
   return (
     <div>
       <Modal
@@ -44,15 +93,14 @@ const JobDetailComponent = ({ data }) => {
                   class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none "
                   id="file_input"
                   type="file"
+                  onChange={handleFileChange}
                 />
               </div>
             </div>
           </div>
           <div className="flex justify-center my-10">
             <button
-              onClick={() => {
-                setOpenModal(false);
-              }}
+              onClick={handleApplyNow}
               className="bg-primary text-white text-[18px] font-medium px-10 py-1.5 transition-[background-color] rounded-full"
             >
               Apply Now

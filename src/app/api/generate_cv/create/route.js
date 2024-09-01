@@ -1,7 +1,42 @@
-import React from "react";
+import { NextResponse } from "next/server";
 
-const route = () => {
-  return <div></div>;
-};
+import { authOptions } from "@/lib/authOptions";
+import {errorResponse,successResponse,getCurrentDate} from '@/lib/globalFunctions'
+import {createCV} from '@/modules/services/generated_cv'
+import { getServerSession } from "next-auth";
 
-export default route;
+export async function POST(request) {
+  const session = await getServerSession(authOptions);
+  const {
+    imageUrl
+  } = await request.json();
+  console.log('HE')
+  console.log(imageUrl)
+  const createData = await createCV({
+    ImageUrl: imageUrl,
+    CvGeneratedUIType: "generated",
+    FullName: null,
+    Email: null,
+    PhoneNumber: null,
+    Address: null,
+    Education: null,
+    Experience: null,
+    Skills: null,
+    Lanuages: null,
+    Certifications: null,
+    Projects: null,
+    ExpectedSalary: null,
+    Other: null,
+    SeekerId: session?.user?.Id ? session.user.Id : null,
+    createdAt: getCurrentDate(),
+    updatedAt: getCurrentDate(),
+    createdBy: session?.user?.Id ? session.user.Id : null,
+    updatedBy: session?.user?.Id ? session.user.Id : null,
+  });
+
+  if (createData.error) {
+    return errorResponse();
+  }
+
+  return successResponse();
+}
