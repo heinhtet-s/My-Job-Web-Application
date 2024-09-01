@@ -1,6 +1,8 @@
 "use client";
+import { inputStyle, labelStyle, selectStyle } from "@/components/ui/form";
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import { cn } from "@/lib/utils";
+import { Modal } from "flowbite-react";
 import { Plus } from "lucide-react";
 import React, { useState } from "react";
 const menuItem = [
@@ -76,214 +78,297 @@ const personalInfo = [
 ];
 const page = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  return (
-    <div>
-      <h1 className="text-[38px] font-[700]">Edit Profile</h1>
-      <p className="opacity-60 mb-[40px]">
-        Edit and update your profile to attract your potential employers.
-      </p>
+  const [openModal, setOpenModal] = useState(true);
 
-      <div className="text-sm font-medium mb-[30px] text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-        <ul className="flex flex-wrap -mb-px justify-between">
-          {menuItem?.map((el, index) => {
-            return (
-              <li
-                className="me-2 cursor-pointer"
-                onClick={() => setActiveIndex(index)}
-              >
-                <p
-                  className={cn(
-                    "inline-block text-[20px] p-4 font-[400] opacity-50 border-b-2 border-transparent rounded-t-lg ",
-                    activeIndex === index &&
-                      "text-primary opacity-100 border-primary"
-                  )}
+  return (
+    <>
+      <Modal show={openModal} onClose={() => setOpenModal(false)}>
+        <Modal.Body className="rounded-[30px]">
+          <h3 className="text-[1.5rem] font-[600] my-[30px]">
+            Edit Personal Details
+          </h3>
+          <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                First Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+            <div className="col-span-1">
+              {" "}
+              <label className={labelStyle}>
+                Last Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+          </div>
+          <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                First Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+            <div className="col-span-1">
+              {" "}
+              <label className={labelStyle}>
+                Last Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+          </div>
+          <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                First Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+            <div className="col-span-1">
+              {" "}
+              <label className={labelStyle}>
+                Last Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+          </div>
+          <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                Father's Name <span className="text-red-800">*</span>
+              </label>
+              <input className={inputStyle} />
+            </div>
+            <div className="col-span-1">
+              {" "}
+              <label className={labelStyle}>
+                Gender<span className="text-red-800">*</span>
+              </label>
+              <select className={selectStyle}>
+                <option>Male</option>
+              </select>
+            </div>
+          </div>
+        </Modal.Body>
+        {/* <Modal.Footer>
+          <Button onClick={() => setOpenModal(false)}>I accept</Button>
+          <Button color="gray" onClick={() => setOpenModal(false)}>
+            Decline
+          </Button>
+        </Modal.Footer> */}
+      </Modal>
+      <div>
+        <h1 className="text-[38px] font-[700]">Edit Profile</h1>
+        <p className="opacity-60 mb-[40px]">
+          Edit and update your profile to attract your potential employers.
+        </p>
+
+        <div className="text-sm font-medium mb-[30px] text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
+          <ul className="flex flex-wrap -mb-px justify-between">
+            {menuItem?.map((el, index) => {
+              return (
+                <li
+                  className="me-2 cursor-pointer"
+                  onClick={() => setActiveIndex(index)}
                 >
-                  {el}
-                </p>
-              </li>
-            );
-          })}
-        </ul>
-      </div>
-      <div className="grid grid-rows-1 grid-cols-12 gap-4 mb-[40px] ">
-        <div className="col-span-4">
-          <p className="mb-[10px] text-[20px]">Profile Picture</p>
-          <p className="text-primary text-[16px]">
-            Your profile picture is used as the icon for your personal profile
-          </p>
+                  <p
+                    className={cn(
+                      "inline-block text-[20px] p-4 font-[400] opacity-50 border-b-2 border-transparent rounded-t-lg ",
+                      activeIndex === index &&
+                        "text-primary opacity-100 border-primary"
+                    )}
+                  >
+                    {el}
+                  </p>
+                </li>
+              );
+            })}
+          </ul>
         </div>
-        <div className="col-span-8">
-          <div className="flex items-center gap-4">
-            <img
-              src="/image/no-image.png"
-              className="w-[230px]  h-[230px] block rounded-full"
-            />
-            <div className="flex flex-col">
-              <div className="mb-[10px]">
+        <div className="grid grid-rows-1 grid-cols-12 gap-4 mb-[40px] ">
+          <div className="col-span-4">
+            <p className="mb-[10px] text-[20px]">Profile Picture</p>
+            <p className="text-primary text-[16px]">
+              Your profile picture is used as the icon for your personal profile
+            </p>
+          </div>
+          <div className="col-span-8">
+            <div className="flex items-center gap-4">
+              <img
+                src="/image/no-image.png"
+                className="w-[230px]  h-[230px] block rounded-full"
+              />
+              <div className="flex flex-col">
+                <div className="mb-[10px]">
+                  <PrimaryBtn
+                    size="small"
+                    handleClick={() => {}}
+                    text={"Upload Photo"}
+                  />
+                </div>
                 <PrimaryBtn
                   size="small"
                   handleClick={() => {}}
-                  text={"Upload Photo"}
+                  text={"Edit Photo"}
+                  color="#002745"
+                  fullWidth={true}
                 />
               </div>
-              <PrimaryBtn
-                size="small"
-                handleClick={() => {}}
-                text={"Edit Photo"}
-                color="#002745"
-                fullWidth={true}
-              />
             </div>
           </div>
         </div>
-      </div>
-      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
-        <div className="col-span-4  grid-rows-1">
-          <p className="mb-[10px] text-[20px]">About Me</p>
-          <p className="text-primary text-[16px]">
-            Describe your short biography include your skills and
-            accomplishments{" "}
-          </p>
+        <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+          <div className="col-span-4  grid-rows-1">
+            <p className="mb-[10px] text-[20px]">About Me</p>
+            <p className="text-primary text-[16px]">
+              Describe your short biography include your skills and
+              accomplishments{" "}
+            </p>
+          </div>
+          <div className="col-span-6  grid-rows-1">
+            <p className="opacity-60">
+              I am passionate about my work. Because I love what I do, I have a
+              steady source of motivation that drives me to do my best. In my
+              last job, this passion led me to challenge myself daily and learn
+              new skills that helped me to do better work.
+            </p>
+          </div>
+          <div className="col-span-2  grid-rows-1 flex justify-center">
+            <button className="flex h-fit items-center gap-[2px] text-primary font-[500] ">
+              <EditIcon />
+              Edit
+            </button>
+          </div>
         </div>
-        <div className="col-span-6  grid-rows-1">
-          <p className="opacity-60">
-            I am passionate about my work. Because I love what I do, I have a
-            steady source of motivation that drives me to do my best. In my last
-            job, this passion led me to challenge myself daily and learn new
-            skills that helped me to do better work.
-          </p>
+        <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+          <div className="col-span-4  grid-rows-1">
+            <p className="mb-[10px] text-[20px]">Personal Details </p>
+            <p className="text-primary text-[16px]">
+              Please complete personal information
+            </p>
+          </div>
+          <div className="col-span-6 grid-rows-1   ">
+            <div className="grid grid-cols-2 gap-4 gap-y-6 ">
+              {personalInfo?.map((el) => {
+                return (
+                  <div className="grid-6">
+                    <p className="mb-2">{el.title}</p>
+                    <p className="opacity-60">{el.value}</p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
-        <div className="col-span-2  grid-rows-1 flex justify-center">
-          <button className="flex h-fit items-center gap-[2px] text-primary font-[500] ">
-            <EditIcon />
-            Edit
-          </button>
-        </div>
-      </div>
-      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
-        <div className="col-span-4  grid-rows-1">
-          <p className="mb-[10px] text-[20px]">Personal Details </p>
-          <p className="text-primary text-[16px]">
-            Please complete personal information
-          </p>
-        </div>
-        <div className="col-span-6 grid-rows-1   ">
-          <div className="grid grid-cols-2 gap-4 gap-y-6 ">
-            {personalInfo?.map((el) => {
-              return (
-                <div className="grid-6">
-                  <p className="mb-2">{el.title}</p>
-                  <p className="opacity-60">{el.value}</p>
+        <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+          <div className="col-span-4  grid-rows-1">
+            <p className="mb-[10px] text-[20px]">Work Experiences </p>
+            <p className="text-primary text-[16px]">
+              Describe your previous and current working experiences
+            </p>
+          </div>
+          <div className="col-span-8  grid-rows-1">
+            <div className="flex justify-end mb-8">
+              <button className="flex  h-fit items-center gap-[2px] text-primary font-[500] ">
+                <Plus color="#F08000" /> Add Experience
+              </button>
+            </div>
+            <div className="flex border-b-2  pb-3 gap-2 justify-between border-gray-100">
+              <p className="text-primary  ">Senior UI/UX Designer</p>
+              <p className="font-[300] opacity-60 ">Myanmar Tech</p>
+              <p className="font-[300] opacity-60 ">Yangon</p>
+              <p className="text-primary ">2010 - 2011</p>
+              <div className="flex items-center gap-2 cursor-pointer">
+                <div>
+                  <EditTableIcon />
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
-        <div className="col-span-4  grid-rows-1">
-          <p className="mb-[10px] text-[20px]">Work Experiences </p>
-          <p className="text-primary text-[16px]">
-            Describe your previous and current working experiences
-          </p>
-        </div>
-        <div className="col-span-8  grid-rows-1">
-          <div className="flex justify-end mb-8">
-            <button className="flex  h-fit items-center gap-[2px] text-primary font-[500] ">
-              <Plus color="#F08000" /> Add Experience
-            </button>
-          </div>
-          <div className="flex border-b-2  pb-3 gap-2 justify-between border-gray-100">
-            <p className="text-primary  ">Senior UI/UX Designer</p>
-            <p className="font-[300] opacity-60 ">Myanmar Tech</p>
-            <p className="font-[300] opacity-60 ">Yangon</p>
-            <p className="text-primary ">2010 - 2011</p>
-            <div className="flex items-center gap-2 cursor-pointer">
-              <div>
-                <EditTableIcon />
-              </div>
-              <div>
-                <DeleteTableIcon />
+                <div>
+                  <DeleteTableIcon />
+                </div>
               </div>
             </div>
+            <p className="font-[300] opacity-60 mt-[5px]">
+              Lorem Ipsum is simply dummy text of the printing and typesetting
+              industry. Lorem Ipsum has been the industry's standard dummy text
+              ever since the 1500s, when an unknown printer took a galley of
+              type and scrambled it to make a type specimen book.
+            </p>
           </div>
-          <p className="font-[300] opacity-60 mt-[5px]">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book.
-          </p>
         </div>
-      </div>
-      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
-        <div className="col-span-4  grid-rows-1">
-          <p className="mb-[10px] text-[20px]">Education </p>
-          <p className="text-primary text-[16px]">
-            Describe your education background
-          </p>
-        </div>
-        <div className="col-span-8  grid-rows-1">
-          <div className="flex justify-end mb-8">
-            <button className="flex  h-fit items-center gap-[2px] text-primary font-[500] ">
-              <Plus color="#F08000" /> Add Education
-            </button>
+        <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+          <div className="col-span-4  grid-rows-1">
+            <p className="mb-[10px] text-[20px]">Education </p>
+            <p className="text-primary text-[16px]">
+              Describe your education background
+            </p>
           </div>
-          <div className="flex border-b-2  pb-3 gap-2 justify-between border-gray-100">
-            <p className="text-primary  h-fit  ">Build Responsive Real World</p>
-            <p className="font-[300] opacity-60 h-fit  ">Udacity Nanodegree</p>
-            <p className="text-primary min-w-[80px] h-fit ">2020 - 2020</p>
-            <div className="flex items-center gap-2 h-fit cursor-pointer">
-              <div>
-                <EditTableIcon />
-              </div>
-              <div>
-                <DeleteTableIcon />
+          <div className="col-span-8  grid-rows-1">
+            <div className="flex justify-end mb-8">
+              <button className="flex  h-fit items-center gap-[2px] text-primary font-[500] ">
+                <Plus color="#F08000" /> Add Education
+              </button>
+            </div>
+            <div className="flex border-b-2  pb-3 gap-2 justify-between border-gray-100">
+              <p className="text-primary  h-fit  ">
+                Build Responsive Real World
+              </p>
+              <p className="font-[300] opacity-60 h-fit  ">
+                Udacity Nanodegree
+              </p>
+              <p className="text-primary min-w-[80px] h-fit ">2020 - 2020</p>
+              <div className="flex items-center gap-2 h-fit cursor-pointer">
+                <div>
+                  <EditTableIcon />
+                </div>
+                <div>
+                  <DeleteTableIcon />
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
-        <div className="col-span-4  grid-rows-1">
-          <p className="mb-[10px] text-[20px]">Languages </p>
-        </div>
-        <div className="col-span-5 grid-rows-1    ">
-          <div className="bg-[#E6F0F9] flex  px-[4px] rounded-[30px] py-[5px]">
-            <p className="flex-1 text-center">Chinese</p>
-            <p className="flex-1 text-center">Intermediate</p>
-            <p className="flex-1 text-center">
-              <span>Edit </span>|<span> Delete</span>
-            </p>
+        <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+          <div className="col-span-4  grid-rows-1">
+            <p className="mb-[10px] text-[20px]">Languages </p>
+          </div>
+          <div className="col-span-5 grid-rows-1    ">
+            <div className="bg-[#E6F0F9] flex  px-[4px] rounded-[30px] py-[5px]">
+              <p className="flex-1 text-center">Chinese</p>
+              <p className="flex-1 text-center">Intermediate</p>
+              <p className="flex-1 text-center">
+                <span>Edit </span>|<span> Delete</span>
+              </p>
+            </div>
+          </div>
+          <div className="col-span-3  grid-rows-1 flex justify-center">
+            <button className="flex h-fit items-center gap-[2px] text-primary font-[500] ">
+              <Plus color="#F08000" />
+              Add Language
+            </button>
           </div>
         </div>
-        <div className="col-span-3  grid-rows-1 flex justify-center">
-          <button className="flex h-fit items-center gap-[2px] text-primary font-[500] ">
-            <Plus color="#F08000" />
-            Add Language
-          </button>
-        </div>
-      </div>
-      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
-        <div className="col-span-4  grid-rows-1">
-          <p className="mb-[10px] text-[20px]">Skills </p>
-        </div>
-        <div className="col-span-5 grid-rows-1   ">
-          <div className="bg-[#E6F0F9]  px-[4px]  my-3 flex  rounded-[30px] py-[5px]">
-            <p className="flex-1 text-center">Management</p>
-            <p className="flex-1 text-center">1 Year</p>
-            <p className="flex-1 text-center">
-              <span>Edit </span>|<span> Delete</span>
-            </p>
+        <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+          <div className="col-span-4  grid-rows-1">
+            <p className="mb-[10px] text-[20px]">Skills </p>
+          </div>
+          <div className="col-span-5 grid-rows-1   ">
+            <div className="bg-[#E6F0F9]  px-[4px]  my-3 flex  rounded-[30px] py-[5px]">
+              <p className="flex-1 text-center">Management</p>
+              <p className="flex-1 text-center">1 Year</p>
+              <p className="flex-1 text-center">
+                <span>Edit </span>|<span> Delete</span>
+              </p>
+            </div>
+          </div>
+          <div className="col-span-3  grid-rows-1 flex justify-center">
+            <button className="flex h-fit items-center gap-[2px] text-primary font-[500] ">
+              <Plus color="#F08000" />
+              Add Skill
+            </button>
           </div>
         </div>
-        <div className="col-span-3  grid-rows-1 flex justify-center">
-          <button className="flex h-fit items-center gap-[2px] text-primary font-[500] ">
-            <Plus color="#F08000" />
-            Add Skill
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 };
 const EditIcon = () => {
