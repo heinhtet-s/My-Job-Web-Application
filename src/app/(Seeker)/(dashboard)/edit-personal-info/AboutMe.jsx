@@ -6,8 +6,11 @@ import {
   selectStyle,
 } from "@/components/ui/form";
 import PrimaryBtn from "@/components/ui/primaryBtn";
+import ApiReq from "@/lib/axiosHandler";
+import axios from "axios";
 import { Modal } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import toast from "react-hot-toast";
 const personalInfo = [
   {
     title: "First Name",
@@ -71,8 +74,39 @@ const personalInfo = [
     value: "500000 -800000",
   },
 ];
-const AboutMe = () => {
-  const [openModal, setOpenModal] = useState(true);
+const AboutMe = ({ fetchInfoData, personalData }) => {
+  const [openModal, setOpenModal] = useState(false);
+  const file = useRef(null);
+  const fileExplore = () => {
+    if (file.current) {
+      file.current.click();
+    }
+  };
+  // const handleChange = (event) => {
+  //   if (event.target.files) {
+  //     uploadPhoto(
+  //       { data: { file: event.target.files[0] } },
+  //       {
+  //         onSuccess: () => {
+  //           mutate();
+  //         },
+  //       }
+  //     );
+  //   }
+  // };
+  const handleSubmit = async (AboutMe) => {
+    try {
+      await ApiReq.post("api/seekers/update", {
+        ...personalData,
+        AboutMe,
+      });
+      fetchInfoData();
+      setOpenModal(false);
+    } catch (e) {
+      toast.error("something worng");
+      console.log(e);
+    }
+  };
   return (
     <>
       <div className="grid grid-rows-1 grid-cols-12 gap-4 mb-[40px] ">
@@ -90,9 +124,18 @@ const AboutMe = () => {
             />
             <div className="flex flex-col">
               <div className="mb-[10px]">
+                <input
+                  type="file"
+                  id="file"
+                  ref={file}
+                  accept="image/*"
+                  style={{ display: "none" }}
+                  // onChange={handleChange}
+                />
+
                 <PrimaryBtn
                   size="small"
-                  handleClick={() => {}}
+                  handleClick={fileExplore}
                   text={"Upload Photo"}
                 />
               </div>
@@ -116,12 +159,7 @@ const AboutMe = () => {
           </p>
         </div>
         <div className="col-span-6  grid-rows-1">
-          <p className="opacity-60">
-            I am passionate about my work. Because I love what I do, I have a
-            steady source of motivation that drives me to do my best. In my last
-            job, this passion led me to challenge myself daily and learn new
-            skills that helped me to do better work.
-          </p>
+          <p className="opacity-60">{personalData?.AboutMe}</p>
         </div>
         <div className="col-span-2  grid-rows-1 flex justify-center">
           <button
@@ -136,26 +174,50 @@ const AboutMe = () => {
           </button>
         </div>
       </div>
-      <EditCareerInfo openModal={openModal} setOpenModal={setOpenModal} />
+      <EditCareerInfo
+        handleSubmit={handleSubmit}
+        personalData={personalData}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+      />
     </>
   );
 };
-const EditCareerInfo = ({ openModal, setOpenModal }) => {
+const EditCareerInfo = ({
+  openModal,
+  setOpenModal,
+  handleSubmit,
+  personalData,
+}) => {
+  const [aboutMe, setAboutMe] = useState(personalData?.AboutMe);
   return (
-    <Modal show={openModal} onClose={() => setOpenModal(false)}>
+    <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
       <Modal.Body className="rounded-[30px]">
         <h3 className="text-[1.5rem] font-[600] mb-[30px] mt-[15px]">
           Edit About Me
         </h3>
         <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
           <div className="col-span-2">
-            <textarea rows={5} className={inputStyle} />
+            <textarea
+              rows={5}
+              value={aboutMe}
+              onChange={(e) => {
+                console.log;
+                setAboutMe(e.target.value);
+              }}
+              className={inputStyle}
+            />
           </div>
         </div>
       </Modal.Body>
       <Modal.Footer>
         <div className="flex w-full justify-end">
-          <button type="submit" className={buttonStyle}>
+          <button
+            className={buttonStyle}
+            onClick={() => {
+              handleSubmit(aboutMe);
+            }}
+          >
             Submit
           </button>
         </div>

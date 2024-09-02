@@ -10,11 +10,12 @@ import {
 
 export async function GET(request) {
   const query = await getQuery(request.url);
+  console.log(query);
   const field = query?.include?.split(",");
   let data = {};
 
   try {
-    for (let index = 0; index < field.length; index++) {
+    for (let index = 0; index < field?.length; index++) {
       switch (field[index]) {
         case "country":
           const country = await GetCountry();

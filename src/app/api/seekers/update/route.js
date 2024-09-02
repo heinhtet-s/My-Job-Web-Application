@@ -38,10 +38,9 @@ export async function POST(request) {
     ProfileCompletion,
     ProjectUrl,
     AboutMe,
-    FirebaseUserId,
     Id,
   } = await request.json();
-  console.log("hello");
+  console.log("helloerwer");
   const createData = await UpdateSeekerList(
     {
       FirstName,

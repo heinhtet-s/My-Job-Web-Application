@@ -9,16 +9,18 @@ import PrimaryBtn from "@/components/ui/primaryBtn";
 import { cn } from "@/lib/utils";
 import { Button, Modal } from "flowbite-react";
 import { Plus } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AboutMeComponent from "./AboutMe";
 import Experiences from "./Experiences";
 import Education from "./Education";
 import LanguageSkill from "./LanguageSkill";
 import PersonalInfo from "./PersonalInfo";
+import axios from "axios";
+import { useSession } from "next-auth/react";
 
 const menuItem = [
+  "About Me",
   "Personal Info",
-  "Career Info",
   "Experience",
   "Education",
   "Language & Skills",
@@ -26,8 +28,41 @@ const menuItem = [
 
 const page = () => {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [openModal, setOpenModal] = useState(true);
-  const;
+  const [masterData, setMasterData] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [infoData, setInfoData] = useState({});
+  const { data: session } = useSession();
+  const fetchMasterData = async () => {
+    if (!session?.user?.Id) {
+      return;
+    }
+    try {
+      const masterData = await axios.get(
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/master/get?include=country,city,township,degreeLevels`
+      );
+      setMasterData(masterData.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const fetchInfoData = async () => {
+    if (!session?.user?.Id) {
+      return;
+    }
+    try {
+      const personalData = await axios.get(
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
+      );
+      setInfoData(personalData.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchInfoData();
+    fetchMasterData();
+  }, [session]);
   return (
     <>
       <div>
@@ -58,10 +93,27 @@ const page = () => {
             })}
           </ul>
           <div className="mt-[30px] text-start">
-            {activeIndex === 0 && <AboutMeComponent />}
-            {activeIndex === 1 && <PersonalInfo />}
+            {activeIndex === 0 && (
+              <AboutMeComponent
+                fetchInfoData={fetchInfoData}
+                personalData={infoData}
+              />
+            )}
+            {activeIndex === 1 && (
+              <PersonalInfo
+                fetchInfoData={fetchInfoData}
+                personalData={infoData}
+                masterData={masterData}
+              />
+            )}
 
-            {activeIndex === 2 && <Experiences />}
+            {activeIndex === 2 && (
+              <Experiences
+                fetchInfoData={fetchInfoData}
+                personalData={infoData}
+                masterData={masterData}
+              />
+            )}
 
             {activeIndex === 3 && <Education />}
             {activeIndex === 4 && <LanguageSkill />}
