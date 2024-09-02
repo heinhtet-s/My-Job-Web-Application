@@ -1,7 +1,7 @@
 "use server";
 import axios from "axios";
 import { REQUEST_HEADER } from "../../lib/config";
-import { EmployeerAuth, SeekerAuth } from "@/lib/apiConst";
+import { EmployeerAuth, SeekerAuth, UploadCVURL } from "@/lib/apiConst";
 import { signOut } from "next-auth/react";
 async function SeekerLogin({ email, password }) {
   const urlString = `${SeekerAuth}/login`;
@@ -136,6 +136,34 @@ async function Logout() {
   await signOut({ redirect: false });
   router.push("/login");
 }
+
+
+
+async function UploadCv(data, id) {
+  console.log(id)
+ 
+  const url = `${UploadCVURL}?seekerId=${id}`;
+  console.log(url)
+console.log(data)
+  try {
+    const response = await axios.post(encodeURI(url), data, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+   
+      },
+    });
+    return response.data;
+  } catch (e) {
+    console.error("Error uploading CV", e);
+    return { error: "Client and server connection error" };
+  }
+}
+
+
+// https://myjobs.dev/seeker/v1/UploadCvs/upload?seekerId=9a8ced97-77e7-466c-baf1-9e73a4ecfd23
+// https://myjobs.dev/seeker/v1/UploadCvs/upload?seekerId=167553d6-a4bd-4c22-89a2-2a2c7fa215e2
+// https://myjobs.dev/seeker/v1/UploadCvs/upload?seekerId=9a8ced97-77e7-466c-baf1-9e73a4ecfd23
+// https://myjobs.dev/seeker/v1/UploadCvs/upload?seekerId=167553d6-a4bd-4c22-89a2-2a2c7fa215e2
 export {
   SeekerLogin,
   ResetPasswordSeeker,
@@ -146,4 +174,5 @@ export {
   SeekerSsoLogin,
   EmployerSsoLogin,
   EmployeerRegister,
+  UploadCv
 };
