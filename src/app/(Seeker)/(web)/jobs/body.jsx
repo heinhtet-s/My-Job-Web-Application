@@ -15,126 +15,122 @@ import { Autoplay, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { workTypes,chooseTime } from "@/lib/const";
+import { workTypes, chooseTime } from "@/lib/const";
 import { EmployerJobPosts, EmployersConst } from "@/lib/queryConst";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import axios from "axios";
-const JobPostPage = ({ data ,industries,functionalAreas}) => {
-const [jobs,setJobs] = useState(data?.value)
-  const [industry,setIndustry] = useState(industries?.value)
-  const [functionalArea,setFuncaionalArea] = useState(functionalAreas.value)
-  const [filter,setFilter] = useState(EmployerJobPosts.filter)
+const JobPostPage = ({ data, industries, functionalAreas }) => {
+  const [jobs, setJobs] = useState(data?.value);
+  const [industry, setIndustry] = useState(industries?.value);
+  const [functionalArea, setFuncaionalArea] = useState(functionalAreas.value);
+  const [filter, setFilter] = useState(EmployerJobPosts.filter);
 
- const initialData = data;
- const [title, setTitle] = useState("");
- const [jobType,setJobType] = useState("")
- const [functionalAreaId,setFunctionalAreaId] = useState("")
- const [loading, setLoading] = useState(false);
- const [industrialId,setIndustrialId] = useState("")
- const [paging, setPaging] = useState({
-  pageNumber: 1,
-  perPage: 10,
-  total: jobs?.count,
-});
+  const initialData = data;
+  const [title, setTitle] = useState("");
+  const [jobType, setJobType] = useState("");
+  const [functionalAreaId, setFunctionalAreaId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [industrialId, setIndustrialId] = useState("");
+  const [paging, setPaging] = useState({
+    pageNumber: 1,
+    perPage: 10,
+    total: jobs?.count,
+  });
 
-const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
-//  Search when redirected from the Home Page
-const titleHome = searchParams.get('title')
-const jobTypeHome = searchParams.get('jobType')
-const industrialIdHome=searchParams.get('industryId')
+  //  Search when redirected from the Home Page
+  const titleHome = searchParams.get("title");
+  const jobTypeHome = searchParams.get("jobType");
+  const industrialIdHome = searchParams.get("industryId");
 
-useEffect(() => {
-  const formattedJobType = jobTypeHome ? `'${jobTypeHome}'` : '';
+  useEffect(() => {
+    const formattedJobType = jobTypeHome ? `'${jobTypeHome}'` : "";
 
-  setFilter((prevFilter) => ({
-    ...prevFilter,
-    Title: {
-      ...prevFilter.Title,
-      value: titleHome,
-    },
- 
-    JobType: {
-      ...prevFilter.JobType,
-      value: formattedJobType,
-    },
-    IndustryId: {
-      ...prevFilter.IndustryId,
-      value: industrialIdHome,
-    },
-  
-  }));
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      Title: {
+        ...prevFilter.Title,
+        value: titleHome,
+      },
 
-}, []); 
-
+      JobType: {
+        ...prevFilter.JobType,
+        value: formattedJobType,
+      },
+      IndustryId: {
+        ...prevFilter.IndustryId,
+        value: industrialIdHome,
+      },
+    }));
+  }, []);
 
   const router = useRouter();
 
-
-
-  const fetchJobLists = useCallback(async (pageNumber, perPage) => {
-    setLoading(true);
-    const queryString = await apiQueryHandler(
-      EmployerJobPosts,
-      filter,
-      EmployerJobPosts.order,
-      EmployerJobPosts.fields,
-      "normal",
-      {
-        pageNumber,
-        perPage,
-      }
-    );
-
-    axios
-      .get(`/api/job_lists/get?${queryString}`)
-      .then((res) => {
-        setPaging({
+  const fetchJobLists = useCallback(
+    async (pageNumber, perPage) => {
+      setLoading(true);
+      const queryString = await apiQueryHandler(
+        EmployerJobPosts,
+        filter,
+        EmployerJobPosts.order,
+        EmployerJobPosts.fields,
+        "normal",
+        {
           pageNumber,
           perPage,
-          total: res["@odata.count"],
-        });
+        }
+      );
 
-setJobs(res.data.value);
-     
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [filter]);
+      axios
+        .get(`/api/job_lists/get?${queryString}`)
+        .then((res) => {
+          setPaging({
+            pageNumber,
+            perPage,
+            total: res["@odata.count"],
+          });
+
+          setJobs(res.data.value);
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [filter]
+  );
 
   useEffect(() => {
     fetchJobLists(paging.pageNumber, paging.perPage);
   }, [filter, fetchJobLists]);
 
-  useEffect(()=>{
- const handlePopState =()=>{
-  if (!router?.query?.title) {
-    setFilter(EmployerJobPosts.filter);
-    setJobs(initialData);
-  }
- };
- window.addEventListener("popstate", handlePopState);
+  useEffect(() => {
+    const handlePopState = () => {
+      if (!router?.query?.title) {
+        setFilter(EmployerJobPosts.filter);
+        setJobs(initialData);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
 
- return () => {
-   window.removeEventListener("popstate", handlePopState);
- };
-  },[router,initialData])
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [router, initialData]);
 
-
-  // Search On Clik 
+  // Search On Clik
   const handleSearch = () => {
-    const formattedJobType = jobType? `'${jobType}'` : '';
+    const formattedJobType = jobType ? `'${jobType}'` : "";
     const queryParams = new URLSearchParams({
-      title: title.toLowerCase(), 
-      jobType:`'${jobType}'`,
+      title: title.toLowerCase(),
+      jobType: `'${jobType}'`,
       industryId: industrialId,
       functionalAreaId: functionalAreaId,
     });
-  
+
     setFilter((prevFilter) => ({
       ...prevFilter,
       Title: {
@@ -153,7 +149,6 @@ setJobs(res.data.value);
         ...prevFilter.FunctionalAreaId,
         value: functionalAreaId,
       },
-      
     }));
 
     router.push(`/jobs?${queryParams.toString()}`);
@@ -199,11 +194,13 @@ setJobs(res.data.value);
                     }}
                   >
                     <option>Select Industry</option>
-                    {
-                      industry?.map(work => {
-                        return <option key={work.Id} value={work.Id}>{work.TitleEng}</option>
-                      })
-                    }
+                    {industry?.map((work) => {
+                      return (
+                        <option key={work.Id} value={work.Id}>
+                          {work.TitleEng}
+                        </option>
+                      );
+                    })}
                   </select>
                   {/* <SeekerSelectBox placeholder="Select Industry" /> */}
                 </div>
@@ -226,14 +223,14 @@ setJobs(res.data.value);
                     }}
                   >
                     <option>Select Work Type</option>
-                    {
-                      workTypes?.map(work => {
-                        return <option key={work.label} value={work.value}>{work.label}</option>
-                      })
-                    }
-
+                    {workTypes?.map((work) => {
+                      return (
+                        <option key={work.label} value={work.value}>
+                          {work.label}
+                        </option>
+                      );
+                    })}
                   </select>
-
                 </div>
               </div>
 
@@ -252,15 +249,20 @@ setJobs(res.data.value);
                       backgroundRepeat: "no-repeat",
                       backgroundPosition: "right 0.75rem center",
                       backgroundSize: "16px 12px",
-                      
                     }}
                   >
                     <option>Select Functional Area</option>
-                    {
-                      functionalArea?.map(work => {
-                        return <option key={work.Id} value={work.Id}             onChange={(e) => setSearchQuery(e.target.value)}>{work.TitleEng}</option>
-                      })
-                    }
+                    {functionalArea?.map((work) => {
+                      return (
+                        <option
+                          key={work.Id}
+                          value={work.Id}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                        >
+                          {work.TitleEng}
+                        </option>
+                      );
+                    })}
                   </select>
                   {/* <SeekerSelectBox placeholder="Select Functional Area " /> */}
                 </div>
@@ -282,11 +284,13 @@ setJobs(res.data.value);
                     }}
                   >
                     <option>Any Time</option>
-                    {
-                      chooseTime?.map(work => {
-                        return <option key={work.label} value={work.value}>{work.label}</option>
-                      })
-                    }
+                    {chooseTime?.map((work) => {
+                      return (
+                        <option key={work.label} value={work.value}>
+                          {work.label}
+                        </option>
+                      );
+                    })}
                   </select>
                 </div>
               </div>
@@ -296,7 +300,10 @@ setJobs(res.data.value);
                   width: "auto",
                 }}
               >
-                <button className=" h-14 border-0 px-[20px] mr-[13px] rounded-[27px] text-white bg-primary transition-colors"    onClick={handleSearch}>
+                <button
+                  className=" h-14 border-0 px-[20px] mr-[13px] rounded-[27px] text-white bg-primary transition-colors"
+                  onClick={handleSearch}
+                >
                   Find Jobs
                 </button>
               </div>
@@ -385,12 +392,11 @@ setJobs(res.data.value);
   );
 };
 const JobPostComponent = ({ job }) => {
-
   const parsedDate = new Date(job.CreatedAt);
   const router = useRouter();
   return (
     <div
-      onClick={() => router.push(`/jobs/${id}`)}
+      onClick={() => router.push(`/jobs/${job?.Id}`)}
       className="bg-white p-8 mr-5 cursor-pointer rounded-[30px] text-decoration-none flex flex-col justify-between h-full border border-[#dcdcdc]"
       style={{
         width: "100%",
