@@ -177,7 +177,7 @@ const RegisterComponent = ({ data }) => {
                   })}
                   className="mt-1 w-full border rounded-lg p-2"
                 />
-                {errors.firstName && (
+                {errors.mapAddress && (
                   <p className="text-red-500 text-xs italic text-start">
                     {errors.mapAddress.message}
                   </p>

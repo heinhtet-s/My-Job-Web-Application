@@ -7,6 +7,9 @@
   font-family: "Poppins", sans-serif;
   color: #17171d;
 }
+input {
+  border-color: #e5e7eb !important;
+}
 .scrollable-no-scrollbar::-webkit-scrollbar {
   display: none; /* Safari and Chrome */
 }

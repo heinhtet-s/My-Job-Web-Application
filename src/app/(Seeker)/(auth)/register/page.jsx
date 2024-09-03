@@ -188,7 +188,7 @@ const Register = () => {
               <div className="text-start flex items-center">
                 <input
                   type="checkbox"
-                  className="mr-2"
+                  className="mr-2 outline-none focus:outline-none *:"
                   {...register("terms", { required: true })}
                 />
                 <label
