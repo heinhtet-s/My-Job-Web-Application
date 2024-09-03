@@ -135,7 +135,6 @@ const EmployerJobPosts = {
     "Description",
     "Requirement",
     "CountryId",
-    "TownshipId",
     "CityId",
     "JobType",
     "CareerLevel",

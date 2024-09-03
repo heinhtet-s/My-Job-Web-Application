@@ -201,7 +201,7 @@ setJobs(res.data.value);
                     <option>Select Industry</option>
                     {
                       industry?.map(work => {
-                        return <option key={work.Id} value={work.Id}>{work.Title}</option>
+                        return <option key={work.Id} value={work.Id}>{work.TitleEng}</option>
                       })
                     }
                   </select>

@@ -132,7 +132,7 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
             </p>
           </div>
           <div className="relative flex-wrap	 flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden  gap-4 my-2 mb-6">
-            {jobPosts.map((str, index) => (
+            {jobPosts?.map((str, index) => (
               <JobCardComponent isFeatureCard={false} jobPost={str} />
             ))}
           </div>
