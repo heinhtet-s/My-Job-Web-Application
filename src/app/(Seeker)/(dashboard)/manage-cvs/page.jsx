@@ -24,7 +24,7 @@ const Page = () => {
     perPage: 10,
     total: 0,
   });
-
+console.log(data)
   async function getCvs(pageNumber, perPage) {
     setLoading(true);
     try {
@@ -47,7 +47,7 @@ const Page = () => {
       }));
       setData(result.data.value);
     } catch (error) {
-      console.log(error);
+   
       // errorMessage(error);
     } finally {
       setLoading(false);
@@ -80,7 +80,7 @@ const Page = () => {
             const formattedDate = format(parseISO(isoDate), "dd/MM/yy"); // Format the date
             return (
               <TableRow key={cv.Id}>
-                <TableCell className="text-primary">{cv.ImageUrl}</TableCell>
+                <TableCell className="text-primary">{cv.CVFileName}</TableCell>
                 <TableCell className="text-green-600">{formattedDate}</TableCell>
                 <TableCell>
                   <Switch checked={cv.isDefault} />

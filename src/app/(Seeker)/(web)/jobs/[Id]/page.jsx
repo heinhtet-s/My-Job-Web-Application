@@ -10,7 +10,6 @@ export default async function page({ params, searchParams }) {
  
     return <JobDetailComponent data={data?.data} />;
   } catch (e) {
-    // console.log(e.response);
     return <JobDetailComponent data={{}} />;
   }
 }

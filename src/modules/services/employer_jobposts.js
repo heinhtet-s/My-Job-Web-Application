@@ -3,7 +3,7 @@ import { AppliedJobPostURL, EmployerJobPostURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetEmployerJobPostList(url) {
-  console.log(`${EmployerJobPostURL}${url}`)
+
 
   return await axios
     .get(encodeURI(`${EmployerJobPostURL}${url}`), REQUEST_HEADER)
@@ -29,6 +29,21 @@ async function createAppliedJobPost(data) {
     });
 }
 
-export { GetEmployerJobPostList ,createAppliedJobPost};
+async function GetAppliedJobPostList(url) {
+
+
+  return await axios
+    .get(encodeURI(`${AppliedJobPostURL}${url}`), REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((err) => {
+    
+      return { error: "Client and server connection error" };
+    });
+}
+
+
+export { GetEmployerJobPostList ,createAppliedJobPost,GetAppliedJobPostList};
 
 

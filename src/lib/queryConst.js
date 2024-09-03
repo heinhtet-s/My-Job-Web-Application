@@ -201,6 +201,10 @@ const EmployerJobPosts = {
 
 const GeneratedCvConst = {
   fields: [
+    "CVFileName",
+    "CVS3Url",
+    "CVType",
+    "Active",
     "ImageUrl",
     "CvGeneratedUIType",
     "FullName",
@@ -220,7 +224,7 @@ const GeneratedCvConst = {
     "CreatedAt",
     "UpdatedAt",
     "CreatedBy",
-    "UpdatedBy"
+    "UpdatedBy",
   ],
   filter: {},
   order: { updatedAt: "desc" },
@@ -228,6 +232,27 @@ const GeneratedCvConst = {
   top: 10,
   skip: 0,
 };
+
+const AppliedJobPostConst ={
+  fields: [
+    "Status",
+    "EmployerId",
+    "JobId",
+    "IsDisplay",
+    "SeekerId",
+    "Id",
+    "CreatedAt",
+    "UpdatedAt",
+    "CreatedBy",
+    "UpdatedBy",
+  ],
+  filter: {},
+  order: { updatedAt: "desc" },
+  childrens: [],
+  top: 10,
+  skip: 0,
+};
+
 export {
   SeekersConst,
   EmployersConst,
@@ -235,6 +260,5 @@ export {
   IndustriesConst,
   FunctionalAreasConst,
   GeneratedCvConst,
+  AppliedJobPostConst
 };
-
-

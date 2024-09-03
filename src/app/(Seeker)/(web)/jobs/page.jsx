@@ -21,7 +21,7 @@ export default async function JobPost() {
     const industries = await odataQueryHandler(IndustriesConst,IndustriesConst.fields,IndustriesConst.order,IndustriesConst.fields,"no_child",   { top: 10, skip: 0 },GetInsdustriesList)
     const functionalAreas = await odataQueryHandler(FunctionalAreasConst,FunctionalAreasConst.fields,FunctionalAreasConst.order,FunctionalAreasConst.fields,"no_child",   { top: 10, skip: 0 },GetFunctionalAreaLists)
  
-console.log(data)
+
     return <JobPostPage data={data.value} industries={industries} functionalAreas={functionalAreas}/>;
   } catch (error) {
     console.error('Error fetching data:', error);

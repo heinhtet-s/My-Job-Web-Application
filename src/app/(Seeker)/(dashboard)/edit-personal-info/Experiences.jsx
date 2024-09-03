@@ -20,7 +20,7 @@ const Experiences = ({ fetchInfoData, personalData, masterData }) => {
   const [expInfo, setExpInfo] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
   const handleSubmitApi = async (data) => {
-    console.log(data, "fsfs");
+   
     try {
       await ApiReq.post("api/seeker_info/experiences_list/create", {
         ...data,
@@ -28,7 +28,7 @@ const Experiences = ({ fetchInfoData, personalData, masterData }) => {
       setOpenModal(false);
     } catch (e) {
       toast.error("something wrong");
-      console.log(e);
+    
     }
   };
   const masterDataFormat = (data) => {
@@ -46,11 +46,11 @@ const Experiences = ({ fetchInfoData, personalData, masterData }) => {
       const personalData = await ApiReq.get(
         `api/seeker_info/experiences_list/getById`
       );
-      console.log(personalData);
+      
       setExpInfo(personalData?.data);
       // setPersona(personalData.data);
     } catch (e) {
-      console.log(e);
+      
     }
   };
   useEffect(() => {

@@ -151,7 +151,7 @@ const ViewMoreBtn = ({ text }) => {
   );
 };
 const FeatureCampanyComponent = ({ companies }) => {
-  console.log(companies);
+  
   const router = useRouter();
   return (
     <div

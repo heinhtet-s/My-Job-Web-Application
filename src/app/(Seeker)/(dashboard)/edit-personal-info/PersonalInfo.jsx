@@ -142,7 +142,7 @@ const nationalities = [
 const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
   const [openModal, setOpenModal] = useState(false);
   const handleSubmitApi = async (data) => {
-    console.log(data, "fsfs");
+   
     try {
       await ApiReq.post("api/seekers/update", {
         ...personalData,
@@ -151,7 +151,7 @@ const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
       setOpenModal(false);
     } catch (e) {
       toast.error("something wrong");
-      console.log(e);
+    
     }
   };
   const FormattedData = (key) => {

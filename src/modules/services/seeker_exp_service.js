@@ -45,7 +45,7 @@ async function deleteExp(id) {
       return data;
     })
     .catch((e) => {
-      console.log(e);
+   
       return { error: "Client and server connection error" };
     });
 }

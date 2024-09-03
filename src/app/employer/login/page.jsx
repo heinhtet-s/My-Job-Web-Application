@@ -19,10 +19,10 @@ const Login = () => {
   } = useForm();
   const pathName = usePathname();
   const [error, setError] = useState("");
-  console.log(pathName);
+
   const router = useRouter();
   const onSubmit = async (data) => {
-    console.log(data, "hello");
+   
     try {
       setError("");
       const res = await signIn("credentials", {
@@ -40,7 +40,7 @@ const Login = () => {
       toast.success("Successfully  Login");
       // router.push("/");
     } catch (error) {
-      console.log(error);
+ 
       setError("Invalid Email or Password");
     }
   };
@@ -75,7 +75,7 @@ const Login = () => {
       }
       toast.success("Successfully  Login");
       router.push("/");
-      console.log(user);
+      
     } catch (err) {
       // Handle errors here.
       const errorMessage = err.message;
@@ -108,7 +108,7 @@ const Login = () => {
       }
     }
   };
-  console.log(errors, "errors");
+ 
   return (
     <div className="w-full h-screen flex items-start">
       <div className="hidden lg:flex bg-jobBg lg:w-1/2 relative h-full flex-col">

@@ -23,7 +23,7 @@ const JobDetailComponent = ({ data }) => {
   const seerkerId = data?.Id;
   const router = useRouter()
   const EmployerId = data.EmployerId
-console.log(data.EmployerId)
+
 const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/20240901163848_Profile.pdf"
 
   if (!seerkerId) {
@@ -49,10 +49,10 @@ const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/202409011
       
   
       // Now, use the URL to create a CV
-      const response = await axios.post('/api/generate_cv/create', { imageUrl: imageURLfromUpload });
+      const response = await axios.post('/api/generate_cv/create', { CVS3Url: imageURLfromUpload ,CVFileName:"Test2.pdf"});
       const appliedJob = await axios.post('/api/appliedJobpost/create',{JobId,EmployerId,})
       // console.log(response.data);
-      console.log(appliedJob)
+      // console.log(appliedJob)
       
     } catch (e) {
       console.log(e);

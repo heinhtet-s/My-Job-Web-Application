@@ -4,8 +4,7 @@ import { UploadCVURL } from "../../lib/apiConst";
 async function UploadCv(data, id) {
  
   const url = `${UploadCVURL}?seekerId=${id}`;
-  console.log(url)
-console.log(data)
+
   try {
     const response = await axios.post(encodeURI(url), data, {
       headers: {

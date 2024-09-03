@@ -104,7 +104,7 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
       setOpenModal(false);
     } catch (e) {
       toast.error("something worng");
-      console.log(e);
+      
     }
   };
   return (
@@ -165,7 +165,7 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
           <button
             className="flex h-fit items-center gap-[2px]  text-primary font-[500] "
             onClick={() => {
-              console.log("fefwe");
+            
               setOpenModal(true);
             }}
           >
@@ -202,7 +202,7 @@ const EditCareerInfo = ({
               rows={5}
               value={aboutMe}
               onChange={(e) => {
-                console.log;
+              
                 setAboutMe(e.target.value);
               }}
               className={inputStyle}

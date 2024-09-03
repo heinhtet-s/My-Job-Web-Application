@@ -42,7 +42,7 @@ const page = () => {
       );
       setMasterData(masterData.data);
     } catch (e) {
-      console.log(e);
+     
     }
   };
   const fetchInfoData = async () => {
@@ -55,7 +55,7 @@ const page = () => {
       );
       setInfoData(personalData.data);
     } catch (e) {
-      console.log(e);
+     
     }
   };
 

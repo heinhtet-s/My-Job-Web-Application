@@ -40,7 +40,7 @@ export async function POST(request) {
     AboutMe,
     Id,
   } = await request.json();
-  console.log("helloerwer");
+
   const createData = await UpdateSeekerList(
     {
       FirstName,

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
-  console.log("fowfjwoe");
+
   const { searchParams, params } = new URL(req.url);
   const jobPostId = searchParams.get("id");
   try {
@@ -14,7 +14,7 @@ export async function GET(req) {
         },
       }
     );
-    console.log(jobPostResponse, "jobpost");
+  
     if (!jobPostResponse.ok) {
       return new Response(
         JSON.stringify({ error: `Error: ${jobPostResponse.status}` }),
@@ -40,7 +40,7 @@ export async function GET(req) {
         Industry = await industryResponse.json();
       }
     }
-    console.log(Industry);
+ 
     // Add industry details to employer data
     const extendedData = {
       ...jobPostData,
@@ -57,7 +57,7 @@ export async function GET(req) {
 
     return NextResponse.json(extendedData);
   } catch (err) {
-    console.log(err);
+ 
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
     });
