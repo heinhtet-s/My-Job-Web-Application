@@ -24,7 +24,7 @@ const Page = () => {
     perPage: 10,
     total: 0,
   });
-console.log(data)
+
   async function getCvs(pageNumber, perPage) {
     setLoading(true);
     try {
