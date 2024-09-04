@@ -15,8 +15,12 @@ import axios from "axios";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import { GeneratedCvConst } from "@/lib/queryConst";
 import { format, parseISO } from "date-fns"; // Import necessary functions from date-fns
+import { useSession } from "next-auth/react";
 
 const Page = () => {
+  const { data: session } = useSession() 
+  const [filter,setFilter] = useState(GeneratedCvConst.filter)
+  const SEEKERID = session?.user?.Id;
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
@@ -25,13 +29,28 @@ const Page = () => {
     total: 0,
   });
 
+
+useEffect(() => {
+  if (SEEKERID) {
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      SeekerId: {
+        ...prevFilter.SeekerId,
+        value: SEEKERID,
+      },
+    }));
+  }
+}, [SEEKERID]);
+
+
   async function getCvs(pageNumber, perPage) {
+   
     setLoading(true);
     try {
       const result = await axios.get(
         `/api/generate_cv/get?${await apiQueryHandler(
           GeneratedCvConst,
-          GeneratedCvConst.filter,
+       filter,
           GeneratedCvConst.order,
           GeneratedCvConst.fields,
           "no_child",
@@ -54,9 +73,11 @@ const Page = () => {
     }
   }
 
-  useEffect(() => {
+useEffect(() => {
+  if (filter.SeekerId.value) {
     getCvs(paging.pageNumber, paging.perPage);
-  }, [paging.pageNumber, paging.perPage]);
+  }
+}, [paging.pageNumber, paging.perPage, filter]);
 
   return (
     <div>

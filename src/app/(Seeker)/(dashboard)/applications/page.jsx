@@ -15,9 +15,13 @@ import PaginatedItems from "@/components/share/pagination";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import { AppliedJobPostConst } from "@/lib/queryConst";
 import { format } from 'date-fns';
+import { useSession } from "next-auth/react";
 
 const Page = () => {
   const [loading, setLoading] = useState(false);
+  const { data: session } = useSession() 
+  const [filter,setFilter] = useState(AppliedJobPostConst.filter)
+  const SEEKERID = session?.user?.Id;
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
     pageNumber: 1,
@@ -25,14 +29,24 @@ const Page = () => {
     total: 0,
   });
   const [currentPage, setCurrentPage] = useState(1);
-
+  useEffect(() => {
+    if (SEEKERID) {
+      setFilter((prevFilter) => ({
+        ...prevFilter,
+        SeekerId: {
+          ...prevFilter.SeekerId,
+          value: SEEKERID,
+        },
+      }));
+    }
+  }, [SEEKERID]);
   async function getApplications(pageNumber, perPage) {
     setLoading(true);
     try {
       const result = await axios.get(
         `/api/appliedJobpost/get?${await apiQueryHandler(
           AppliedJobPostConst,
-          AppliedJobPostConst.filter,
+        filter,
           AppliedJobPostConst.order,
           AppliedJobPostConst.fields,
           "no_child",
@@ -55,9 +69,13 @@ const Page = () => {
     }
   }
 
-  useEffect(() => {
-    getApplications(currentPage, paging.perPage);
-  }, [currentPage, paging.perPage]);
+useEffect(() => {
+  if (filter.SeekerId.value) {
+    getApplications(paging.pageNumber, paging.perPage);
+  }
+}, [paging.pageNumber, paging.perPage, filter]);
+
+ 
 
   useEffect(() => {
     setPaging((prev) => ({

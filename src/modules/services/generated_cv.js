@@ -3,7 +3,6 @@ import { GeneratedCVURL, IndustriesURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetGeneratedCvLists(url) {
-  
   return await axios
     .get(encodeURI(`${GeneratedCVURL}${url}`), REQUEST_HEADER)
     .then(({ data }) => {
@@ -14,21 +13,17 @@ async function GetGeneratedCvLists(url) {
     });
 }
 
-
 async function createCV(data) {
-  console.log(data)
-  console.log(GeneratedCVURL)
-    return await axios
-      .post(encodeURI(GeneratedCVURL), data, REQUEST_HEADER)
-      .then(({ data }) => {
-        return data;
-      })
-      .catch((e) => {
-      
-        return { error: "Client and server connection error" };
-      });
-  }
+  console.log(data);
+  console.log(GeneratedCVURL);
+  return await axios
+    .post(encodeURI(GeneratedCVURL), data, REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((e) => {
+      return { error: "Client and server connection error" };
+    });
+}
 
-
-
-export { GetGeneratedCvLists,createCV };
+export { GetGeneratedCvLists, createCV };

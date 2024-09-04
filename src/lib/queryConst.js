@@ -8,14 +8,12 @@ const SeekersConst = {
     "ContactPhoneNumber",
     "CountryId",
     "CityId",
-    "TownshipId",
     "LoginType",
     "LastLogin",
     "Gender",
     "DateOfBirth",
     "Address",
     "MaritalStatus",
-    "UploadCv",
     "Nationality",
     "ImageUrl",
     "About",
@@ -226,14 +224,21 @@ const GeneratedCvConst = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
+  filter: {
+    SeekerId: {
+      value: "",
+      type: "foreign",
+      label: "SeekerId",
+    },
+  },
+
   order: { updatedAt: "desc" },
   childrens: [],
   top: 10,
   skip: 0,
 };
 
-const AppliedJobPostConst ={
+const AppliedJobPostConst = {
   fields: [
     "Status",
     "EmployerId",
@@ -246,7 +251,13 @@ const AppliedJobPostConst ={
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
+  filter: {
+    SeekerId: {
+      value: "",
+      type: "foreign",
+      label: "SeekerId",
+    },
+  },
   order: { updatedAt: "desc" },
   childrens: [],
   top: 10,
@@ -260,5 +271,5 @@ export {
   IndustriesConst,
   FunctionalAreasConst,
   GeneratedCvConst,
-  AppliedJobPostConst
+  AppliedJobPostConst,
 };
