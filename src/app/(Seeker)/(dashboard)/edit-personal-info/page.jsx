@@ -38,7 +38,7 @@ const page = () => {
     }
     try {
       const masterData = await axios.get(
-        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/master/get?include=country,city,township,degreeLevels`
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/master/get?include=country,city,state,degreeLevels,degreeTypes`
       );
       setMasterData(masterData.data);
     } catch (e) {
@@ -107,15 +107,9 @@ const page = () => {
               />
             )}
 
-            {activeIndex === 2 && (
-              <Experiences
-                fetchInfoData={fetchInfoData}
-                personalData={infoData}
-                masterData={masterData}
-              />
-            )}
+            {activeIndex === 2 && <Experiences masterData={masterData} />}
 
-            {activeIndex === 3 && <Education />}
+            {activeIndex === 3 && <Education masterData={masterData} />}
             {activeIndex === 4 && <LanguageSkill />}
           </div>
         </div>

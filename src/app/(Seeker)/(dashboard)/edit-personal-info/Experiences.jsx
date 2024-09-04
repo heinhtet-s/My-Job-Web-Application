@@ -15,21 +15,61 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import moment from "moment";
-const Experiences = ({ fetchInfoData, personalData, masterData }) => {
+import Swal from "sweetalert2";
+import { Label } from "@/components/ui/label";
+
+const Experiences = ({ masterData }) => {
   const [openModal, setOpenModal] = useState(false);
   const [expInfo, setExpInfo] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
+  console.log(masterData, "fweef");
+
   const handleSubmitApi = async (data) => {
-    console.log(data, "fsfs");
     try {
-      await ApiReq.post("api/seeker_info/experiences_list/create", {
-        ...data,
-      });
+      if (!selectedIndex) {
+        await ApiReq.post("api/seeker_info/experiences_list/create", {
+          ...data,
+        });
+        toast.success("Successfully Created");
+      } else {
+        await ApiReq.post("api/seeker_info/experiences_list/update", {
+          ...data,
+        });
+        toast.success("Successfully Update");
+      }
+      setSelectedIndex(null);
+      fetchExpData();
       setOpenModal(false);
     } catch (e) {
-      toast.error("something wrong");
+      toast.error("Somethings wrong.Please try again");
       console.log(e);
     }
+  };
+  const handleDelete = async (id) => {
+    try {
+      await ApiReq.post("api/seeker_info/experiences_list/delete", {
+        id,
+      });
+      setSelectedIndex(null);
+      fetchExpData();
+      toast.success("Delete Successfully");
+    } catch (e) {
+      setSelectedIndex(null);
+      toast.error("Somethings wrong.Please try again");
+    }
+  };
+  const handleConfirmDelete = (id) => {
+    Swal.fire({
+      title: "Do you want to delete?",
+      text: "Delete Job Experience",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        handleDelete(id);
+      }
+    });
   };
   const masterDataFormat = (data) => {
     return (
@@ -78,7 +118,7 @@ const Experiences = ({ fetchInfoData, personalData, masterData }) => {
               <Plus color="#F08000" /> Add Experience
             </button>
           </div>
-          {expInfo?.map((el) => {
+          {expInfo?.map((el, index) => {
             return (
               <>
                 <div className="flex border-b-2 mb-[20px]  pb-3 gap-2 justify-between border-gray-100">
@@ -93,15 +133,24 @@ const Experiences = ({ fetchInfoData, personalData, masterData }) => {
                     {moment(el?.EndDate).format("DD-MMM-YYYY")}
                   </p>
                   <div className="flex items-center gap-2 cursor-pointer">
-                    <div>
+                    <div
+                      onClick={() => {
+                        setSelectedIndex(index);
+                        setOpenModal(true);
+                      }}
+                    >
                       <EditTableIcon />
                     </div>
-                    <div>
+                    <div
+                      onClick={() => {
+                        handleConfirmDelete(el?.Id);
+                      }}
+                    >
                       <DeleteTableIcon />
                     </div>
                   </div>
                 </div>
-                <p className="font-[300] opacity-60 mt-[5px]">
+                <p className="font-[300] opacity-60 mt-[5px] mb-[20px]">
                   {el?.JobDescription}
                 </p>
               </>
@@ -110,11 +159,10 @@ const Experiences = ({ fetchInfoData, personalData, masterData }) => {
         </div>
       </div>
       <ExperiencesForm
-        selectedIndex={selectedIndex}
         openModal={openModal}
         handleClose={handleClose}
         masterData={masterData}
-        personalData={personalData}
+        personalData={expInfo?.[selectedIndex]}
         handleSubmitApi={handleSubmitApi}
       />
     </>
@@ -127,14 +175,29 @@ const ExperiencesForm = ({
   personalData,
   masterData,
 }) => {
+  console.log(personalData, "ffwe");
   const {
     register,
     watch,
     handleSubmit,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm({
     defaultValues: personalData,
   });
+  useEffect(() => {
+    if (personalData)
+      reset({
+        ...personalData,
+        StartDate: personalData?.StartDate
+          ? moment(personalData?.StartDate).format("YYYY-MM-DD")
+          : personalData?.StartDate,
+        EndDate: personalData?.EndDate
+          ? moment(personalData?.EndDate).format("YYYY-MM-DD")
+          : personalData?.EndDate,
+      });
+  }, [personalData]);
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };
@@ -146,7 +209,7 @@ const ExperiencesForm = ({
       >
         <Modal.Body className="rounded-[30px]">
           <h3 className="text-[1.5rem] font-[600] mb-[30px] mt-[15px]">
-            Edit Word Experiences
+            {personalData?.Id ? "Edit" : "Add"} Word Experiences
           </h3>
 
           <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
@@ -209,13 +272,22 @@ const ExperiencesForm = ({
                 State <span className="text-red-800">*</span>
               </label>
               <select
+                defaultValue={personalData?.StateId}
                 className={selectStyle}
-                // {...register("CityId", { required: true })}
+                {...register("StateId", { required: true })}
               >
                 <option>Select State</option>
-                {/* Populate with state options */}
+                {masterData?.state
+                  ?.filter((ele) => {
+                    return ele?.CountryId == watch("CountryId");
+                  })
+                  .map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.Name}
+                    </option>
+                  ))}
               </select>
-              {errors.CityId && (
+              {errors.StateId && (
                 <p className="text-red-800 text-[13px] mt-[2px]">
                   This field is required
                 </p>
@@ -230,12 +302,13 @@ const ExperiencesForm = ({
               </label>
               <select
                 className={selectStyle}
+                defaultValue={personalData?.CityId}
                 {...register("CityId", { required: true })}
               >
                 <option>Select City</option>
                 {masterData?.city
                   ?.filter((ele) => {
-                    return ele?.CountryId == watch("CountryId");
+                    return ele?.StateId == watch("StateId");
                   })
                   .map((el) => (
                     <option value={el?.Id} key={el?.Id}>
@@ -250,8 +323,21 @@ const ExperiencesForm = ({
                 </p>
               )}
             </div>
-            <div className="col-span-1">
-              <Switch id="airplane-mode" />
+            <div className="col-span-1 flex items-center justify-center">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  onCheckedChange={(e) => {
+                    console.log(e);
+                    if (e) {
+                      setValue("EndDate", null);
+                    }
+                    setValue("Active", e);
+                  }}
+                  id="airplane-mode"
+                  checked={watch("Active")}
+                />
+                <Label htmlFor="airplane-mode">Currently Working?</Label>
+              </div>
             </div>
           </div>
 
@@ -279,7 +365,8 @@ const ExperiencesForm = ({
               <input
                 type="date"
                 className={inputStyle}
-                {...register("EndDate", { required: true })}
+                disabled={watch("Active")}
+                {...register("EndDate")}
               />
               {errors.EndDate && (
                 <p className="text-red-800 text-[13px] mt-[2px]">

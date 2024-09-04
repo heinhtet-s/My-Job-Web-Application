@@ -23,9 +23,9 @@ async function GetCity() {
     });
 }
 
-async function GetTownship() {
+async function GetState() {
   return await axios
-    .get(encodeURI(`${MasterdataURL}/Townships`), REQUEST_HEADER)
+    .get(encodeURI(`${MasterdataURL}/States`), REQUEST_HEADER)
     .then(({ data }) => {
       return data;
     })
@@ -35,7 +35,7 @@ async function GetTownship() {
 }
 async function GetDegreeLevels() {
   return await axios
-    .get(encodeURI(`${MasterdataURL}/Townships`), REQUEST_HEADER)
+    .get(encodeURI(`${MasterdataURL}/DegreeLevels`), REQUEST_HEADER)
     .then(({ data }) => {
       return data;
     })
@@ -46,7 +46,7 @@ async function GetDegreeLevels() {
 
 async function GetDegreeTypes() {
   return await axios
-    .get(encodeURI(`${MasterdataURL}/Townships`), REQUEST_HEADER)
+    .get(encodeURI(`${MasterdataURL}/DegreeTypes`), REQUEST_HEADER)
     .then(({ data }) => {
       return data;
     })
@@ -55,4 +55,4 @@ async function GetDegreeTypes() {
     });
 }
 
-export { GetCountry, GetDegreeTypes, GetDegreeLevels, GetTownship, GetCity };
+export { GetCountry, GetDegreeTypes, GetDegreeLevels, GetState, GetCity };

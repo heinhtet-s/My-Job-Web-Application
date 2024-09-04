@@ -4,7 +4,7 @@ import {
   GetCountry,
   GetDegreeTypes,
   GetDegreeLevels,
-  GetTownship,
+  GetState,
   GetCity,
 } from "../../../../modules/services/master";
 
@@ -41,11 +41,11 @@ export async function GET(request) {
           };
           break;
 
-        case "township":
-          const township = await GetTownship();
+        case "state":
+          const state = await GetState();
           data = {
             ...data,
-            township: township.value,
+            state: state.value,
           };
           break;
 

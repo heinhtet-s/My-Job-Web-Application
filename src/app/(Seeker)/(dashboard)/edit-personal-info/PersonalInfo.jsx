@@ -6,6 +6,7 @@ import { Modal } from "flowbite-react";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import ProfileUpload from "./ImageUploadComponent";
 import {
   buttonStyle,
   inputStyle,
@@ -191,6 +192,7 @@ const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
             })}
           </div>
         </div>
+
         <div className="col-span-2  grid-rows-1 flex justify-center">
           <button
             className="flex h-fit items-center gap-[2px] text-primary font-[500] "
@@ -209,6 +211,8 @@ const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
         handleSubmitApi={handleSubmitApi}
         masterData={masterData}
       />
+      <p>hello</p>
+      <ProfileUpload />
     </>
   );
 };
