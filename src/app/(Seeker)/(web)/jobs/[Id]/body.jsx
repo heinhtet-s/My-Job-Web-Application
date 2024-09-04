@@ -1,71 +1,155 @@
 "use client";
 import CardLayout from "@/components/share/CardLayout";
 import PrimaryBtn from "@/components/ui/primaryBtn";
-import { Heart, Share2 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { Heart, Minus, Share2 } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import moment from "moment";
 import ModalBox from "@/components/ui/CustomModal";
 import { Button, Modal } from "flowbite-react";
 import { Input } from "@/components/ui/input";
 import { useParams, useRouter } from "next/navigation";
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import axios from "axios";
 import { UploadCv } from "@/modules/services/auth";
+import ApiReq from "@/lib/axiosHandler";
+import { UploadedCv } from "@/modules/services/uploadcv_service";
+import { getFavJob, postFavJob } from "@/modules/services/jobFav_service";
 
+import toast from "react-hot-toast";
 const JobDetailComponent = ({ data }) => {
   const [openModal, setOpenModal] = useState(false);
-  const [loading, setLoading] = useState(false)
-  const params = useParams()
-  const { Id: JobId } = params
+  const [alreadyApplied, setAlreadyApply] = useState(false);
+  const [favoJob, setFavoJob] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const params = useParams();
+  const [cvList, setCvList] = useState([]);
+  const [favList, setFavList] = useState([]);
+  const [selectedCvForm, setSelectedCvForm] = useState(null);
+  const { Id: JobId } = params;
   const { data: session } = useSession();
   const [selectedFile, setSelectedFile] = useState(null);
-  const seerkerId = data?.Id;
-  const router = useRouter()
-  const EmployerId = data.EmployerId
-console.log(data.EmployerId)
-const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/20240901163848_Profile.pdf"
-
-  if (!seerkerId) {
-    router.push('/login')
-  }
+  const seerkerId = session?.user?.Id;
+  const router = useRouter();
+  const EmployerId = data.EmployerId;
+  const fileInputRef = useRef(null);
   const handleFileChange = (e) => {
     setSelectedFile(e.target.files[0]);
   };
-
-
-  const handleApplyNow = async () => {
-    // if (!selectedFile) {
-    //   alert("Please select a CV file.");
-    //   return;
-    // }
-  
-    // const formData = new FormData();
-    // formData.append("file", selectedFile);
-    
+  const getCvList = async () => {
     try {
-      
-      // const uploadResponse = await UploadCv({ file: formData }, '167553d6-a4bd-4c22-89a2-2a2c7fa215e2');
-      
-  
-      // Now, use the URL to create a CV
-      const response = await axios.post('/api/generate_cv/create', { imageUrl: imageURLfromUpload });
-      const appliedJob = await axios.post('/api/appliedJobpost/create',{JobId,EmployerId,})
-      // console.log(response.data);
-      console.log(appliedJob)
-      
+      const data = await ApiReq.get(`api/generate_cv/getById`);
+
+      setCvList(data?.data);
+      setSelectedCvForm(data?.data?.filter((el) => el?.Active)?.[0]?.Id);
     } catch (e) {
       console.log(e);
     }
   };
-  
+  console.log(session?.user?.Id);
+  const getFavJobList = async () => {
+    try {
+      console.log("sdfwfkjwhfjwfjwfhiw");
+      const data = await getFavJob(session?.user?.Id);
+      setFavList(data?.value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    getCvList();
+  }, []);
+  useEffect(() => {
+    if (session?.user?.Id) {
+      getFavJobList();
+    }
+  }, [session?.user?.Id]);
+  useEffect(() => {
+    console.log(favList, "dfsf");
+    console.log(favList?.filter((el) => el?.id === JobId)?.[0]);
+    setFavoJob(!!favList?.filter((el) => el?.id === JobId)?.[0]);
+  }, [favList]);
 
+  useEffect(() => {
+    setAlreadyApply(data?.ApplyedJob);
+  }, [data?.ApplyedJob]);
+  const handleApplyNow = async () => {
+    if (!seerkerId) {
+      router.push("/login");
+    }
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("SeekerId", session?.user?.Id);
+      formData.append("CvType", "1");
+      formData.append("Active", "true");
+      formData.append("file", selectedFile);
+      try {
+        // const uploadResponse = await UploadCv({ file: formData }, '167553d6-a4bd-4c22-89a2-2a2c7fa215e2');
+        const data = await UploadedCv(formData);
+        if (data.error) {
+          toast.error("somethings wrong");
+          return;
+        }
+        const Cvdata = await ApiReq.post("api/generate_cv/create", {
+          CVFileName: selectedFile.name,
+          CVS3Url: data?.url,
+        });
+
+        const appliedJob = await ApiReq.post("/api/appliedJobpost/create", {
+          JobId,
+          EmployerId,
+          CVsId: Cvdata?.data?.Id,
+        });
+        toast.success("Apply Successfully");
+        handleModalClose();
+        setAlreadyApply(true);
+        // console.log(response.data);
+        // console.log(appliedJob)
+      } catch (e) {
+        console.log(e);
+      }
+      return;
+    }
+    if (selectedCvForm) {
+      try {
+        const appliedJob = await ApiReq.post("/api/appliedJobpost/create", {
+          JobId,
+          EmployerId,
+          CVsId: selectedCvForm,
+        });
+
+        toast.success("Apply Successfully");
+        handleModalClose();
+        setAlreadyApply(true);
+      } catch (e) {
+        console.log(e);
+      }
+      return;
+    }
+  };
+  const handleModalClose = () => {
+    setOpenModal(false);
+    setSelectedFile(null); // Clear the selected fil  e state
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // Clear the file input value
+    }
+  };
+  const handleFavourite = async () => {
+    try {
+      await postFavJob({
+        jobId: JobId,
+        seekerId: session?.user?.Id,
+      });
+      setFavoJob((el) => !el);
+    } catch (e) {}
+  };
   return (
     <div>
       <Modal
+        dismissible
         show={openModal}
         className="rounded-3xl"
-        onClose={() => setOpenModal(false)}
+        onClose={handleModalClose}
       >
         <Modal.Header className="font-[600]">Apply Now</Modal.Header>
         <Modal.Body>
@@ -79,12 +163,18 @@ const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/202409011
             <div className=" grid grid-cols-12 items-center gap-[15px]">
               <div className="col-span-5">
                 <select
+                  value={selectedCvForm}
+                  onChange={(e) => {
+                    console.log(e.target.value);
+                    setSelectedCvForm(e.target.value);
+                  }}
                   id="countries"
                   class=" border border-[#ced4da]   bg-white text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none ring-0 "
                 >
-                  <option selected value={null}>
-                    Select CV
-                  </option>
+                  <option value={null}>Select CV</option>
+                  {cvList?.map?.((el) => {
+                    return <option value={el?.Id}>{el?.CVFileName}</option>;
+                  })}
                 </select>
               </div>
               <div className="col-span-2 text-[13px] text-center">OR</div>
@@ -93,6 +183,7 @@ const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/202409011
                   class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none "
                   id="file_input"
                   type="file"
+                  ref={fileInputRef}
                   onChange={handleFileChange}
                 />
               </div>
@@ -103,7 +194,7 @@ const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/202409011
               onClick={handleApplyNow}
               className="bg-primary text-white text-[18px] font-medium px-10 py-1.5 transition-[background-color] rounded-full"
             >
-              Apply Now
+              {"Apply Now"}
             </button>
           </div>
         </Modal.Body>
@@ -137,11 +228,21 @@ const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/202409011
                 by {data?.Employer?.CompanyName} in {data?.Employer?.MapAddress}
               </p>
               <div className="flex gap-4 mt-10">
-                <div className="cursor-pointer border flex justify-center items-center border-widgetColor text-widgetColor text-center h-[46px] w-[46px] rounded-full text-[15px] transition-[color,background-color] duration-300 ease-in-out hover:bg-widgetColor group">
-                  <Heart
-                    strokeWidth={1.75}
-                    className="group-hover:stroke-white"
-                  />
+                <div
+                  onClick={handleFavourite}
+                  className="cursor-pointer border flex justify-center items-center border-widgetColor text-widgetColor text-center h-[46px] w-[46px] rounded-full text-[15px] transition-[color,background-color] duration-300 ease-in-out hover:bg-widgetColor group"
+                >
+                  {favoJob ? (
+                    <Minus
+                      strokeWidth={1.75}
+                      className="group-hover:stroke-white"
+                    />
+                  ) : (
+                    <Heart
+                      strokeWidth={1.75}
+                      className="group-hover:stroke-white"
+                    />
+                  )}
                 </div>
                 <div className="cursor-pointer border flex justify-center items-center border-widgetColor text-widgetColor text-center h-[46px] w-[46px] rounded-full text-[15px] transition-[color,background-color] duration-300 ease-in-out hover:bg-widgetColor group">
                   <Share2
@@ -150,7 +251,8 @@ const imageURLfromUpload ="seeker/167553d6-a4bd-4c22-89a2-2a2c7fa215e2/202409011
                   />
                 </div>
                 <PrimaryBtn
-                  text="Apply Now"
+                  disable={alreadyApplied}
+                  text={alreadyApplied ? "Already Applied" : "Apply Now"}
                   handleClick={() => {
                     setOpenModal(true);
                   }}

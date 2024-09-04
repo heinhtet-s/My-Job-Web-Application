@@ -1,18 +1,12 @@
-import axios from 'axios';
+"use server";
+import axios from "axios";
 import { UploadCVURL } from "../../lib/apiConst";
 
-async function UploadCv(data, id) {
- 
-  const url = `${UploadCVURL}?seekerId=${id}`;
-  console.log(url)
-console.log(data)
+async function UploadedCv(data) {
+  const url = `${UploadCVURL}`;
   try {
-    const response = await axios.post(encodeURI(url), data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-   
-      },
-    });
+    const response = await axios.post(encodeURI(url), data);
+    console.log(response);
     return response.data;
   } catch (e) {
     console.error("Error uploading CV", e);
@@ -20,4 +14,4 @@ console.log(data)
   }
 }
 
-export { UploadCv };
+export { UploadedCv };

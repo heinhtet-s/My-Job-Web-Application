@@ -190,8 +190,12 @@ text-[16px]
   );
 };
 const EmployerLoginBtn = () => {
+  const router = useRouter();
   return (
     <Button
+      onClick={() => {
+        router.push("/employer/login");
+      }}
       className="
     text-white
     text-[16px]

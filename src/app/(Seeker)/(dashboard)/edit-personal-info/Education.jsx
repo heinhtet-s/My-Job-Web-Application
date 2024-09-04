@@ -25,7 +25,7 @@ const Education = ({ masterData }) => {
 
   const handleSubmitApi = async (data) => {
     try {
-      if (!selectedIndex) {
+      if (selectedIndex === null) {
         await ApiReq.post("api/seeker_info/education_list/create", {
           ...data,
         });

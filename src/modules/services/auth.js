@@ -137,19 +137,16 @@ async function Logout() {
   router.push("/login");
 }
 
-
-
 async function UploadCv(data, id) {
-  console.log(id)
- 
+  console.log(id);
+
   const url = `${UploadCVURL}?seekerId=${id}`;
-  console.log(url)
-console.log(data)
+  console.log(url);
+  console.log(data);
   try {
     const response = await axios.post(encodeURI(url), data, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-   
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
@@ -158,7 +155,6 @@ console.log(data)
     return { error: "Client and server connection error" };
   }
 }
-
 
 // https://myjobs.dev/seeker/v1/UploadCvs/upload?seekerId=9a8ced97-77e7-466c-baf1-9e73a4ecfd23
 // https://myjobs.dev/seeker/v1/UploadCvs/upload?seekerId=167553d6-a4bd-4c22-89a2-2a2c7fa215e2
@@ -174,5 +170,5 @@ export {
   SeekerSsoLogin,
   EmployerSsoLogin,
   EmployeerRegister,
-  UploadCv
+  UploadCv,
 };

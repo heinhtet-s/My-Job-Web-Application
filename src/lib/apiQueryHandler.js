@@ -106,7 +106,7 @@ async function filterHandler(filter, query_filter) {
   let filterString = "";
 
 
-// console.log(query_filter)
+
   for (const key of Object.keys(filter)) {
     if (
       query_filter[key] &&

@@ -26,7 +26,7 @@ const Experiences = ({ masterData }) => {
 
   const handleSubmitApi = async (data) => {
     try {
-      if (!selectedIndex) {
+      if (selectedIndex === null) {
         await ApiReq.post("api/seeker_info/experiences_list/create", {
           ...data,
         });
@@ -86,12 +86,9 @@ const Experiences = ({ masterData }) => {
       const personalData = await ApiReq.get(
         `api/seeker_info/experiences_list/getById`
       );
-      console.log(personalData);
       setExpInfo(personalData?.data);
       // setPersona(personalData.data);
-    } catch (e) {
-      console.log(e);
-    }
+    } catch (e) {}
   };
   useEffect(() => {
     fetchExpData();

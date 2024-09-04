@@ -14,5 +14,5 @@ export async function GET(request) {
     return errorResponse();
   }
 
-  return NextResponse.json(getData);
+  return NextResponse.json(getData?.value);
 }

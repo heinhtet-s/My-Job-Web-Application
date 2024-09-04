@@ -10,12 +10,10 @@ import { createAppliedJobPost } from "@/modules/services/employer_jobposts";
 import { getServerSession } from "next-auth";
 
 export async function POST(request) {
-    console.log('fjdaglkj')
+
   const session = await getServerSession(authOptions);
   const { JobId,EmployerId } = await request.json();
-console.log(
-    "TZPK"
-)
+
   const createData = await createAppliedJobPost({
     Status: true,
     EmployerId:EmployerId,

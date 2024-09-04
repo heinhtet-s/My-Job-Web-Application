@@ -32,7 +32,7 @@ const Register = () => {
       notify();
       router.push("/login");
     } catch (e) {
-      console.log(e);
+      
     }
   };
   const [activeButton, setActiveButton] = useState("register");

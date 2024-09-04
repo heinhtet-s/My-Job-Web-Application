@@ -1,19 +1,24 @@
 import { NextResponse } from "next/server";
 
 import { authOptions } from "@/lib/authOptions";
-import {errorResponse,successResponse,getCurrentDate} from '@/lib/globalFunctions'
-import {createCV} from '@/modules/services/generated_cv'
+import {
+  errorResponse,
+  successResponse,
+  getCurrentDate,
+} from "@/lib/globalFunctions";
+import { createCV } from "@/modules/services/generated_cv";
 import { getServerSession } from "next-auth";
 
 export async function POST(request) {
   const session = await getServerSession(authOptions);
-  const {
-    imageUrl
-  } = await request.json();
-  console.log('HE')
-  console.log(imageUrl)
+  const { CVFileName, CVS3Url } = await request.json();
+
   const createData = await createCV({
-    ImageUrl: imageUrl,
+    CVFileName,
+    CVS3Url,
+    CVType: "Uploaded",
+    Active: false,
+    ImageUrl: null,
     CvGeneratedUIType: "generated",
     FullName: null,
     Email: null,
@@ -33,10 +38,9 @@ export async function POST(request) {
     createdBy: session?.user?.Id ? session.user.Id : null,
     updatedBy: session?.user?.Id ? session.user.Id : null,
   });
-
+  console.log(createData);
   if (createData.error) {
     return errorResponse();
   }
-
-  return successResponse();
+  return NextResponse.json(createData);
 }

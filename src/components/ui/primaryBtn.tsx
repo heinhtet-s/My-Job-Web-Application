@@ -2,12 +2,14 @@ import { cn } from "@/lib/utils";
 import React from "react";
 
 const PrimaryBtn = ({
+  disable = false,
   text,
   handleClick,
   size = "large",
   color,
   fullWidth,
 }: {
+  disable?: boolean;
   text: string;
   handleClick?: () => void;
   size?: string;
@@ -16,6 +18,7 @@ const PrimaryBtn = ({
 }) => {
   return (
     <button
+      disabled={disable}
       onClick={handleClick ? handleClick : () => {}}
       className={cn(
         "bg-primary text-white text-[18px] font-medium transition-[background-color] rounded-full",

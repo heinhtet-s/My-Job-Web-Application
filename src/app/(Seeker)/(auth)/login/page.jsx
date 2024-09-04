@@ -34,12 +34,7 @@ const Login = () => {
 
       // Pull signed-in user credential.
       const user = result.user;
-      console.log({
-        isSso: true,
-        token: user.accessToken,
-        email: user.email,
-        role: "seeker",
-      });
+   
       const res = await signIn("credentials", {
         credentials: JSON.stringify({
           isSso: true,
@@ -55,7 +50,7 @@ const Login = () => {
       }
       toast.success("Successfully  Login");
       router.push("/");
-      console.log(user);
+   
     } catch (err) {
       // Handle errors here.
       const errorMessage = err.message;
@@ -89,7 +84,7 @@ const Login = () => {
     }
   };
   const onSubmit = async (data) => {
-    console.log(data, "hello");
+  
     try {
       setError("");
       const res = await signIn("credentials", {
@@ -106,7 +101,7 @@ const Login = () => {
       toast.success("Successfully  Login");
       router.push("/");
     } catch (error) {
-      console.log(error);
+     
       setError("Invalid Email or Password");
     }
   };

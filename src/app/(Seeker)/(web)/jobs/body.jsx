@@ -24,7 +24,6 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
   const [industry, setIndustry] = useState(industries?.value);
   const [functionalArea, setFuncaionalArea] = useState(functionalAreas.value);
   const [filter, setFilter] = useState(EmployerJobPosts.filter);
-
   const initialData = data;
   const [title, setTitle] = useState("");
   const [jobType, setJobType] = useState("");

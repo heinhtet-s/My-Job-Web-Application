@@ -1,10 +1,14 @@
+import { authOptions } from "@/lib/authOptions";
+import axios from "axios";
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET(req) {
-  console.log("fowfjwoe");
   const { searchParams, params } = new URL(req.url);
   const jobPostId = searchParams.get("id");
+  const seeker_id = searchParams.get("seeker_id");
   try {
+    const session = await getServerSession(authOptions);
     const jobPostResponse = await fetch(
       `https://myjobs.dev/employer/v1/JobPosts/${jobPostId}?$expand=Employer,FunctionalArea`,
       {
@@ -14,7 +18,7 @@ export async function GET(req) {
         },
       }
     );
-    console.log(jobPostResponse, "jobpost");
+
     if (!jobPostResponse.ok) {
       return new Response(
         JSON.stringify({ error: `Error: ${jobPostResponse.status}` }),
@@ -40,10 +44,15 @@ export async function GET(req) {
         Industry = await industryResponse.json();
       }
     }
-    console.log(Industry);
-    // Add industry details to employer data
+
+    const applyJobPostResponse = await axios.get(
+      encodeURI(
+        `https://myjobs.dev/seeker/v1/AppliedJobPosts?$filter=SeekerId eq ${seeker_id} and JobId eq ${jobPostId}`
+      )
+    );
     const extendedData = {
       ...jobPostData,
+      ApplyedJob: applyJobPostResponse?.data?.value?.length > 0 ? true : false,
       Employer: {
         ...jobPostData.Employer,
         Industry: Industry?.value?.filter(
@@ -56,8 +65,9 @@ export async function GET(req) {
     };
 
     return NextResponse.json(extendedData);
+    // Add industry details to employer data
   } catch (err) {
-    console.log(err);
+    console.log(err, "error");
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
     });

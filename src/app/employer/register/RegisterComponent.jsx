@@ -28,18 +28,7 @@ const RegisterComponent = ({ data }) => {
   const notify = () => toast.success("Successfully Registe Please Login");
   const router = useRouter();
   const onSubmit = async (data) => {
-    console.log(
-      {
-        industryId: data?.industryId,
-        companyName: data?.companyName,
-        contactPersonName: data?.contactPersonName,
-        mapAddress: data?.mapAddress,
-        email: data?.email,
-        phoneNumber: data?.phoneNumber,
-        password: data?.password,
-      },
-      "data"
-    );
+
     try {
       await EmployeerRegister({
         industryId: data?.industryId,
@@ -53,7 +42,7 @@ const RegisterComponent = ({ data }) => {
       notify();
       router.push("/employer/login");
     } catch (e) {
-      console.log(e);
+      
     }
   };
 

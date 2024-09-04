@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Table,
   TableBody,
@@ -15,23 +15,34 @@ import axios from "axios";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import { GeneratedCvConst } from "@/lib/queryConst";
 import { format, parseISO } from "date-fns"; // Import necessary functions from date-fns
-
+import { useSession } from "next-auth/react";
+import { UploadedCv } from "../../../../modules/services/uploadcv_service";
+import toast from "react-hot-toast";
+import ApiReq from "@/lib/axiosHandler";
+import Swal from "sweetalert2";
 const Page = () => {
   const [loading, setLoading] = useState(false);
+  const file = useRef(null);
+  const fileExplore = () => {
+    if (file.current) {
+      file.current.click();
+    }
+  };
+  const { data: session } = useSession();
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
     pageNumber: 1,
-    perPage: 10,
+    perPage: 100,
     total: 0,
   });
-
+  console.log(data);
   async function getCvs(pageNumber, perPage) {
     setLoading(true);
     try {
       const result = await axios.get(
         `/api/generate_cv/get?${await apiQueryHandler(
           GeneratedCvConst,
-          GeneratedCvConst.filter,
+          `?$filter=SeekerId eq ${session?.user?.Id}`,
           GeneratedCvConst.order,
           GeneratedCvConst.fields,
           "no_child",
@@ -47,16 +58,62 @@ const Page = () => {
       }));
       setData(result.data.value);
     } catch (error) {
-      console.log(error);
       // errorMessage(error);
     } finally {
       setLoading(false);
     }
   }
-
+  const handleChange = async (event) => {
+    if (event.target.files) {
+      const formData = new FormData();
+      formData.append("SeekerId", session?.user?.Id);
+      formData.append("CvType", "1");
+      formData.append("Active", "true");
+      formData.append("file", event.target.files[0]);
+      try {
+        const data = await UploadedCv(formData);
+        if (data.error) {
+          toast.error("somethings wrong");
+          return;
+        }
+        await ApiReq.post("api/generate_cv/create", {
+          CVFileName: event.target.files[0]?.name,
+          CVS3Url: data?.url,
+        });
+        await getCvs(paging.pageNumber, paging.perPage);
+        toast.success("successfully created CV");
+      } catch (e) {
+        toast.error("something wrong");
+      }
+    }
+  };
+  const handleDelete = async (Id) => {
+    try {
+      await ApiReq.post("api/generate_cv/delete", {
+        Id,
+      });
+      await getCvs(paging.pageNumber, paging.perPage);
+      toast.success("Delete Successfully");
+    } catch (e) {
+      toast.error("Somethings wrong.Please try again");
+    }
+  };
+  const handleConfirmDelete = (id) => {
+    Swal.fire({
+      title: "Do you want to delete?",
+      text: "Delete Job Experience",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+    }).then(async (result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+        handleDelete(id);
+      }
+    });
+  };
   useEffect(() => {
-    getCvs(paging.pageNumber, paging.perPage);
-  }, [paging.pageNumber, paging.perPage]);
+    if (session?.user?.Id) getCvs(paging.pageNumber, paging.perPage);
+  }, [paging.pageNumber, paging.perPage, session?.user?.Id]);
 
   return (
     <div>
@@ -80,18 +137,33 @@ const Page = () => {
             const formattedDate = format(parseISO(isoDate), "dd/MM/yy"); // Format the date
             return (
               <TableRow key={cv.Id}>
-                <TableCell className="text-primary">{cv.ImageUrl}</TableCell>
-                <TableCell className="text-green-600">{formattedDate}</TableCell>
-                <TableCell>
-                  <Switch checked={cv.isDefault} />
+                <TableCell className="text-primary">{cv.CVFileName}</TableCell>
+                <TableCell className="text-green-600">
+                  {formattedDate}
                 </TableCell>
-                <TableCell className="text-red-700">Delete</TableCell>
+                <TableCell>
+                  <Switch checked={cv.Active} />
+                </TableCell>
+                <TableCell
+                  className="text-red-700"
+                  onClick={() => handleConfirmDelete(cv?.Id)}
+                >
+                  Delete
+                </TableCell>
               </TableRow>
             );
           })}
         </TableBody>
       </Table>
-      <PrimaryBtn text="Upload" handleClick={() => {}} />
+      <input
+        type="file"
+        id="file"
+        ref={file}
+        accept="pdf/*"
+        style={{ display: "none" }}
+        onChange={handleChange}
+      />
+      <PrimaryBtn text="Upload" handleClick={fileExplore} />
     </div>
   );
 };

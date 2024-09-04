@@ -18,7 +18,7 @@ const page = () => {
       await ResetPasswordSeeker(session?.user?.email || "");
       toast.success("Password reset link sent to your email.");
     } catch (e) {
-      console.log(e);
+     
       toast.error("Somethings worng please try again");
     }
   };

@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Table,
   TableBody,
@@ -9,12 +10,62 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Switch } from "@/components/ui/switch";
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import PaginatedItems from "@/components/share/pagination";
+import { apiQueryHandler } from "@/lib/apiQueryHandler";
+import { AppliedJobPostConst } from "@/lib/queryConst";
+import { format } from 'date-fns';
 
-const page = () => {
+const Page = () => {
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState([]);
+  const [paging, setPaging] = useState({
+    pageNumber: 1,
+    perPage: 10,
+    total: 0,
+  });
   const [currentPage, setCurrentPage] = useState(1);
+
+  async function getApplications(pageNumber, perPage) {
+    setLoading(true);
+    try {
+      const result = await axios.get(
+        `/api/appliedJobpost/get?${await apiQueryHandler(
+          AppliedJobPostConst,
+          AppliedJobPostConst.filter,
+          AppliedJobPostConst.order,
+          AppliedJobPostConst.fields,
+          "no_child",
+          {
+            pageNumber,
+            perPage,
+          }
+        )}`
+      );
+      setPaging((prev) => ({
+        ...prev,
+        total: result.data["@odata.count"],
+      }));
+      setData(result.data);
+    } catch (error) {
+      console.log(error);
+      // errorMessage(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getApplications(currentPage, paging.perPage);
+  }, [currentPage, paging.perPage]);
+
+  useEffect(() => {
+    setPaging((prev) => ({
+      ...prev,
+      pageNumber: currentPage,
+    }));
+  }, [currentPage]);
+
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Applications</h1>
@@ -32,28 +83,44 @@ const page = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow>
-            <TableCell>
-              <p className="text-primary font-[500]">Senior Editor</p>
-              <p className="flex items-center gap-1 font-[500]">
-                <EarthIcon />
-                San Francisco, CA
-              </p>
-            </TableCell>
-            <TableCell className="text-blue-500 font-[300] ">
-              Artistre Studio
-            </TableCell>
-
-            <TableCell>Marketing & Communication</TableCell>
-            <TableCell className="font-[500]">Full-time</TableCell>
-            <TableCell className="font-[300]">2020/08/24 at 11:56 am</TableCell>
-          </TableRow>
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan="5">Loading...</TableCell>
+            </TableRow>
+          ) : data?.length > 0 ? (
+            data?.map((item, index) => {
+              const formattedDate = format(new Date(item.CreatedAt), 'dd/MM/yy hh:mm a');
+              return (
+                <TableRow key={index}>
+                  <TableCell>
+                    <p className="text-primary font-[500]">{item.JobTitle}</p>
+                    <p className="flex items-center gap-1 font-[500]">
+                      <EarthIcon />
+                      {item.location}
+                    </p>
+                  </TableCell>
+                  <TableCell className="text-blue-500 font-[300] ">
+                    {item.CompanyName}
+                  </TableCell>
+                  <TableCell>{item.FunctionalArea}</TableCell>
+                  <TableCell className="font-[500]">{item.JobType}</TableCell>
+                  <TableCell className="font-[300]">
+                    {formattedDate}
+                  </TableCell>
+                </TableRow>
+              );
+            })
+          ) : (
+            <TableRow>
+              <TableCell colSpan="5">No applications found.</TableCell>
+            </TableRow>
+          )}
         </TableBody>
       </Table>
 
       <PaginatedItems
-        itemsPerPage={10}
-        totalPage={3}
+        itemsPerPage={paging.perPage}
+        totalPage={Math.ceil(paging.total / paging.perPage)}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
       />
@@ -88,4 +155,4 @@ const EarthIcon = () => {
     </svg>
   );
 };
-export default page;
+export default Page;
