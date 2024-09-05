@@ -28,7 +28,6 @@ const RegisterComponent = ({ data }) => {
   const notify = () => toast.success("Successfully Registe Please Login");
   const router = useRouter();
   const onSubmit = async (data) => {
-
     try {
       await EmployeerRegister({
         industryId: data?.industryId,
@@ -41,11 +40,9 @@ const RegisterComponent = ({ data }) => {
       });
       notify();
       router.push("/employer/login");
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   };
-
+  console.log(data, "datdfdsfa");
   const [activeButton, setActiveButton] = useState("register");
   return (
     <div className="relaive">
@@ -112,13 +109,13 @@ const RegisterComponent = ({ data }) => {
                     required: "Industry Name is required",
                   })}
                   id="countries"
-                  class=" border  outline-none bg-white text-gray-900 text-sm rounded-lg block w-full p-2.5 "
+                  class=" border  border-[#e5e7eb] outline-none bg-white text-gray-900 text-sm rounded-lg block w-full p-2.5 "
                 >
                   <option selected value={null}>
                     Select Industry
                   </option>
                   {data.map((el) => {
-                    return <option value={el?.Id}>{el?.Title}</option>;
+                    return <option value={el?.Id}>{el?.TitleEng}</option>;
                   })}
                 </select>
                 {errors.industryId && (

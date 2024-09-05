@@ -11,6 +11,7 @@ import axios from "axios";
 import { Modal } from "flowbite-react";
 import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
+import ImageUpaladComponent from "./ImageUploadComponent.jsx";
 const personalInfo = [
   {
     title: "First Name",
@@ -98,13 +99,12 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
     try {
       await ApiReq.post("api/seekers/update", {
         ...personalData,
-        AboutMe,
+        ...AboutMe,
       });
       fetchInfoData();
       setOpenModal(false);
     } catch (e) {
       toast.error("something worng");
-      
     }
   };
   return (
@@ -119,8 +119,12 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
         <div className="col-span-8">
           <div className="flex items-center gap-4">
             <img
-              src="/image/no-image.png"
-              className="w-[230px]  h-[230px] block rounded-full"
+              src={
+                personalData?.ImageUrl
+                  ? personalData?.ImageUrl
+                  : "/image/no-image.png"
+              }
+              className="w-[230px] object-cover object-center  h-[230px] block rounded-full"
             />
             <div className="flex flex-col">
               <div className="mb-[10px]">
@@ -132,12 +136,12 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
                   style={{ display: "none" }}
                   // onChange={handleChange}
                 />
-
-                <PrimaryBtn
+                <ImageUpaladComponent handleSubmit={handleSubmit} />
+                {/* <PrimaryBtn
                   size="small"
                   handleClick={fileExplore}
                   text={"Upload Photo"}
-                />
+                /> */}
               </div>
               <PrimaryBtn
                 size="small"
@@ -165,7 +169,6 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
           <button
             className="flex h-fit items-center gap-[2px]  text-primary font-[500] "
             onClick={() => {
-            
               setOpenModal(true);
             }}
           >
@@ -202,7 +205,6 @@ const EditCareerInfo = ({
               rows={5}
               value={aboutMe}
               onChange={(e) => {
-              
                 setAboutMe(e.target.value);
               }}
               className={inputStyle}
@@ -215,7 +217,7 @@ const EditCareerInfo = ({
           <button
             className={buttonStyle}
             onClick={() => {
-              handleSubmit(aboutMe);
+              handleSubmit({ AboutMe: aboutMe });
             }}
           >
             Submit

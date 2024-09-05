@@ -41,6 +41,7 @@ const SeekersConst = {
   top: 10,
   skip: 0,
 };
+
 const IndustriesConst = {
   fields: [
     "Title",

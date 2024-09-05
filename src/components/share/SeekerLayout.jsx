@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { LoginIcon } from "@/asset/Icon";
 import Footer from "../Footer";
@@ -12,7 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-const SeekerLayout = ({ children }: { children: React.ReactNode }) => {
+import axios from "axios";
+const SeekerLayout = ({ children }) => {
   return (
     <div className="mt-[74px]">
       <Nav />
@@ -23,7 +24,23 @@ const SeekerLayout = ({ children }: { children: React.ReactNode }) => {
 };
 const Nav = () => {
   const router = useRouter();
-  const { data: session, status } = useSession() as any;
+  const { data: session, status } = useSession();
+  const [infoData, setInfoData] = useState({});
+  const fetchInfoData = async () => {
+    if (!session?.user?.Id) {
+      return;
+    }
+    try {
+      const personalData = await axios.get(
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
+      );
+      setInfoData(personalData.data);
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    if (session?.user?.Id) fetchInfoData();
+  }, [session]);
   const Logout = async () => {
     await signOut({ redirect: false });
     router.push("/login");
@@ -103,13 +120,17 @@ const Nav = () => {
               >
                 <div className="flex items-center gap-3">
                   <img
-                    src="image/no-image.png"
+                    src={
+                      infoData?.ImageUrl
+                        ? infoData?.ImageUrl
+                        : "/image/no-image.png"
+                    }
                     className="w-[35px] h-[35px] rounded-[35px]"
                   />
                   <p className="text-white cursor-pointer">
-                    {session.user?.FirstName
-                      ? session?.user?.FirstName + "  " + session.user?.LastName
-                      : session?.user?.email}
+                    {infoData?.FirstName
+                      ? infoData.FirstName + "  " + infoData?.LastName
+                      : infoData.email}
                   </p>
                 </div>
               </Button>

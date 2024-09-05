@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import PrimaryBtn from "@/components/ui/primaryBtn";
 import {
   Bell,
   ChevronDown,
@@ -168,14 +169,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
               Home
             </div>
-            <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
-              Find Jobs
-            </div>
+
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
               Products{" "}
             </div>
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
               Accounts{" "}
+            </div>
+            <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
+              <button
+                onClick={() => {
+                  router.push("/employer/jobpost/create");
+                }}
+                className="bg-primary text-white text-[16px] font-[400] transition-[background-color] rounded-full  px-5 py-1.5"
+              >
+                Post a Job
+              </button>
             </div>
             <div className="mx-3">
               <Bell strokeWidth={1.75} width="18px" />

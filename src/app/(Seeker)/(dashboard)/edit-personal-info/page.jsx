@@ -41,9 +41,7 @@ const page = () => {
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/master/get?include=country,city,state,degreeLevels,degreeTypes`
       );
       setMasterData(masterData.data);
-    } catch (e) {
-     
-    }
+    } catch (e) {}
   };
   const fetchInfoData = async () => {
     if (!session?.user?.Id) {
@@ -54,9 +52,7 @@ const page = () => {
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
       );
       setInfoData(personalData.data);
-    } catch (e) {
-     
-    }
+    } catch (e) {}
   };
 
   useEffect(() => {

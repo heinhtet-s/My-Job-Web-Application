@@ -118,6 +118,19 @@ async function ResetPasswordEmployer({ email }) {
     throw e?.response?.data;
   }
 }
+
+async function EmailVerifyEmployer(token) {
+  const urlString = encodeURI(
+    `https://myjobs.dev/employer/v1/verify?token=${token}`
+  );
+  try {
+    const data = await axios.get(urlString);
+    return "success";
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
 async function ResetPasswordSeeker(email) {
   console.log(email);
   console.log(
@@ -170,5 +183,6 @@ export {
   SeekerSsoLogin,
   EmployerSsoLogin,
   EmployeerRegister,
+  EmailVerifyEmployer,
   UploadCv,
 };
