@@ -7,7 +7,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 export async function GET(request) {
   const query = await getQuery(request.url);
-
   const getData = await apiGetData(
     query,
     GeneratedCvConst,

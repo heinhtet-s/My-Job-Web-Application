@@ -77,8 +77,80 @@ const HomePage = ({ companies, candidates, industries, jobPosts }) => {
     </>
   );
 };
+// const FeatureJobPostComponent = ({ jobPosts }) => {
+//   const router = useRouter();
+
+//   return (
+//     <div className="bg-jobBg">
+//       <div className="max-w-[1280px] mx-auto p-8 px-4">
+//         <p className="text-[#111] text-4xl font-poppins font-semibold leading-normal text-center">
+//           Featured Jobs Offer
+//         </p>
+//         <p className="text-[#666] text-sm font-normal leading-normal mt-2 text-center">
+//           Search your career opportunity through 103 jobs
+//         </p>
+
+//         <div className="mt-[32px] relative">
+//           <div className="flex items-center mb-[8px]">
+//             <SportLightIcon />
+//             <p className="text-secondary text-[18px] font-[600] mb-[8px]">
+//               Spotlight Jobs
+//             </p>
+//           </div>
+//           <div className=" relative">
+//             <Swiper
+//               style={{
+//                 width: "100%",
+//               }}
+//               loop={true}
+//               navigation={true}
+//               spaceBetween={15}
+//               pagination={{
+//                 clickable: true,
+//               }}
+//               slidesPerView={3}
+//               autoplay={{
+//                 delay: 7000,
+//               }}
+//               speed={700}
+//               modules={[Autoplay, Navigation]}
+//               className="mySwiper"
+//             >
+//               {jobPosts?.map((str, index) => (
+//                 <SwiperSlide>
+//                   <JobCardComponent isFeatureCard={true} jobPost={str} />
+//                 </SwiperSlide>
+//               ))}
+//             </Swiper>
+//           </div>
+//         </div>
+//         <div className="mt-[32px] relative">
+//           <div className="flex items-center mb-[8px]">
+//             <HilightIcon />
+//             <p className="text-[#666] text-[18px] font-[600] ">
+//               Highlight Jobs
+//             </p>
+//           </div>
+//           <div className="relative flex-wrap	 flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden  gap-4 my-2 mb-6">
+//             {jobPosts?.map((str, index) => (
+//               <JobCardComponent isFeatureCard={false} jobPost={str} />
+//             ))}
+//           </div>
+//         </div>
+//         <ViewMoreBtn text={"View All Job"} />
+//       </div>
+//     </div>
+//   );
+// };
+
+
+
 const FeatureJobPostComponent = ({ jobPosts }) => {
   const router = useRouter();
+
+  // Separate jobs into Spotlight and Highlight
+  const spotlightJobs = jobPosts?.filter(job => job.JobUnitType === 'Spotlight');
+  const highlightJobs = jobPosts?.filter(job => job.JobUnitType === 'Highlight');
 
   return (
     <div className="bg-jobBg">
@@ -87,61 +159,66 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
           Featured Jobs Offer
         </p>
         <p className="text-[#666] text-sm font-normal leading-normal mt-2 text-center">
-          Search your career opportunity through 103 jobs
+          Search your career opportunity through {jobPosts?.length || 0} jobs
         </p>
 
-        <div className="mt-[32px] relative">
-          <div className="flex items-center mb-[8px]">
-            <SportLightIcon />
-            <p className="text-secondary text-[18px] font-[600] mb-[8px]">
-              Spotlight Jobs
-            </p>
+        {/* Spotlight Jobs Section */}
+        {spotlightJobs.length > 0 && (
+          <div className="mt-[32px] relative">
+            <div className="flex items-center mb-[8px]">
+              <SportLightIcon />
+              <p className="text-secondary text-[18px] font-[600] mb-[8px]">
+                Spotlight Jobs
+              </p>
+            </div>
+            <div className="relative">
+              <Swiper
+                style={{ width: "100%" }}
+                loop={true}
+                navigation={true}
+                spaceBetween={15}
+                pagination={{ clickable: true }}
+                slidesPerView={3}
+                autoplay={{ delay: 7000 }}
+                speed={700}
+                modules={[Autoplay, Navigation]}
+                className="mySwiper"
+              >
+                {spotlightJobs.map((job, index) => (
+                  <SwiperSlide key={job.Id || index}>
+                    <JobCardComponent isFeatureCard={true} jobPost={job} />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
           </div>
-          <div className=" relative">
-            <Swiper
-              style={{
-                width: "100%",
-              }}
-              loop={true}
-              navigation={true}
-              spaceBetween={15}
-              pagination={{
-                clickable: true,
-              }}
-              slidesPerView={3}
-              autoplay={{
-                delay: 7000,
-              }}
-              speed={700}
-              modules={[Autoplay, Navigation]}
-              className="mySwiper"
-            >
-              {jobPosts?.map((str, index) => (
-                <SwiperSlide>
-                  <JobCardComponent isFeatureCard={true} jobPost={str} />
-                </SwiperSlide>
+        )}
+
+        {/* Highlight Jobs Section */}
+        {highlightJobs.length > 0 && (
+          <div className="mt-[32px] relative">
+            <div className="flex items-center mb-[8px]">
+              <HilightIcon />
+              <p className="text-[#666] text-[18px] font-[600]">
+                Highlight Jobs
+              </p>
+            </div>
+            <div className="relative flex-wrap flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden gap-4 my-2 mb-6">
+              {highlightJobs.map((job, index) => (
+                <JobCardComponent key={job.Id || index} isFeatureCard={false} jobPost={job} />
               ))}
-            </Swiper>
+            </div>
           </div>
-        </div>
-        <div className="mt-[32px] relative">
-          <div className="flex items-center mb-[8px]">
-            <HilightIcon />
-            <p className="text-[#666] text-[18px] font-[600] ">
-              Highlight Jobs
-            </p>
-          </div>
-          <div className="relative flex-wrap	 flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden  gap-4 my-2 mb-6">
-            {jobPosts?.map((str, index) => (
-              <JobCardComponent isFeatureCard={false} jobPost={str} />
-            ))}
-          </div>
-        </div>
+        )}
+
         <ViewMoreBtn text={"View All Job"} />
       </div>
     </div>
   );
 };
+
+
+
 const ViewMoreBtn = ({ text }) => {
   return (
     <div className="flex w-fit cursor-pointer px-5 py-2 justify-center items-center gap-2 rounded-full bg-[#f47920] text-white font-poppins text-[14px] font-medium leading-normal mx-auto mt-8 border-none">

@@ -4,10 +4,14 @@ import { apiGetData } from '@/lib/apiQueryHandler';
 import { AppliedJobPostConst } from '@/lib/queryConst';
 import { GetJobById } from "../../../../lib/generalApi";
 import { GetAppliedJobPostList } from "../../../../modules/services/employer_jobposts";
-
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 export async function GET(request) {
+    const session = await getServerSession(authOptions);
+ 
     try {
         const query = await getQuery(request.url);
+        console.log(query)
         const getData = await apiGetData(query, AppliedJobPostConst, GetAppliedJobPostList);
 
         if (getData.error) {

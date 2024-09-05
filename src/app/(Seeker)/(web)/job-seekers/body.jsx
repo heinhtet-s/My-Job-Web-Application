@@ -1,9 +1,11 @@
 "use client";
 import CardLayout from "@/components/share/CardLayout";
 import { ChevronRight, Earth, Search } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 
-const page = () => {
+const CandidatePage = ({data}) => {
+    const [candidates,setCandidates] = useState(data?.value)
+    console.log(candidates)
   return (
     <>
       <div className="bg-[#ffe5b4] py-[60px]">
@@ -70,19 +72,17 @@ const page = () => {
       <div className="mt-[100px]">
         <CardLayout>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
-            {Array(5)
-              .fill("")
-              .map((str: string, index: number) => (
+            {candidates?.map((str, index) => (
                 <div className="col-span-1 min-h-[300px]" key={index}>
                   <div className="border border-borderColor bg-white p-7 rounded-[30px] flex flex-col justify-between h-full no-underline">
                     <div className="text-center">
                       <img
                         className="w-[100px] mx-auto h-[100px] rounded-[50%] object-contain"
-                        src="https://myjobs-user-image.s3.ap-south-1.amazonaws.com/7addaa62-cf67-469e-be40-6134671e8eed.jpg"
-                        alt="logo"
+                        src={str.ImageUrl}
+                        alt="Profile"
                       />
                       <p className="block text-widgetColor mt-[30px] cursor-pointer text-[18px] font-semibold">
-                        Ko Ko Winn Htut
+                      {str.FirstName} {str.LastName}
                       </p>
                       <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
                         Business Development & Management
@@ -119,4 +119,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default CandidatePage;

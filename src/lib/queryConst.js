@@ -16,7 +16,6 @@ const SeekersConst = {
     "DateOfBirth",
     "Address",
     "MaritalStatus",
-    "CVId",
     "Nationality",
     "NationalId",
     "AvailableJob",
@@ -234,7 +233,14 @@ const GeneratedCvConst = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
+  filter: {
+    SeekerId: {
+      value: "",
+      type: "foreign",
+      label: "SeekerId",
+    },
+  },
+
   order: { updatedAt: "desc" },
   childrens: [],
   top: 10,
@@ -254,7 +260,13 @@ const AppliedJobPostConst = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
+  filter: {
+    SeekerId: {
+      value: "",
+      type: "foreign",
+      label: "SeekerId",
+    },
+  },
   order: { updatedAt: "desc" },
   childrens: [],
   top: 10,
