@@ -18,7 +18,7 @@ export default function Footer() {
 
   return (
     <>
-      <footer className=" text-white py-8 w-full bg-[#dceeff]">
+      <footer className=" text-white py-8 w-full mt-[20px] bg-[#dceeff]">
         <div className="container mb-8">
           {" "}
           <img src="./myjob.svg"></img>

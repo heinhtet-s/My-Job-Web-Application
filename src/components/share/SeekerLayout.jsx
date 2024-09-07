@@ -30,15 +30,24 @@ const Nav = () => {
     if (!session?.user?.Id) {
       return;
     }
+
     try {
-      const personalData = await axios.get(
-        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
-      );
-      setInfoData(personalData.data);
+      if (session?.user?.role !== "employeer") {
+        const personalData = await axios.get(
+          `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
+        );
+        setInfoData(personalData.data);
+      } else {
+        const personalData = await axios.get(
+          `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/employer_lists/getById?id=${session?.user?.Id}`
+        );
+        setInfoData(personalData.data);
+      }
     } catch (e) {}
   };
 
   useEffect(() => {
+    console.log("GGG");
     if (session?.user?.Id) fetchInfoData();
   }, [session]);
   const Logout = async () => {
@@ -130,7 +139,7 @@ const Nav = () => {
                   <p className="text-white cursor-pointer">
                     {infoData?.FirstName
                       ? infoData.FirstName + "  " + infoData?.LastName
-                      : infoData.email}
+                      : infoData.email || infoData.Email}
                   </p>
                 </div>
               </Button>
@@ -138,7 +147,7 @@ const Nav = () => {
             <DropdownMenuContent className="bg-white w-[200px] p-[20px] shadow-none rounded-xl">
               <DropdownMenuItem
                 onClick={() => {
-                  if (session?.user?.role === "employer") {
+                  if (session?.user?.role === "employeer") {
                     router.push("/employer/home");
                   } else {
                     router.push("/home");

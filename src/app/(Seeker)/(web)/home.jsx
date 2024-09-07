@@ -42,7 +42,7 @@ const HomePage = ({ companies, candidates, industries, jobPosts }) => {
           {candidates?.map((str, index) => (
             <div className="rounded-lg cursor-pointer  bg-white flex p-4 flex-col items-center gap-4 relative overflow-hidden w-[195px] h-[240px] transition-all duration-300 ease hover:bg-[#eee]">
               <img
-                src="https://myjobs-user-image.s3.ap-south-1.amazonaws.com/7addaa62-cf67-469e-be40-6134671e8eed.jpg"
+                src={str.ImageUrl ? str.ImageUrl : "/image/no-image.png"}
                 alt="description"
                 className="w-[81px] h-[81px] object-cover rounded-full"
               />
@@ -66,7 +66,7 @@ const HomePage = ({ companies, candidates, industries, jobPosts }) => {
                 </div>
                 <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
                   <MapPin width={"12px"} />
-                  Myeik, Myanmar
+                  {str?.Address}
                 </div>
               </div>
             </div>
@@ -143,14 +143,16 @@ const HomePage = ({ companies, candidates, industries, jobPosts }) => {
 //   );
 // };
 
-
-
 const FeatureJobPostComponent = ({ jobPosts }) => {
   const router = useRouter();
 
   // Separate jobs into Spotlight and Highlight
-  const spotlightJobs = jobPosts?.filter(job => job.JobUnitType === 'Spotlight');
-  const highlightJobs = jobPosts?.filter(job => job.JobUnitType === 'Highlight');
+  const spotlightJobs = jobPosts?.filter(
+    (job) => job.JobUnitType === "Spotlight"
+  );
+  const highlightJobs = jobPosts?.filter(
+    (job) => job.JobUnitType === "Highlight"
+  );
 
   return (
     <div className="bg-jobBg">
@@ -205,7 +207,11 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
             </div>
             <div className="relative flex-wrap flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden gap-4 my-2 mb-6">
               {highlightJobs.map((job, index) => (
-                <JobCardComponent key={job.Id || index} isFeatureCard={false} jobPost={job} />
+                <JobCardComponent
+                  key={job.Id || index}
+                  isFeatureCard={false}
+                  jobPost={job}
+                />
               ))}
             </div>
           </div>
@@ -217,8 +223,6 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
   );
 };
 
-
-
 const ViewMoreBtn = ({ text }) => {
   return (
     <div className="flex w-fit cursor-pointer px-5 py-2 justify-center items-center gap-2 rounded-full bg-[#f47920] text-white font-poppins text-[14px] font-medium leading-normal mx-auto mt-8 border-none">
@@ -228,7 +232,6 @@ const ViewMoreBtn = ({ text }) => {
   );
 };
 const FeatureCampanyComponent = ({ companies }) => {
-  
   const router = useRouter();
   return (
     <div
@@ -325,7 +328,7 @@ const FilterJobComponent = ({ industries }) => {
               <option>Select Industry</option>
               {industries?.map((industry) => (
                 <option key={industry.Id} value={industry.Id}>
-                  {industry.Title}
+                  {industry.TitleEng}
                 </option>
               ))}
             </select>

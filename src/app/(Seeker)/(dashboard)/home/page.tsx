@@ -33,7 +33,13 @@ const page = () => {
               src="/image/no-image.png"
               className="w-[150px] h-[150px] rounded-full"
             />
-            <p className="text-[1.5rem] mb-[0.5rem[">
+            <p
+              className="text-[1.5rem] mb-[0.5rem]"
+              style={{
+                whiteSpace: "normal", // Allow text to wrap
+                wordBreak: "break-word", // Break words if needed
+              }}
+            >
               {session?.user?.FirstName
                 ? session?.user?.FirstName + "  " + session?.user?.LastName
                 : session?.user?.email}

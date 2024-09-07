@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 
 const CompanyPage = ({ companyLists }) => {
   const router = useRouter();
-  
+
   // Store initial data to revert back to original state when search is cleared
   const initialData = companyLists?.value;
 
@@ -26,48 +26,46 @@ const CompanyPage = ({ companyLists }) => {
   const [filter, setFilter] = useState(EmployersConst.filter);
   const [order, setOrder] = useState(EmployersConst.order);
 
-  const fetchCompanyList = useCallback(async (pageNumber, perPage) => {
-    setLoading(true);
-    const queryString = await apiQueryHandler(
-      EmployersConst,
-      filter,
-      order,
-      EmployersConst.fields,
-      "normal",
-      {
-        pageNumber,
-        perPage,
-      }
-    );
-
-    axios
-      .get(`/api/company_lists/get?${queryString}`)
-      .then((res) => {
-        setPaging({
+  const fetchCompanyList = useCallback(
+    async (pageNumber, perPage) => {
+      setLoading(true);
+      const queryString = await apiQueryHandler(
+        EmployersConst,
+        filter,
+        order,
+        EmployersConst.fields,
+        "normal",
+        {
           pageNumber,
           perPage,
-          total: res["@odata.count"],
+        }
+      );
+
+      axios
+        .get(`/api/company_lists/get?${queryString}`)
+        .then((res) => {
+          setPaging({
+            pageNumber,
+            perPage,
+            total: res["@odata.count"],
+          });
+          setData(res.data.value);
+        })
+        .catch((error) => {})
+        .finally(() => {
+          setLoading(false);
         });
-        setData(res.data.value);
-    
-      })
-      .catch((error) => {
-        
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [filter, order]);
+    },
+    [filter, order]
+  );
 
   useEffect(() => {
     fetchCompanyList(paging.pageNumber, paging.perPage);
   }, [filter, order, fetchCompanyList]);
 
   useEffect(() => {
- 
     const handlePopState = () => {
       if (!router?.query?.search) {
-       
         setFilter(EmployersConst.filter);
         setData(initialData);
       }
@@ -116,7 +114,7 @@ const CompanyPage = ({ companyLists }) => {
                   placeholder="Enter Keyword"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="relative flex flex-wrap items-stretch w-full flex-1 min-w-0  px-3 py-1.5 text-base font-light text-pxpTextColor bg-transparent border border-none outline-none appearance-none"
+                  className="relative flex flex-wrap items-stretch w-full flex-1 min-w-0  px-3 py-1.5 text-base font-light text-pxpTextColor bg-transparent border border-none outline-none appearance-none focus:ring-0"
                 />
               </div>
             </div>
@@ -146,11 +144,19 @@ const CompanyPage = ({ companyLists }) => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
             {data?.map((str, index) => (
-              <div className="col-span-1 min-h-[300px]" key={index}>
+              <div
+                onClick={() => {
+                  router.push(`/companies/${str?.Id}`);
+                }}
+                className="col-span-1 min-h-[300px]"
+                key={index}
+              >
                 <div className="shadow-[0_10px_20px_rgba(0,0,0,0.04)] bg-white p-[30px] rounded-[30px] flex flex-col justify-between h-full no-underline">
                   <img
                     className="w-[80px] h-[80px] object-contain"
-                    src="https://myjobs-company-logo.s3.ap-south-1.amazonaws.com/bb2e01ff-5e10-4ee0-8ba6-2bf377fbb865.jfif"
+                    src={
+                      str?.CompanyLogo ? str.CompanyLogo : "/image/no-image.png"
+                    }
                     alt="logo"
                   />
                   <p className="block cursor-pointer text-[18px] font-semibold mt-[10px] text-w transition-[color] duration-0.5 no-underline hover:text-primary">
@@ -158,8 +164,7 @@ const CompanyPage = ({ companyLists }) => {
                   </p>
                   <div>
                     <div className="text-[14px] font-light mt-[20px] h-[5em] overflow-y-hidden text-ellipsis leading-[1.5rem] opacity-70">
-                      Established in 1996, AA Medical Products Ltd. has been
-                      making
+                      {str.Industry?.TitleEng}
                     </div>
                   </div>
                 </div>

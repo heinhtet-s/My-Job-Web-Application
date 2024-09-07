@@ -1,11 +1,13 @@
 "use client";
 import CardLayout from "@/components/share/CardLayout";
 import { ChevronRight, Earth, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-const CandidatePage = ({data}) => {
-    const [candidates,setCandidates] = useState(data?.value)
-    console.log(candidates)
+const CandidatePage = ({ data }) => {
+  const [candidates, setCandidates] = useState(data?.value);
+  console.log(candidates);
+  const router = useRouter();
   return (
     <>
       <div className="bg-[#ffe5b4] py-[60px]">
@@ -46,7 +48,7 @@ const CandidatePage = ({data}) => {
                     className="block w-full py-1 px-3   text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
                     style={{
                       padding: "0.375rem 1.5rem 0.375rem 0.75rem",
-                    }}
+                    }} 
                   >
                     <option>All</option>
                   </select>
@@ -73,45 +75,53 @@ const CandidatePage = ({data}) => {
         <CardLayout>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
             {candidates?.map((str, index) => (
-                <div className="col-span-1 min-h-[300px]" key={index}>
-                  <div className="border border-borderColor bg-white p-7 rounded-[30px] flex flex-col justify-between h-full no-underline">
-                    <div className="text-center">
-                      <img
-                        className="w-[100px] mx-auto h-[100px] rounded-[50%] object-contain"
-                        src={str.ImageUrl}
-                        alt="Profile"
-                      />
-                      <p className="block text-widgetColor mt-[30px] cursor-pointer text-[18px] font-semibold">
+              <div className="col-span-1 min-h-[300px]" key={index}>
+                <div className="border border-borderColor bg-white p-7 rounded-[30px] flex flex-col justify-between h-full no-underline">
+                  <div className="text-center">
+                    <img
+                      className="w-[100px] mx-auto h-[100px] rounded-[50%] object-contain"
+                      src={str.ImageUrl ? str.ImageUrl : "/image/no-image.png"}
+                      alt="Profile"
+                    />
+                    <p className="block text-widgetColor mt-[30px] cursor-pointer text-[18px] font-semibold">
                       {str.FirstName} {str.LastName}
-                      </p>
-                      <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
-                        Business Development & Management
-                      </p>
-                      <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
-                        Full Time
-                      </p>
-                      <div>
-                        <div className=" flex  gap-1 mt-[30px] text-sm text-widgetColor">
+                    </p>
+                    <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
+                      Business Development & Management
+                    </p>
+                    <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
+                      Full Time
+                    </p>
+                    <div>
+                      {str?.Address?.length > 0 && (
+                        <div className=" flex cursor-pointer  gap-1 mt-[30px] text-sm text-widgetColor">
                           <Earth
                             width="14px"
                             height="14px"
                             className="mt-[3px]"
                           />
-                          Hlaingthaya Township, Yangon, Myanmar
+                          {str?.Address}
                         </div>
-                        <div className="text-primary justify-center mt-[30px] flex items-center gap-2">
-                          View Profile
-                          <ChevronRight
-                            width={16}
-                            color="#F08000"
-                            strokeWidth={1.75}
-                          />
-                        </div>
+                      )}
+
+                      <div
+                        onClick={() => {
+                          router.push(`/job-seekers/${str?.Id}`);
+                        }}
+                        className="text-primary justify-center mt-[30px] flex items-center gap-2"
+                      >
+                        View Profile
+                        <ChevronRight
+                          width={16}
+                          color="#F08000"
+                          strokeWidth={1.75}
+                        />
                       </div>
                     </div>
                   </div>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </CardLayout>
       </div>

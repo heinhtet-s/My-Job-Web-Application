@@ -171,7 +171,7 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Enter Keyword"
-                    className="relative flex flex-wrap items-stretch w-full flex-1 min-w-0  px-3 py-1.5 text-base font-light text-pxpTextColor bg-transparent border border-none outline-none appearance-none"
+                    className="relative flex flex-wrap items-stretch w-full flex-1 min-w-0  px-3 py-1.5 text-base font-light text-pxpTextColor bg-transparent border border-none outline-none focus:ring-0  focus:outline-none appearance-none"
                   />
                 </div>
               </div>
@@ -409,7 +409,7 @@ const JobPostComponent = ({ job }) => {
             className="stroke-current  text-white > "
             height={"16px"}
           />
-          Accounting, Auditing Finance
+          {job?.FunctionalArea?.TitleEng}
         </div>
       </div>
       <div className="min-h-[54px] overflow-hidden font-semibold text-[18px] mt-[30px] transition-colors duration-300 ease-in-out text-widgetColor hover:text-widgetHoverColor">
@@ -418,7 +418,7 @@ const JobPostComponent = ({ job }) => {
       <div className="mt-[25px]  flex items-center justify-between text-[14px] text-widgetColor">
         <div className=" flex  gap-1 text-sm text-widgetColor">
           <Earth width="12px" height="12px" className="mt-[3px]" />
-          Hlaingthaya Township, Yangon, Myanmar
+          {job?.Employer?.MapAddress}
         </div>
         <p className="font-light">{job.JobType}</p>
       </div>
@@ -434,7 +434,11 @@ const JobPostComponent = ({ job }) => {
         </div>
         <img
           className="w-[80px] h-[80px] object-contain"
-          src="https://myjobs-company-logo.s3.ap-south-1.amazonaws.com/bb2e01ff-5e10-4ee0-8ba6-2bf377fbb865.jfif"
+          src={
+            job.Employer?.CompanyLogo
+              ? job.Employer?.CompanyLogo
+              : "/image/no-image.png"
+          }
           alt="logo"
         />
       </div>

@@ -12,9 +12,6 @@ const page = () => {
   const { id: SeekerId } = params;
   const [infoData, setInfoData] = useState({});
   const fetchInfoData = async () => {
-    if (!session?.user?.Id) {
-      return;
-    }
     try {
       const personalData = await axios.get(
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/detail?id=${SeekerId}`
@@ -24,8 +21,8 @@ const page = () => {
     } catch (e) {}
   };
   useEffect(() => {
-    if (session?.user?.Id) fetchInfoData();
-  }, [session]);
+    fetchInfoData();
+  }, []);
   return (
     <CardLayout>
       <div className="grid pt-[15px]   gap-8 grid-cols-12">

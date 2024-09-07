@@ -31,6 +31,7 @@ const DashboardConst = [
       />
     ),
     header: "Dashboard",
+    link: "/home",
   },
   {
     icon: (
@@ -41,6 +42,7 @@ const DashboardConst = [
       />
     ),
     header: "Edit Profile",
+    link: "/edit-personal-info",
   },
 
   {
@@ -52,6 +54,7 @@ const DashboardConst = [
       />
     ),
     header: "Manage CV",
+    link: "/manage-cvs",
   },
   {
     icon: (
@@ -62,6 +65,7 @@ const DashboardConst = [
       />
     ),
     header: "Applications",
+    link: "/applications",
   },
   {
     icon: (
@@ -82,6 +86,7 @@ const DashboardConst = [
       />
     ),
     header: "Save Jobs",
+    link: "/save-jobs",
   },
   {
     icon: (
@@ -92,10 +97,11 @@ const DashboardConst = [
       />
     ),
     header: "Account Settings",
+    link: "/account-setting",
   },
 ];
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession() as any;
+export default function Layout({ children }) {
+  const { data: session } = useSession();
   const router = useRouter();
   const Logout = async () => {
     await signOut({ redirect: false });
@@ -109,7 +115,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="pb-[100px] mt-3 lg:mt-6 justify-between flex-col">
           {DashboardConst?.map((el) => (
-            <div className="px-4 py-[1rem] cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center gap-3 no-underline transition-all duration-500 ease-in-out text-[15px] leading-[18px] hover:text-primary group">
+            <div
+              className="px-4 py-[1rem] cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center gap-3 no-underline transition-all duration-500 ease-in-out text-[15px] leading-[18px] hover:text-primary group"
+              onClick={() => {
+                router.push(el?.link);
+              }}
+            >
               {el?.icon}
               {el?.header}
             </div>
@@ -171,7 +182,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
               Find Jobs
             </div>
-            <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
+            <div
+              onClick={() => {
+                router.push(`job-seekers/${session?.user?.Id}`);
+              }}
+              className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline "
+            >
               My Profile
             </div>
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">

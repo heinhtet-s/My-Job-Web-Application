@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const email = searchParams.get("email");
- 
+
   if (!email) {
     return new Response(
       JSON.stringify({ error: "Email parameter is required" }),
@@ -15,7 +15,7 @@ export async function GET(req) {
     const response = await fetch(
       `https://myjobs.dev/seeker/v1/Seekers?&$filter=Email eq '${encodeURI(
         email
-      )}' `,
+      )}'`,
       {
         method: "GET",
         headers: {
@@ -32,7 +32,7 @@ export async function GET(req) {
     }
 
     const data = await response.json();
-  
+
     // Check if user data exists
     if (data && data?.value?.length > 0) {
       return NextResponse.json(data?.value); // Assuming the email is unique and returns a single user
@@ -42,7 +42,6 @@ export async function GET(req) {
       });
     }
   } catch (err) {
- 
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
     });
