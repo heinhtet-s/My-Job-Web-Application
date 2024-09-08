@@ -8,7 +8,7 @@ const CompanyDetail = ({ companyLists }) => {
   const params = useParams();
   const { id: JobId } = params;
   const data = companyLists?.value?.filter((el) => el?.Id === JobId)?.[0];
- 
+
   return (
     <div>
       <div
@@ -53,7 +53,10 @@ const CompanyDetail = ({ companyLists }) => {
                 <h1 className="font-bold text-[28px] tracking-[-1px] mb-[30px]">
                   About Me
                 </h1>
-                <p className="font-light leading-[1.7rem]">{data?.About}</p>
+                <p
+                  className="font-light leading-[1.7rem]"
+                  dangerouslySetInnerHTML={data?.About}
+                ></p>
                 <p></p>
               </div>
             </div>

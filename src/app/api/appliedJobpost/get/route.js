@@ -37,7 +37,6 @@ export async function GET(request) {
 
     return NextResponse.json(result);
   } catch (error) {
-   
     return errorResponse("An error occurred while fetching the data");
   }
 }

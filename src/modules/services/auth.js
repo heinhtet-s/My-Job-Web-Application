@@ -15,10 +15,9 @@ async function SeekerLogin({ email, password }) {
         email
       )}`
     );
-  
+
     return data;
   } catch (e) {
-   
     throw e;
   }
 }
@@ -34,10 +33,9 @@ async function SeekerSsoLogin({ token, email }) {
         email
       )}`
     );
-  
+
     return data;
   } catch (e) {
-   
     throw e;
   }
 }
@@ -52,16 +50,15 @@ async function EmployerSsoLogin({ token, email }) {
         email
       )}`
     );
-  
+
     return data;
   } catch (e) {
-  
     throw new Error(e?.response?.data);
   }
 }
 async function EmployerLogin({ email, password }) {
   const urlString = `${process.env.NEXT_PUBLIC_API_URL}employer/v1/Auth/login`;
- 
+
   try {
     await axios.post(urlString, {
       email,
@@ -73,10 +70,9 @@ async function EmployerLogin({ email, password }) {
         email
       )}`
     );
-    
+
     return data;
   } catch (e) {
-
     throw e?.response?.data;
   }
 }
@@ -88,10 +84,8 @@ async function SeekerRegister(data) {
       ...data,
     });
 
-  
     return data;
   } catch (e) {
- 
     throw e;
   }
 }
@@ -103,7 +97,6 @@ async function EmployeerRegister(data) {
       ...data,
     });
   } catch (e) {
-   
     throw e;
   }
 }
@@ -114,11 +107,21 @@ async function ResetPasswordEmployer({ email }) {
     await axios.post(urlString, {});
     return data;
   } catch (e) {
-    
     throw e?.response?.data;
   }
 }
 
+async function EmailVerifySeeker(token) {
+  const urlString = encodeURI(
+    `https://myjobs.dev/seeker/v1/verify?token=${token}`
+  );
+  try {
+    const data = await axios.get(urlString);
+    return "success";
+  } catch (e) {
+    throw e;
+  }
+}
 async function EmailVerifyEmployer(token) {
   const urlString = encodeURI(
     `https://myjobs.dev/employer/v1/verify?token=${token}`
@@ -127,18 +130,15 @@ async function EmailVerifyEmployer(token) {
     const data = await axios.get(urlString);
     return "success";
   } catch (e) {
-  
     throw e;
   }
 }
 async function ResetPasswordSeeker(email) {
-
   const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/Logins/resetpassword?Email=${email}`;
- 
+
   try {
     await axios.post(urlString);
   } catch (e) {
- 
     throw e?.response?.data;
   }
 }
@@ -148,10 +148,8 @@ async function Logout() {
 }
 
 async function UploadCv(data, id) {
-
-
   const url = `${UploadCVURL}?seekerId=${id}`;
- 
+
   try {
     const response = await axios.post(encodeURI(url), data, {
       headers: {
@@ -160,7 +158,6 @@ async function UploadCv(data, id) {
     });
     return response.data;
   } catch (e) {
-    
     return { error: "Client and server connection error" };
   }
 }
@@ -181,4 +178,5 @@ export {
   EmployeerRegister,
   EmailVerifyEmployer,
   UploadCv,
+  EmailVerifySeeker,
 };
