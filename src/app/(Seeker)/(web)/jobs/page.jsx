@@ -41,7 +41,7 @@ export default async function JobPost() {
 
     return (
       <JobPostPage
-        data={data.value}
+       
         industries={industries}
         functionalAreas={functionalAreas}
       />

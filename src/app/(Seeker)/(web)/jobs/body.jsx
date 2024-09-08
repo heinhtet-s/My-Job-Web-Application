@@ -22,13 +22,13 @@ import axios from "axios";
 import { GetCountry } from '@/modules/services/master'
 import { MasterdataURL } from "@/lib/apiConst";
 
-const JobPostPage = ({ data, industries, functionalAreas }) => {
-  const [jobs, setJobs] = useState(data?.value);
+const JobPostPage = ({ industries, functionalAreas }) => {
+  const [jobs, setJobs] = useState([]);
   const [industry, setIndustry] = useState(industries?.value);
   const [functionalArea, setFuncaionalArea] = useState(functionalAreas?.value);
   const [filter, setFilter] = useState(EmployerJobPosts.filter);
   const [stateFilter, setStaeFilter] = useState(StateConst.filter);
-  const initialData = data;
+  const initialData = [];
   const [title, setTitle] = useState("");
   const [jobType, setJobType] = useState("");
   const [functionalAreaId, setFunctionalAreaId] = useState("");
@@ -50,13 +50,22 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
 
   const searchParams = useSearchParams();
 
-
+console.log(filter)
   //  Search when redirected from the Home Page
   const titleHome = searchParams.get("title");
   const jobTypeHome = searchParams.get("jobType");
   const industrialIdHome = searchParams.get("industryId");
   console.log(jobTypeHome,"JJ")
-
+  useEffect(() => {
+    setFilter((prevFilter) => ({
+      ...prevFilter, // keep the rest of the filter object
+      JobType: {
+        ...prevFilter.JobType, 
+        value: jobTypeHome,    
+      }
+    }));
+  }, [jobTypeHome]);
+  
   useEffect(() => {
     const formattedJobType = jobTypeHome ? `'${jobTypeHome}'` : "";
 
@@ -170,12 +179,12 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
           setLoading(false);
         });
     },
-    [filter]
+  
   );
 
   useEffect(() => {
     fetchJobLists(paging.pageNumber, paging.perPage);
-  }, [filter, fetchJobLists]);
+  }, [filter]);
 
 
   const handleSubmit = () => {
@@ -227,19 +236,19 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
     router.push(`/jobs?${queryParams.toString()}`);
   };
 
-  useEffect(() => {
-    const handlePopState = () => {
-      if (!router?.query?.title) {
-        setFilter(EmployerJobPosts.filter);
-        setJobs(initialData);
-      }
-    };
-    window.addEventListener("popstate", handlePopState);
+  // useEffect(() => {
+  //   const handlePopState = () => {
+  //     if (!router?.query?.title) {
+  //       setFilter(EmployerJobPosts.filter);
+  //       // setJobs(initialData);
+  //     }
+  //   };
+  //   window.addEventListener("popstate", handlePopState);
 
-    return () => {
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [router, initialData]);
+  //   return () => {
+  //     window.removeEventListener("popstate", handlePopState);
+  //   };
+  // }, [router, initialData]);
 
   // Search On Clik
   const handleSearch = () => {
