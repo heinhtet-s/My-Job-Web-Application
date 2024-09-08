@@ -2,12 +2,120 @@
 import DotIcon from "@/asset/Icon/DotIcon";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import { apiQueryHandler } from "@/lib/apiQueryHandler";
+import { AppliedJobPostConst, GeneratedCvConst } from "@/lib/queryConst";
+import axios from "axios";
 import { CircleUser, FileText, Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const page = () => {
-  const { data: session } = useSession() as any;
+  const { data: session } = useSession();
+  const [cvcount,setCvcount] = useState(0)
+  const [loading,setLoading] = useState(false)
+  const [applicationcount,setApplicationCount] = useState(0)
+  const [filter, setFilter] = useState(GeneratedCvConst.filter);
+  const [applicationFilter,setApplicationFilter] = useState(AppliedJobPostConst.filter)
+  const SEEKERID = session?.user?.Id;
+  const [data, setData] = useState([]);
+  const [paging, setPaging] = useState({
+    pageNumber: 1,
+    perPage: 100,
+    total: 0,
+  });
+  useEffect(() => {
+    if (SEEKERID) {
+      setFilter((prevFilter) => ({
+        ...prevFilter,
+        SeekerId: {
+          ...prevFilter.SeekerId,
+          value: SEEKERID,
+        },
+      }));
+    }
+  }, [SEEKERID]);
+  useEffect(() => {
+    if (SEEKERID) {
+      setApplicationFilter((prevFilter) => ({
+        ...prevFilter,
+        SeekerId: {
+          ...prevFilter.SeekerId,
+          value: SEEKERID,
+        },
+      }));
+    }
+  }, [SEEKERID]);
+ 
+
+  async function getCvs(pageNumber, perPage) {
+    setLoading(true);
+    try {
+      const result = await axios.get(
+        `/api/generate_cv/get?${await apiQueryHandler(
+          GeneratedCvConst,
+          filter,
+          GeneratedCvConst.order,
+          GeneratedCvConst.fields,
+          "no_child",
+          {
+            pageNumber,
+            perPage,
+          }
+        )}`
+      );
+      setPaging((prev) => ({
+        ...prev,
+        total: result.data["@odata.count"],
+      }));
+   setCvcount(result.data['@odata.count'])
+    } catch (error) {
+      
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (filter.SeekerId.value) {
+      getCvs(paging.pageNumber, paging.perPage);
+    }
+  }, [paging.pageNumber, paging.perPage, filter]);
+  async function getApplications(pageNumber, perPage) {
+    setLoading(true);
+    try {
+      const result = await axios.get(
+        `/api/appliedJobpost/get?${await apiQueryHandler(
+          AppliedJobPostConst,
+        applicationFilter,
+          AppliedJobPostConst.order,
+          AppliedJobPostConst.fields,
+          "no_child",
+          {
+            pageNumber,
+            perPage,
+          }
+        )}`
+      );
+      setPaging((prev) => ({
+        ...prev,
+        total: result.data["@odata.count"],
+      }));
+     
+    setApplicationCount(result?.data?.length)
+    } catch (error) {
+    
+      // errorMessage(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+useEffect(() => {
+  if (filter.SeekerId.value) {
+    getApplications(paging.pageNumber, paging.perPage);
+  }
+}, [paging.pageNumber, paging.perPage, filter]);
+
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Welcome</h1>
@@ -105,7 +213,7 @@ const page = () => {
             <FileText strokeWidth={1.75} width="24px" color="#04157d" />
           </div>
           <div>
-            <p className="text-[24px] font-bold">0</p>
+            <p className="text-[24px] font-bold">{applicationcount}</p>
             <p className="text-[14px] opacity-70 break-words">
               Job Application
             </p>
@@ -134,7 +242,7 @@ const page = () => {
             <Mail strokeWidth={1.75} width="24px" color="#dc3546" />
           </div>
           <div>
-            <p className="text-[24px] font-bold">0</p>
+            <p className="text-[24px] font-bold">{cvcount}</p>
             <p className="text-[14px] opacity-70 break-words">
               Uploaded Cv List{" "}
             </p>

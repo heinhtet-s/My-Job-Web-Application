@@ -340,6 +340,8 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
       title: title.toLowerCase(),
       jobType: jobType,
       industryId: industrialId,
+      countryId:countryId,
+      functionalAreaId:functionalId,
      
     });
     router.push(`/jobs?${queryParams.toString()}`);

@@ -3,6 +3,7 @@ import { GeneratedCVURL, IndustriesURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetGeneratedCvLists(url) {
+  console.log(`${GeneratedCVURL}${url}`)
   return await axios
     .get(encodeURI(`${GeneratedCVURL}${url}`), REQUEST_HEADER)
     .then(({ data }) => {
