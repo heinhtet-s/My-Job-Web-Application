@@ -67,7 +67,7 @@ export async function GET(req) {
     return NextResponse.json(extendedData);
     // Add industry details to employer data
   } catch (err) {
-    console.log(err, "error");
+   
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
     });

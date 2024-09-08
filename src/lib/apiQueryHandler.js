@@ -1,6 +1,7 @@
 import { CHILDREN_TABLES_HANDLER_ENUM, ORDER_ENUM } from "./const";
 
 async function apiGetData(query, queryObject, odataFunction) {
+
   return await odataQueryHandler(
     queryObject,
     query.filter ? JSON.parse(query.filter) : queryObject.filter,
@@ -246,7 +247,7 @@ async function odataQueryHandler(
   pagination,
   odataFunction
 ) {
-  // create basic query string
+
 
   let queryString = `?$count=true`;
   // addSelect
@@ -315,7 +316,7 @@ async function odataQueryHandler(
       response = await idsToNameReplacer(response, i);
     }
   }
-
+console.log(response)
   return response;
 }
 

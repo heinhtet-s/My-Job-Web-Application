@@ -37,7 +37,7 @@ const Page = () => {
     perPage: 100,
     total: 0,
   });
-  console.log(data);
+ 
   useEffect(() => {
     if (SEEKERID) {
       setFilter((prevFilter) => ({

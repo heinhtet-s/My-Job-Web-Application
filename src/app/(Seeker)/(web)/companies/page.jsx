@@ -17,7 +17,7 @@ export default async function JobPost() {
     );
     return <CompanyPage companyLists={data} />;
   } catch (error) {
-    console.error('Error fetching data:', error);
+    
     return <CompanyPage companyLists={{ count: 0, value: [] }} />;
   }
 }

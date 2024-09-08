@@ -22,7 +22,7 @@ const Experiences = ({ masterData }) => {
   const [openModal, setOpenModal] = useState(false);
   const [expInfo, setExpInfo] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  console.log(masterData, "fweef");
+ 
 
   const handleSubmitApi = async (data) => {
     try {
@@ -42,7 +42,7 @@ const Experiences = ({ masterData }) => {
       setOpenModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-      console.log(e);
+     
     }
   };
   const handleDelete = async (id) => {
@@ -172,7 +172,7 @@ const ExperiencesForm = ({
   personalData,
   masterData,
 }) => {
-  console.log(personalData, "ffwe");
+
   const {
     register,
     watch,
@@ -324,7 +324,7 @@ const ExperiencesForm = ({
               <div className="flex items-center space-x-2">
                 <Switch
                   onCheckedChange={(e) => {
-                    console.log(e);
+                    
                     if (e) {
                       setValue("EndDate", null);
                     }

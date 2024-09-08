@@ -4,18 +4,20 @@ import {
   EmployersConst,
   IndustriesConst,
   EmployerJobPosts,
+  FunctionalAreasConst,
 } from "@/lib/queryConst";
 import { GetSeekerList } from "@/modules/services/seeker_service";
-import { GetEmployersList } from "@/modules/services/employer_service";
+import { GetEmployersList, GetFunctionalAreaLists } from "@/modules/services/employer_service";
 import { GetInsdustriesList } from "@/modules/services/industries";
 import { GetEmployerJobPostList } from "@/modules/services/employer_jobposts";
 import HomePage from "./home";
 
 
 export default async function Home() {
+
   try {
- 
-    const [candidates,companies, industries,jobPosts] = await Promise.all([
+
+    const [candidates, companies, industries, jobPosts, functionalAreas] = await Promise.all([
       odataQueryHandler(
         SeekersConst,
         SeekersConst.filter,
@@ -43,28 +45,35 @@ export default async function Home() {
         { top: 10, skip: 0 },
         GetInsdustriesList
       ),
-       odataQueryHandler(
+      odataQueryHandler(
         EmployerJobPosts,
         EmployerJobPosts.filter,
         EmployerJobPosts.order,
         EmployerJobPosts.fields,
         "normal",
-        { top: 10, skip: 0 },
+        { top: 100, skip: 0 },
         GetEmployerJobPostList
+      ),
+      odataQueryHandler(
+        FunctionalAreasConst,
+        FunctionalAreasConst.fields,
+        FunctionalAreasConst.order,
+        FunctionalAreasConst.fields,
+        "no_child",
+        { top: 10, skip: 0 },
+        GetFunctionalAreaLists
       )
-
-  
     ]);
     return (
       <HomePage
         companies={companies.value}
         candidates={candidates.value}
         industries={industries.value}
-       jobPosts ={jobPosts.value}
+        jobPosts={jobPosts.value}
+        functionalAreas = {functionalAreas.value}
       />
     );
   } catch (error) {
-    console.error("Error fetching data:", error);
 
     return (
       <HomePage

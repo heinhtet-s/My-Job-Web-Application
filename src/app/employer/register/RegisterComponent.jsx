@@ -42,7 +42,7 @@ const RegisterComponent = ({ data }) => {
       router.push("/employer/login");
     } catch (e) {}
   };
-  console.log(data, "datdfdsfa");
+  
   const [activeButton, setActiveButton] = useState("register");
   return (
     <div className="relaive">

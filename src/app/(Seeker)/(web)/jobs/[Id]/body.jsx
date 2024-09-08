@@ -43,17 +43,17 @@ const JobDetailComponent = ({ data }) => {
       setCvList(data?.data);
       setSelectedCvForm(data?.data?.filter((el) => el?.Active)?.[0]?.Id);
     } catch (e) {
-      console.log(e);
+     
     }
   };
-  console.log(session?.user?.Id);
+  
   const getFavJobList = async () => {
     try {
-      console.log("sdfwfkjwhfjwfjwfhiw");
+    
       const data = await getFavJob(session?.user?.Id);
       setFavList(data?.value);
     } catch (e) {
-      console.log(e);
+     
     }
   };
   useEffect(() => {
@@ -65,8 +65,7 @@ const JobDetailComponent = ({ data }) => {
     }
   }, [session?.user?.Id]);
   useEffect(() => {
-    console.log(favList, "dfsf");
-    console.log(favList?.filter((el) => el?.id === JobId)?.[0]);
+    
     setFavoJob(!!favList?.filter((el) => el?.id === JobId)?.[0]);
   }, [favList]);
 
@@ -103,10 +102,9 @@ const JobDetailComponent = ({ data }) => {
         toast.success("Apply Successfully");
         handleModalClose();
         setAlreadyApply(true);
-        // console.log(response.data);
-        // console.log(appliedJob)
+       
       } catch (e) {
-        console.log(e);
+       
       }
       return;
     }
@@ -122,7 +120,7 @@ const JobDetailComponent = ({ data }) => {
         handleModalClose();
         setAlreadyApply(true);
       } catch (e) {
-        console.log(e);
+       
       }
       return;
     }
@@ -165,7 +163,7 @@ const JobDetailComponent = ({ data }) => {
                 <select
                   value={selectedCvForm}
                   onChange={(e) => {
-                    console.log(e.target.value);
+                   
                     setSelectedCvForm(e.target.value);
                   }}
                   id="countries"

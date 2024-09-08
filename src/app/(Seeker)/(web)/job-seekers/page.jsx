@@ -16,7 +16,7 @@ export default async function Candidates() {
     );
     return <CandidatePage data={data} />;
   } catch (error) {
-    console.error('Error fetching data:', error);
+   
     return <CandidatePage data={{ count: 0, value: [] }} />;
   }
 }

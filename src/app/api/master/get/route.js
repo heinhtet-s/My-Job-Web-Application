@@ -10,7 +10,7 @@ import {
 
 export async function GET(request) {
   const query = await getQuery(request.url);
-  console.log(query);
+
   const field = query?.include?.split(",");
   let data = {};
 
@@ -58,14 +58,14 @@ export async function GET(request) {
           break;
 
         default:
-          console.log(`Unknown field: ${field[index]}`);
+          
           break;
       }
     }
 
     return NextResponse.json(data);
   } catch (e) {
-    console.error(e);
+    c
     return errorResponse();
   }
 }

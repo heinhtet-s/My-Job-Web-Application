@@ -210,6 +210,7 @@ const EmployerJobPosts = {
 
   filter: {
     Title: { value: "", type: "string", label: "Title" },
+    JobStatus: { value: "'Pending'", type: "foreign", label: "JobStatus" },
     FunctionalAreaId: {
       value: "",
       type: "foreign",
@@ -224,6 +225,21 @@ const EmployerJobPosts = {
       value: "",
       type: "foreign",
       label: "IndustryId",
+    },
+    CountryId: {
+      value: "",
+      type: "foreign",
+      label: "CountryId",
+    },
+    StateId: {
+      value: "",
+      type: "foreign",
+      label: "StateId",
+    },
+    CityId: {
+      value: "",
+      type: "foreign",
+      label: "CityId",
     },
   },
   order: { updatedAt: "desc" },
@@ -310,6 +326,29 @@ const AppliedJobPostConst = {
   skip: 0,
 };
 
+const StateConst = {
+  fields: [
+    "Name",
+    "NameEng",
+    "Id",
+    "CreatedAt",
+    "UpdatedAt",
+    "CreatedBy",
+    "UpdatedBy",
+  ],
+  filter: {
+    CountryId:{
+      value: "",
+      type: "foreign",
+      label: "CountryId",
+    }
+  },
+  order: { updatedAt: "desc" },
+  childrens: [],
+  top: 10,
+  skip: 0,
+};
+
 export {
   SeekersConst,
   EmployersConst,
@@ -318,4 +357,5 @@ export {
   FunctionalAreasConst,
   GeneratedCvConst,
   AppliedJobPostConst,
+  StateConst,
 };

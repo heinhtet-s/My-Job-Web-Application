@@ -15,7 +15,7 @@ const VerifyPage = () => {
       toast.success("Successfully verified email");
       router.push("/employer/login");
     } catch (e) {
-      console.error(e);
+     
       toast.success("Successfully verified email");
       router.push("/employer/login");
     }

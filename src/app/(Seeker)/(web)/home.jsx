@@ -16,17 +16,63 @@ import axios from "axios";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { workTypes } from "@/lib/const";
+import { chooseTime, workTypes } from "@/lib/const";
+import { apiQueryHandler } from "@/lib/apiQueryHandler";
+import { EmployersConst } from "@/lib/queryConst";
+import { comma } from "postcss/lib/list";
 
-const HomePage = ({ companies, candidates, industries, jobPosts }) => {
+const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
   const { data: session } = useSession();
-
+  const [loading, setLoading] = useState(false)
+  const [filter, setFilter] = useState(EmployersConst.filter)
+  const [companies, setCompnanies] = useState([])
+  const [data, setData] = useState([]);
+  const [paging, setPaging] = useState({
+    pageNumber: 1,
+    perPage: 10,
+    total: 0,
+  });
   const router = useRouter();
+  console.log(functionalAreas)
+  async function getEmployers(pageNumber, perPage) {
+    setLoading(true);
+    try {
+      const result = await axios.get(
+        `/api/employer_lists/getOpenPostion?${await apiQueryHandler(
+          EmployersConst,
+          EmployersConst.filter,
+          EmployersConst.order,
+          EmployersConst.fields,
+          "no_child",
+          {
+            pageNumber,
+            perPage,
+          }
+        )}`
+      );
+
+
+      setPaging((prev) => ({
+        ...prev,
+        total: result.data["@odata.count"],
+      }));
+      setCompnanies(result.data);
+    } catch (error) {
+
+      // errorMessage(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+  useEffect(() => {
+    getEmployers(paging.pageNumber, paging.perPage)
+  }, [])
+
 
   return (
     <>
       <BannerComponent />
-      <FilterJobComponent industries={industries} />
+      <FilterJobComponent industries={industries} functionalAreas={functionalAreas} />
       <FeatureCampanyComponent companies={companies} />
       <FeatureJobPostComponent jobPosts={jobPosts} />
       <SubBannerComponent />
@@ -165,7 +211,7 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
         </p>
 
         {/* Spotlight Jobs Section */}
-        {spotlightJobs.length > 0 && (
+        {spotlightJobs?.length > 0 && (
           <div className="mt-[32px] relative">
             <div className="flex items-center mb-[8px]">
               <SportLightIcon />
@@ -186,7 +232,7 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
                 modules={[Autoplay, Navigation]}
                 className="mySwiper"
               >
-                {spotlightJobs.map((job, index) => (
+                {spotlightJobs?.map((job, index) => (
                   <SwiperSlide key={job.Id || index}>
                     <JobCardComponent isFeatureCard={true} jobPost={job} />
                   </SwiperSlide>
@@ -197,7 +243,7 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
         )}
 
         {/* Highlight Jobs Section */}
-        {highlightJobs.length > 0 && (
+        {highlightJobs?.length > 0 && (
           <div className="mt-[32px] relative">
             <div className="flex items-center mb-[8px]">
               <HilightIcon />
@@ -206,7 +252,7 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
               </p>
             </div>
             <div className="relative flex-wrap flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden gap-4 my-2 mb-6">
-              {highlightJobs.map((job, index) => (
+              {highlightJobs?.map((job, index) => (
                 <JobCardComponent
                   key={job.Id || index}
                   isFeatureCard={false}
@@ -232,6 +278,7 @@ const ViewMoreBtn = ({ text }) => {
   );
 };
 const FeatureCampanyComponent = ({ companies }) => {
+
   const router = useRouter();
   return (
     <div
@@ -268,7 +315,7 @@ const FeatureCampanyComponent = ({ companies }) => {
                 {str?.CompanyName}
               </p>
               <p className="text-[#f47920] text-center font-poppins text-xs font-normal leading-normal">
-                12 Open Positions
+                {str?.OpenPositionCount} Open Positions
               </p>
             </div>
           ))}
@@ -278,26 +325,45 @@ const FeatureCampanyComponent = ({ companies }) => {
   );
 };
 
-const FilterJobComponent = ({ industries }) => {
+const FilterJobComponent = ({ industries, functionalAreas }) => {
+  const FilterFunction = () => {
+  }
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [jobType, setJobType] = useState("");
   const [industrialId, setIndustrialId] = useState("");
+  const [countries, setCountries] = useState([])
+  const [countryId, setCountryId] = useState("")
+  const [functionalId, setFunctionalId] = useState("")
   const handleSearch = () => {
     const queryParams = new URLSearchParams({
       title: title.toLowerCase(),
       jobType: jobType,
       industryId: industrialId,
+     
     });
     router.push(`/jobs?${queryParams.toString()}`);
   };
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get('/api/master/get_country');
+        setCountries(res.data.value);
+      } catch (err) {
+
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
   return (
     <div
       style={{
         background:
           "linear-gradient(0deg, #ffd5a5 0%, #ffd5a5 100%), lightgray 50% / cover no-repeat",
       }}
-      className="w-full  bg-cover bg-no-repeat relative flex flex-col items-center justify-center gap-2.5 py-10"
+      className="w-full  bg-cover bg-no-repeat relative flex flex-col items-center justify-center gap-2.5 py-10 flex-col"
     >
       <div className="flex justify-center gap-4 items-center">
         <div className="flex items-center justify-center gap-4 p-2 rounded-[8px] border-2 border-[#f47920] bg-white">
@@ -357,7 +423,7 @@ const FilterJobComponent = ({ industries }) => {
               })}
             </select>
           </div>
-          <FilterIcon />
+          <FilterIcon onClick={FilterFunction} />
         </div>
         <div
           style={{
@@ -371,6 +437,75 @@ const FilterJobComponent = ({ industries }) => {
           >
             Find Jobs
           </button>
+        </div>
+
+      </div>
+      <div className="flex">
+        <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <select
+            className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+            value={functionalId}
+            onChange={(e) => setFunctionalId(e.target.value)}
+            style={{
+              backgroundImage:
+                "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 0.75rem center",
+              backgroundSize: "16px 12px",
+            }}
+          >
+            <option>Select Functional</option>
+            {functionalAreas?.map((industry) => (
+              <option key={industry.Id} value={industry.Id}>
+                {industry.TitleEng}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <select
+            className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+            value={countryId}
+            onChange={(e) => setCountryId(e.target.value)}
+            style={{
+              backgroundImage:
+                "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 0.75rem center",
+              backgroundSize: "16px 12px",
+            }}
+          >
+            <option>Select Country</option>
+            {countries?.map((industry) => (
+              <option key={industry.Id} value={industry.Id}>
+                {industry.NameEng}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <select
+            className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+            // value={industrialId}
+            // onChange={(e) => setIndustrialId(e.target.value)}
+            style={{
+              backgroundImage:
+                "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 0.75rem center",
+              backgroundSize: "16px 12px",
+            }}
+          >
+
+            <option>Any Time</option>
+            {chooseTime?.map((work) => {
+              return (
+                <option key={work.label} value={work.value}>
+                  {work.label}
+                </option>
+              );
+            })}
+          </select>
         </div>
       </div>
     </div>
@@ -386,7 +521,7 @@ const JobCardComponent = ({ isFeatureCard, jobPost }) => {
       }
     }
   } catch (error) {
-    console.error("Error parsing date:", error);
+
     parsedDate = null;
   }
   const router = useRouter();

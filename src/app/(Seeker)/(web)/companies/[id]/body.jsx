@@ -8,7 +8,7 @@ const CompanyDetail = ({ companyLists }) => {
   const params = useParams();
   const { id: JobId } = params;
   const data = companyLists?.value?.filter((el) => el?.Id === JobId)?.[0];
-  console.log(companyLists, data);
+ 
   return (
     <div>
       <div

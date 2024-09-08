@@ -47,7 +47,7 @@ const Nav = () => {
   };
 
   useEffect(() => {
-    console.log("GGG");
+   
     if (session?.user?.Id) fetchInfoData();
   }, [session]);
   const Logout = async () => {
