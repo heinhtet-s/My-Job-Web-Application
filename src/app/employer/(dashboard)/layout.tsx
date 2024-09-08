@@ -136,20 +136,42 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 className="   ring-0 outline-none  p-0 bg-transparent hover:bg-transparent border-none focus:ring-0  "
                 variant="outline"
                 style={{
+                  whiteSpace: "normal",
+                  wordWrap: "break-word",
+                  width: "100%",
                   outline: "none",
                 }}
               >
-                <div className="px-[1.4rem] w-full cursor-pointer flex items-center justify-between ">
-                  <div className="flex items-center gap-4">
+                <div
+                  style={{
+                    whiteSpace: "normal",
+                    wordWrap: "break-word",
+                    width: "100%",
+                  }}
+                  className="px-[1.4rem] w-full cursor-pointer flex items-center justify-between "
+                >
+                  <div className="flex items-center gap-4 w-full">
                     <img
+                      style={{
+                        flex: "0 0 36px",
+                      }}
                       src="image/no-image.png"
                       className="w-[36px] h-[36px] rounded-full"
                     />
-                    {session?.user?.FirstName
-                      ? session?.user?.FirstName +
-                        "  " +
-                        session?.user?.LastName
-                      : session?.user?.email}
+                    <p
+                      style={{
+                        width: "170px",
+                        whiteSpace: "normal",
+                        wordWrap: "break-word",
+                      }}
+                    >
+                      {" "}
+                      {session?.user?.FirstName
+                        ? session?.user?.FirstName +
+                          "  " +
+                          session?.user?.LastName
+                        : session?.user?.email}
+                    </p>
                   </div>
                   <ChevronUp width={"18px"} strokeWidth={1.75} />
                 </div>
@@ -192,7 +214,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <div className="mx-3">
               <Mail strokeWidth={1.75} width="18px" />
             </div>
-            <div className="mx-3">
+            <div className="mx-3 ">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -203,7 +225,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     }}
                   >
                     <div className=" min-w-[70px] cursor-pointer flex items-center justify-between ">
-                      <div className="flex items-center gap-4">
+                      <div
+                        className="flex items-center gap-4"
+                        style={{
+                          whiteSpace: "normal",
+                          wordWrap: "break-word",
+                        }}
+                      >
                         {session?.user?.FirstName
                           ? session?.user?.FirstName +
                             "  " +

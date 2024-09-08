@@ -1,0 +1,706 @@
+"use client";
+import { inputStyle, labelStyle, selectStyle } from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import PrimaryBtn from "@/components/ui/primaryBtn";
+import { Switch } from "@/components/ui/switch";
+import TinyEditor from "@/components/ui/TinyEditor";
+import ApiReq from "@/lib/axiosHandler";
+import { Currency, EXPCONST, JobType } from "@/lib/const";
+import { useSession } from "next-auth/react";
+import React, { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import {
+  getGenerateData,
+  createJobPost,
+} from "../../../../../modules/services/jobPost_service";
+import { getCurrentDate } from "@/lib/globalFunctions";
+import { useRouter } from "next/navigation";
+
+const page = () => {
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setValue,
+    reset,
+    getValues,
+    formState: { errors },
+  } = useForm({
+    Anonymous: false,
+  });
+  console.log(errors, "error");
+  console.log(watch("JobUnitType"));
+  const [industryList, setIndustryList] = useState([]);
+  const [masterData, setMasterData] = useState({});
+  const fetchMasterData = async () => {
+    try {
+      const masterData = await ApiReq.get(
+        `/api/master/get?include=country,city,state`
+      );
+
+      setMasterData(masterData.data);
+    } catch (e) {}
+  };
+  const { data: session } = useSession();
+  const [faList, setFaList] = useState([]);
+  const getFunctionalArea = async () => {
+    try {
+      const data = await ApiReq.get("api/functional_area/get");
+      setFaList(data.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const getIndustry = async () => {
+    try {
+      const data = await ApiReq.get("api/Industry_list/get");
+      console.log(data);
+      setIndustryList(data?.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    getIndustry();
+    fetchMasterData();
+    getFunctionalArea();
+  }, []);
+  const [disableGenBtn, setDisableGenBtn] = useState(false);
+  const makeAnonymous = watch("makeAnonymous");
+  const router = useRouter();
+  const handleGenerateAi = async () => {
+    const JobUnitType = watch("JobUnitType");
+    const makeAnonymous = watch("makeAnonymous");
+    const Expired = watch("Expired");
+    const FunctionalAreaId = watch("FunctionalAreaId");
+    const Title = watch("Title");
+    const IndustryId = watch("IndustryId");
+    const JobType = watch("JobType");
+    const YearsOfExperience = watch("YearsOfExperience");
+    const Benefits = watch("Benefits");
+    if (
+      JobUnitType === null ||
+      !Expired ||
+      !FunctionalAreaId ||
+      !Title ||
+      !IndustryId ||
+      JobType === null ||
+      YearsOfExperience === null ||
+      !Benefits
+    ) {
+      toast.error("Please fill all require field to generate Ai ");
+      return;
+    }
+    try {
+      setDisableGenBtn(true);
+      const data = await getGenerateData({
+        Title,
+        FunctionalAreaId,
+        IndustryId,
+        YearsOfExperience,
+        Benefits,
+        // EmployerId: session?.user?.Id,
+        EmployerId: "483570cc-d0b1-4b8b-9343-cd3cc2eba128",
+        JobUnitType: +JobUnitType,
+        jobType: +JobType,
+      });
+      console.log(data);
+      if (data?.error) {
+        toast.error(e?.error || "Not enough unit");
+      }
+      toast.success("Generated Successfully");
+      setValue("Description", data?.jobDescription);
+      setValue("Requirement", data?.jobRequirements);
+    } catch (e) {
+      console.log(e?.response, "fff");
+      toast.error(e?.error || "Not enough unit");
+    } finally {
+      setDisableGenBtn(false);
+    }
+  };
+
+  const onSubmit = async (data) => {
+    try {
+      const datas = await getGenerateData({
+        ...data,
+        // EmployerId: session?.user?.Id,
+        EmployerId: "483570cc-d0b1-4b8b-9343-cd3cc2eba128",
+        JobUnitType: +data.JobUnitType,
+        JobType: +data.JobType,
+        createdAt: getCurrentDate(),
+        updatedAt: getCurrentDate(),
+        Online: true,
+        CareerLevel: "NoExperience",
+        HideSalary: false,
+        Anonymous: false,
+        SalaryOption: "Nego",
+        Currency: null,
+        NoOfPosition: 0,
+        Gender: null,
+        YearsOfExperience: 3,
+        OtherSkill: null,
+        Active: false,
+        Applie: false,
+        RejectReason: null,
+        Online: true,
+        JobStatus: "Pending",
+        DegreeLevelId: null,
+        createdAt: getCurrentDate(),
+        updatedAt: getCurrentDate(),
+        // "CreatedAt": "2024-09-03T03:39:07.039555Z",
+        // "UpdatedAt": "2024-09-03T03:39:07.039556Z",
+        // "CreatedBy": null,
+        // "UpdatedBy": null
+        CreatedBy: session?.user?.Id,
+        UpdatedBy: session?.user?.Id,
+      });
+      console.log(datas);
+      router.push("/jobpost");
+    } catch (e) {
+      toast.error("Something Wrong");
+    }
+  };
+  return (
+    <div>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <h1 className="text-[38px] font-[700]">Post a Job</h1>
+        <p className="opactiy-70 mb-[30px]">Add Your Job details</p>
+        <div className=" grid grid-cols-12 mb-[10px] items-center gap-[15px]">
+          <div className="col-span-6">
+            <div className={JobPostCard}>
+              <p className="text-[16px] mb-[0.5rem]">Select Job unit type </p>
+              <div className="flex items-center gap-8">
+                <div className="flex items-center">
+                  <input
+                    id="default-radio-0"
+                    type="radio"
+                    value="Standard"
+                    {...register("JobUnitType", {
+                      required: "This field is required",
+                    })}
+                    onChange={() => {
+                      setValue("JobUnitType", 0);
+                    }}
+                    checked={watch("JobUnitType") === 0}
+                    name="default-radio"
+                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
+                  />
+                  <label
+                    htmlFor="default-radio-0"
+                    className="ms-2 text-sm font-[300] text-gray-900"
+                  >
+                    Standard
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="default-radio-1"
+                    {...register("JobUnitType", {
+                      required: "This field is required",
+                    })}
+                    onChange={() => {
+                      setValue("JobUnitType", 1);
+                    }}
+                    checked={watch("JobUnitType") === 1}
+                    type="radio"
+                    value="Highlight"
+                    name="default-radio"
+                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
+                  />
+                  <label
+                    htmlFor="default-radio-1"
+                    className="ms-2 text-sm font-[300] text-gray-900"
+                  >
+                    Highlight
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="default-radio-2"
+                    type="radio"
+                    {...register("JobUnitType", {
+                      required: "This field is required",
+                    })}
+                    onChange={() => {
+                      setValue("JobUnitType", 2);
+                    }}
+                    checked={watch("JobUnitType") === 2}
+                    value="Spotlight"
+                    name="default-radio"
+                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
+                  />
+                  <label
+                    htmlFor="default-radio-2"
+                    className="ms-2 text-sm font-[300] text-gray-900"
+                  >
+                    Spotlight
+                  </label>
+                </div>
+              </div>
+
+              <label className="inline-flex items-center  cursor-pointer mt-[10px]">
+                <input
+                  type="checkbox"
+                  {...register("makeAnonymous")}
+                  className="sr-only peer"
+                  checked={makeAnonymous}
+                  value=""
+                />
+                <div className="relative w-[30px] h-[16px] bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300  rounded-full peer  peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-[12px] after:h-[12px] after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                <span className="ms-3 text-sm font-[300] text-gray-900 dark:text-gray-300">
+                  Make Anonymous
+                </span>
+              </label>
+            </div>
+          </div>
+          <div className="col-span-6">
+            <div className={JobPostCard}>
+              <p className="text-[16px] mb-[0.5rem]">Select Job expiry date </p>
+              <div className="flex  items-center  gap-8  ">
+                <div className="flex items-center ">
+                  <input
+                    {...register("Expired", {
+                      required: "This field is required",
+                    })}
+                    onChange={() => {
+                      setValue("Expired", "Onemonth");
+                    }}
+                    checked={watch("Expired") === "Onemonth"}
+                    id="default-radios-4"
+                    type="radio"
+                    value=""
+                    name="default-radios"
+                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0 "
+                  />
+                  <label
+                    htmlFor="default-radios-4"
+                    className="ms-2 text-sm font-[300] text-gray-900 "
+                  >
+                    1 Month
+                  </label>
+                </div>
+                <div className="flex items-center ">
+                  <input
+                    {...register("Expired", {
+                      required: "This field is required",
+                    })}
+                    onChange={() => {
+                      setValue("Expired", "Twomonth");
+                    }}
+                    checked={watch("Expired") === "Twomonth"}
+                    id="default-radios-5"
+                    type="radio"
+                    value=""
+                    name="default-radios"
+                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+                  />
+                  <label
+                    htmlFor="default-radios-5"
+                    className="ms-2 text-sm font-[300] text-gray-900 "
+                  >
+                    2 Months{" "}
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    id="default-radios-6"
+                    {...register("Expired", {
+                      required: "This field is required",
+                    })}
+                    onChange={() => {
+                      setValue("Expired", "Threemonth");
+                    }}
+                    checked={watch("Expired") === "Threemonth"}
+                    type="radio"
+                    value=""
+                    name="default-radios-6"
+                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+                  />
+                  <label
+                    htmlFor="default-radios-6"
+                    className="ms-2 text-sm font-[300] text-gray-900 "
+                  >
+                    3 Months
+                  </label>
+                </div>
+              </div>
+              <label className="inline-flex items-center opacity-0  cursor-pointer mt-[10px]">
+                <input type="checkbox" value="" className="sr-only peer" />
+                <div className="relative w-[30px] h-[16px] bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300  rounded-full peer  peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-[12px] after:h-[12px] after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
+                <span className="ms-3 text-sm font-[300] text-gray-900 dark:text-gray-300">
+                  Make Anonymous
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div className={JobPostCard}>
+          <p className="text-[16px] mb-[0.5rem]">Job Related Information </p>
+          <div className="mb-[15px]">
+            <select
+              className={selectStyle}
+              {...register("FunctionalAreaId", {
+                required: "This field is required",
+              })}
+            >
+              <option value={""}>Select Functional Area</option>
+              {faList?.map((el) => (
+                <option value={el?.Id} key={el?.Id}>
+                  {el?.TitleEng}
+                </option>
+              ))}
+              {/* Populate with country options */}
+            </select>
+            {errors.FunctionalAreaId && (
+              <p className="text-red-500 text-start text-xs italic">
+                {errors.FunctionalAreaId.message}
+              </p>
+            )}
+          </div>
+          <div className=" grid grid-cols-12 mb-[10px] items-center gap-[15px]">
+            <div className="col-span-6">
+              <div className="mb-[15px]">
+                <input
+                  className={inputStyle}
+                  placeholder="Job Title"
+                  {...register("Title", { required: "This field is required" })}
+                />
+                {errors.Title && (
+                  <p className="text-red-500 text-start text-xs italic">
+                    {errors.Title.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="col-span-6">
+              <div className="mb-[15px]">
+                <select
+                  className={selectStyle}
+                  {...register("IndustryId", {
+                    required: "Functional Area is required",
+                  })}
+                >
+                  <option value={""}>Select Industry</option>
+                  {industryList?.map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.TitleEng}
+                    </option>
+                  ))}
+                  {/* Populate with country options */}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div className=" grid grid-cols-12 mb-[10px] items-center gap-[15px]">
+            <div className="col-span-6">
+              <div className="mb-[15px]">
+                <select
+                  className={selectStyle}
+                  {...register("JobType", {
+                    required: "This field is required",
+                  })}
+                >
+                  <option value={""}>Select Job Type</option>
+                  {JobType?.map((el) => {
+                    const [Id, label] = Object.entries(el)[0];
+                    return (
+                      <option value={label} key={label}>
+                        {Id}
+                      </option>
+                    );
+                  })}
+                  {/* Populate with country options */}
+                </select>
+                {errors.JobType && (
+                  <p className="text-red-500 text-start text-xs italic">
+                    {errors.JobType.message}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="col-span-6">
+              <div className="mb-[15px]">
+                <select
+                  className={selectStyle}
+                  {...register("YearsOfExperience", {
+                    required: "This field is required",
+                  })}
+                >
+                  <option value={""}>Select Required Job Experience</option>
+                  {EXPCONST?.map((el) => {
+                    const [Id, label] = Object.entries(el)[0];
+                    return (
+                      <option value={Id} key={Id}>
+                        {label}
+                      </option>
+                    );
+                  })}
+                  {/* Populate with country options */}
+                </select>
+                {errors.YearsOfExperience && (
+                  <p className="text-red-500 text-start text-xs italic">
+                    {errors.YearsOfExperience.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          <input
+            className={inputStyle}
+            placeholder="Employer Benefit"
+            {...register("Benefits", { required: "This field is required" })}
+          />
+          {errors.Benefits && (
+            <p className="text-red-500 text-start text-xs italic">
+              {errors.Benefits.message}
+            </p>
+          )}
+        </div>
+        <div className="mt-[20px]">
+          <PrimaryBtn
+            disable={disableGenBtn}
+            fullWidth={true}
+            type="button"
+            text={
+              disableGenBtn
+                ? "Generating"
+                : "Generate Description and Requirements with AI"
+            }
+            handleClick={handleGenerateAi}
+          />
+        </div>
+        <div className={JobPostCard}>
+          <p className="text-[16px] mb-[0.5rem]"> AI Generated Information</p>
+          <div className="mb-[20px]">
+            <label className={labelStyle}>description</label>
+            <TinyEditor
+              text={getValues("Description")}
+              setTextEditor={(data) => {
+                setValue("Description", data);
+              }}
+            />
+          </div>
+          <label className={labelStyle}>Requirement</label>
+          <TinyEditor
+            text={getValues("Requirement")}
+            setTextEditor={(data) => {
+              setValue("Requirement", data);
+            }}
+          />
+        </div>
+        <div className={JobPostCard}>
+          <p className="text-[16px] mb-[0.5rem]">Location Information </p>
+          <div className="grid mb-[1.5rem] grid-cols-3 gap-4">
+            <div className="col-span-1">
+              <select
+                className={selectStyle}
+                {...register("CountryId", {
+                  required: "This field is required",
+                })}
+              >
+                <option value={""}>Select Country</option>
+                {masterData?.country?.map((el) => (
+                  <option value={el?.Id} key={el?.Id}>
+                    {el?.Name}
+                  </option>
+                ))}
+                {/* Populate with country options */}
+              </select>
+              {errors.CountryId && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+            <div className="col-span-1">
+              <select
+                // defaultValue={personalData?.StateId}
+                className={selectStyle}
+                {...register("StateId", { required: "This field is required" })}
+              >
+                <option value={""}>Select State</option>
+                {masterData?.state
+                  ?.filter((ele) => {
+                    return ele?.CountryId == watch("CountryId");
+                  })
+                  .map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.Name}
+                    </option>
+                  ))}
+              </select>
+              {errors.StateId && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+            <div className="col-span-1">
+              <select
+                className={selectStyle}
+                // defaultValue={personalData?.CityId}
+                {...register("CityId", { required: "This field is required" })}
+              >
+                <option value={""}>Select City</option>
+                {masterData?.city
+                  ?.filter((ele) => {
+                    return ele?.StateId == watch("StateId");
+                  })
+                  .map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.Name}
+                    </option>
+                  ))}
+                {/* Populate with city options */}
+              </select>
+              {errors.CityId && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className={JobPostCard}>
+          <p className="text-[16px] mb-[0.5rem]">Salary Information </p>
+          <div className="grid mb-[1.5rem] grid-cols-3 gap-4">
+            <div className="col-span-1">
+              <input
+                type="number"
+                className={inputStyle}
+                placeholder="Salary From"
+                {...register("Fromsalary", {
+                  required: "This field is required",
+                })}
+              />
+
+              {errors.Fromsalary && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+            <div className="col-span-1">
+              <input
+                type="number"
+                className={inputStyle}
+                placeholder="Salary To"
+                {...register("Tosalary", {
+                  required: "This field is required",
+                })}
+              />
+
+              {errors.Tosalary && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+            <div className="col-span-1">
+              <select
+                className={selectStyle}
+                // defaultValue={personalData?.CityId}
+                {...register("Currency", {
+                  required: "This field is required",
+                })}
+              >
+                <option value={""}>Select Currency</option>
+                {Currency.map((el) => (
+                  <option value={el} key={el}>
+                    {el}
+                  </option>
+                ))}
+                {/* Populate with city options */}
+              </select>
+              {errors.Currency && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+          </div>
+          <p className="text-[16px] mb-[0.5rem]"> Select Salary Type</p>
+          <div className="flex  items-center  gap-8  ">
+            <div className="flex items-center ">
+              <input
+                id="default-radio-1"
+                type="radio"
+                {...register("SalaryOption", {
+                  required: "This field is required",
+                })}
+                onChange={() => {
+                  setValue("SalaryOption", "Confidential");
+                }}
+                checked={watch("SalaryOption") === "Confidential"}
+                value=""
+                name="salary"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0 "
+              />
+              <label
+                htmlFor="salary-1"
+                className="ms-2 text-sm font-[300] text-gray-900 "
+              >
+                Confidential
+              </label>
+            </div>
+            <div className="flex items-center ">
+              <input
+                id="salary-2"
+                type="radio"
+                {...register("SalaryOption", {
+                  required: "This field is required",
+                })}
+                onChange={() => {
+                  setValue("SalaryOption", "Nego");
+                }}
+                checked={watch("SalaryOption") === "Nego"}
+                value=""
+                name="salary"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+              />
+              <label
+                htmlFor="salary-2"
+                className="ms-2 text-sm font-[300] text-gray-900 "
+              >
+                Negotiable
+              </label>
+            </div>
+            <div className="flex items-center ">
+              <input
+                id="salary-3"
+                type="radio"
+                {...register("SalaryOption", {
+                  required: "This field is required",
+                })}
+                onChange={() => {
+                  setValue("SalaryOption", "PlusComission");
+                }}
+                checked={watch("SalaryOption") === "PlusComission"}
+                value=""
+                name="salary"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+              />
+              <label
+                htmlFor="salary-3"
+                className="ms-2 text-sm font-[300] text-gray-900 "
+              >
+                Plus Commission
+              </label>
+            </div>
+          </div>
+        </div>
+        <PrimaryBtn
+          // disable={disableGenBtn}
+          fullWidth={true}
+          text="Create"
+          handleClick={() => {}}
+        />
+      </form>
+    </div>
+  );
+};
+const JobPostCard =
+  "bg-white p-[1rem] mb-[20px] rounded-[15px] shadow-md shadow-black/5 ";
+export default page;

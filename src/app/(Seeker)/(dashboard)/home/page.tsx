@@ -4,7 +4,7 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { CircleUser, FileText, Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React from "react";
+import React, { useState } from "react";
 
 const page = () => {
   const { data: session } = useSession() as any;
@@ -83,7 +83,7 @@ const page = () => {
                   <p className="mb-[1rem] text-[13px] font-light">
                     Enhance your professional branding to potential employers
                   </p>
-                  <Switch id="airplane-mode" />
+                  <IconSwitcher />
                 </div>
               </div>
               <div>
@@ -92,7 +92,7 @@ const page = () => {
                   <p className="mb-[1rem] text-[13px] font-light">
                     Let employers know you are actively seeking a job
                   </p>
-                  <Switch id="airplane-mode" checked />
+                  <IconSwitcher2 />
                 </div>
               </div>
             </div>
@@ -229,6 +229,140 @@ const page = () => {
         </div>
       </div>
       <p className="text-[24px] font-[600]">Recommended Jobs</p>
+    </div>
+  );
+};
+const IconSwitcher = () => {
+  const [isSwitched, setIsSwitched] = useState(false);
+
+  return (
+    <div
+      className="relative w-[82px] h-[32px] cursor-pointer"
+      onClick={() => setIsSwitched(!isSwitched)}
+    >
+      {/* First Icon */}
+      <svg
+        className={`absolute transition-opacity duration-300 ease-in-out ${
+          isSwitched ? "opacity-0" : "opacity-100"
+        }`}
+        width="82"
+        height="32"
+        viewBox="0 0 82 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
+          stroke="#F08000"
+          strokeWidth="0.75"
+        />
+        <path
+          d="M41 0H77C79.7614 0 82 2.23858 82 5V27C82 29.7614 79.7614 32 77 32H41V0Z"
+          fill="#F08000"
+        />
+        <line x1="22" y1="9" x2="22" y2="22" stroke="#F08000" strokeWidth="2" />
+        <circle cx="61.5" cy="15.5" r="5.5" stroke="white" strokeWidth="2" />
+      </svg>
+
+      {/* Second Icon */}
+      <svg
+        className={`absolute transition-opacity duration-300 ease-in-out ${
+          isSwitched ? "opacity-100" : "opacity-0"
+        }`}
+        width="82"
+        height="32"
+        viewBox="0 0 82 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
+          fill="#F08000"
+        />
+        <path
+          d="M41 0H77C79.7614 0 82 2.23858 82 5V27C82 29.7614 79.7614 32 77 32H41V0Z"
+          stroke="#F08000"
+          strokeWidth="0.75"
+        />
+        <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
+        <circle
+          cx="61.5"
+          cy="15.5"
+          r="5.5"
+          stroke="#F08000"
+          strokeWidth="2"
+          fill="none"
+        />
+      </svg>
+    </div>
+  );
+};
+const IconSwitcher2 = () => {
+  const [isSwitched, setIsSwitched] = useState(false);
+
+  return (
+    <div
+      className="relative w-[82px] h-[32px] cursor-pointer"
+      onClick={() => setIsSwitched(!isSwitched)}
+    >
+      {/* First Icon */}
+      <svg
+        className={`absolute transition-opacity duration-300 ease-in-out ${
+          isSwitched ? "opacity-0" : "opacity-100"
+        }`}
+        width="82"
+        height="32"
+        viewBox="0 0 82 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
+          fill="#ABA9A9"
+          stroke="#ABA9A9"
+          strokeWidth="0.75"
+        />
+        <path
+          d="M41.375 0.375H77C79.5543 0.375 81.625 2.44568 81.625 5V27C81.625 29.5543 79.5543 31.625 77 31.625H41.375V0.375Z"
+          stroke="#ABA9A9"
+          strokeWidth="0.75"
+        />
+        <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
+        <circle cx="61.5" cy="15.5" r="5.5" stroke="#ABA9A9" strokeWidth="2" />
+      </svg>
+
+      {/* Second Icon */}
+      <svg
+        className={`absolute transition-opacity duration-300 ease-in-out ${
+          isSwitched ? "opacity-100" : "opacity-0"
+        }`}
+        width="82"
+        height="32"
+        viewBox="0 0 82 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
+          fill="#ABA9A9" // Same fill color as the first icon
+          stroke="#ABA9A9" // Same stroke color as the first icon
+          strokeWidth="0.75"
+        />
+        <path
+          d="M41.375 0.375H77C79.5543 0.375 81.625 2.44568 81.625 5V27C81.625 29.5543 79.5543 31.625 77 31.625H41.375V0.375Z"
+          stroke="#ABA9A9" // Same stroke color as the first icon
+          strokeWidth="0.75"
+        />
+        <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
+        <circle
+          cx="61.5"
+          cy="15.5"
+          r="5.5"
+          stroke="#ABA9A9" // Same stroke color as the first icon
+          strokeWidth="2"
+          fill="none"
+        />
+      </svg>
     </div>
   );
 };
