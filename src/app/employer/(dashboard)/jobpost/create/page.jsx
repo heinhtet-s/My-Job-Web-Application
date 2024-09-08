@@ -16,7 +16,7 @@ import {
 } from "../../../../../modules/services/jobPost_service";
 import { getCurrentDate } from "@/lib/globalFunctions";
 import { useRouter } from "next/navigation";
-
+const JobUnitTypeConst = { 0: "Standard", 1: "Highlight", 2: "Spotlight" };
 const page = () => {
   const {
     register,
@@ -67,11 +67,11 @@ const page = () => {
     getFunctionalArea();
   }, []);
   const [disableGenBtn, setDisableGenBtn] = useState(false);
-  const makeAnonymous = watch("makeAnonymous");
+  const makeAnonymous = watch("Anonymous");
   const router = useRouter();
   const handleGenerateAi = async () => {
     const JobUnitType = watch("JobUnitType");
-    const makeAnonymous = watch("makeAnonymous");
+    const makeAnonymous = watch("Anonymous");
     const Expired = watch("Expired");
     const FunctionalAreaId = watch("FunctionalAreaId");
     const Title = watch("Title");
@@ -107,14 +107,14 @@ const page = () => {
       });
       console.log(data);
       if (data?.error) {
-        toast.error(e?.error || "Not enough unit");
+        toast.error(e?.error || "Something Wrong");
       }
       toast.success("Generated Successfully");
       setValue("Description", data?.jobDescription);
       setValue("Requirement", data?.jobRequirements);
     } catch (e) {
       console.log(e?.response, "fff");
-      toast.error(e?.error || "Not enough unit");
+      toast.error(e?.error || "Something Wrong");
     } finally {
       setDisableGenBtn(false);
     }
@@ -122,26 +122,26 @@ const page = () => {
 
   const onSubmit = async (data) => {
     try {
-      const datas = await getGenerateData({
+      const datas = await createJobPost({
         ...data,
         // EmployerId: session?.user?.Id,
         EmployerId: "483570cc-d0b1-4b8b-9343-cd3cc2eba128",
-        JobUnitType: +data.JobUnitType,
-        JobType: +data.JobType,
+        JobUnitType: JobUnitTypeConst[data?.JobUnitType],
+        JobType: JobType?.filter((el) => {
+          const [Id, label] = Object.entries(el)[0]; // Extract only the key (label)
+          return label == data?.JobType; // Compare the label with data.JobType
+        })?.map((el) => Object.keys(el)[0])?.[0],
         createdAt: getCurrentDate(),
         updatedAt: getCurrentDate(),
         Online: true,
         CareerLevel: "NoExperience",
         HideSalary: false,
-        Anonymous: false,
-        SalaryOption: "Nego",
-        Currency: null,
         NoOfPosition: 0,
         Gender: null,
-        YearsOfExperience: 3,
+        YearsOfExperience: +data?.YearsOfExperience,
         OtherSkill: null,
-        Active: false,
-        Applie: false,
+        Active: true,
+        Applie: true,
         RejectReason: null,
         Online: true,
         JobStatus: "Pending",
@@ -156,7 +156,7 @@ const page = () => {
         UpdatedBy: session?.user?.Id,
       });
       console.log(datas);
-      router.push("/jobpost");
+      router.push("/employer/jobpost");
     } catch (e) {
       toast.error("Something Wrong");
     }
@@ -242,7 +242,7 @@ const page = () => {
               <label className="inline-flex items-center  cursor-pointer mt-[10px]">
                 <input
                   type="checkbox"
-                  {...register("makeAnonymous")}
+                  {...register("Anonymous")}
                   className="sr-only peer"
                   checked={makeAnonymous}
                   value=""
@@ -625,7 +625,7 @@ const page = () => {
           <div className="flex  items-center  gap-8  ">
             <div className="flex items-center ">
               <input
-                id="default-radio-1"
+                id="salary-1"
                 type="radio"
                 {...register("SalaryOption", {
                   required: "This field is required",
