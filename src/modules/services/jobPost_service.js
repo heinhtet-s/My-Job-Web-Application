@@ -36,12 +36,13 @@ async function getGenerateData(data) {
 async function createJobPost(data) {
   console.log(data);
   return await axios
-    .post(encodeURI(`${EmployerInfo}/JobPosts`), data, REQUEST_HEADER)
+    .post(encodeURI(`${EmployerInfo}/JobPosts`), data)
     .then(({ data }) => {
       return data;
     })
     .catch((e) => {
-      console.log(e?.response);
+      console.log(data);
+      // console.log(e?.response);
       throw { error: e?.response || "No enough unit" };
     });
 }

@@ -1,9 +1,8 @@
 import axios from "axios";
-import { SeekersURL } from "../../lib/apiConst";
+import { EmployersURL, SeekersURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetSeekerList(url) {
- 
   return await axios
     .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
     .then(({ data }) => {
@@ -16,6 +15,16 @@ async function GetSeekerList(url) {
 async function UpdateSeekerList(data, id) {
   return await axios
     .patch(encodeURI(`${SeekersURL}(${id})`), data, REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch(() => {
+      return { error: "Client and server connection error" };
+    });
+}
+async function UpdateEmployerList(data, id) {
+  return await axios
+    .patch(encodeURI(`${EmployersURL}(${id})`), data, REQUEST_HEADER)
     .then(({ data }) => {
       return data;
     })
