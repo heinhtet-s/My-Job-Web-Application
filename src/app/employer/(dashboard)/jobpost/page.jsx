@@ -16,7 +16,7 @@ const page = () => {
   return (
     <div>
       <h1 className="text-primary text-[38px] font-[700]">Manage Jobs</h1>
-      <p>Detailed list with all your job offers.</p>
+      <p>Edit Profile</p>
       <div className="flex justify-between mt-[20px] items-center">
         <div className="relative h-fit">
           <input
