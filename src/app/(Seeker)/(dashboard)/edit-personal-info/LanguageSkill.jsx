@@ -62,7 +62,7 @@ const LanguageSkill = () => {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   const handleSubmitApi = async (data) => {
-    console.log(selectedIndex, "select id");
+   
     try {
       if (selectedIndex === null) {
         await ApiReq.post("api/seeker_info/languate_list/create", {
@@ -80,7 +80,7 @@ const LanguageSkill = () => {
       setOpenModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-      console.log(e);
+     
     }
   };
   const handleSubmitSkillApi = async (data) => {
@@ -101,7 +101,7 @@ const LanguageSkill = () => {
       setOpenSkillModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-      console.log(e);
+      
     }
   };
   const handleDelete = async (Id) => {
@@ -300,7 +300,7 @@ const LanguageForm = ({
   handleSubmitApi,
   personalData,
 }) => {
-  console.log(personalData, "ffwe");
+
   const {
     register,
     watch,
@@ -311,7 +311,7 @@ const LanguageForm = ({
   } = useForm({
     defaultValues: personalData,
   });
-  console.log(personalData, "personalData");
+ 
   useEffect(() => {
     if (personalData) {
       reset({

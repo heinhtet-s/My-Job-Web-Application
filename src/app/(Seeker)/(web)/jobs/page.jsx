@@ -17,7 +17,7 @@ export default async function JobPost() {
       EmployerJobPosts.order,
       EmployerJobPosts.fields,
       "normal",
-      { top: 10, skip: 0 },
+      { top: 100, skip: 0 },
       GetEmployerJobPostList
     );
     const industries = await odataQueryHandler(
@@ -47,7 +47,7 @@ export default async function JobPost() {
       />
     );
   } catch (error) {
-    console.error("Error fetching data:", error);
+   
     return <JobPostPage data={{ count: 0, value: [] }} />;
   }
 }

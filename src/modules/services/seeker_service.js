@@ -3,7 +3,6 @@ import { EmployersURL, SeekersURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetSeekerList(url) {
-  console.log(`${SeekersURL}${url}`);
   return await axios
     .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
     .then(({ data }) => {

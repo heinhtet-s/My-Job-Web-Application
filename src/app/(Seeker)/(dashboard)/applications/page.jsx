@@ -62,7 +62,7 @@ const Page = () => {
       }));
       setData(result.data);
     } catch (error) {
-      console.log(error);
+    
       // errorMessage(error);
     } finally {
       setLoading(false);

@@ -12,7 +12,7 @@ async function getFavJob(id) {
       return data;
     })
     .catch((e) => {
-      console.log(e);
+      
       return { error: "Client and server connection error" };
     });
 }
@@ -28,7 +28,7 @@ async function postFavJob(data) {
       return data;
     })
     .catch((e) => {
-      console.log(e);
+    
       return { error: "Client and server connection error" };
     });
 }

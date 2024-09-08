@@ -6,7 +6,7 @@ import React, { useState } from "react";
 
 const CandidatePage = ({ data }) => {
   const [candidates, setCandidates] = useState(data?.value);
-  console.log(candidates);
+ 
   const router = useRouter();
   return (
     <>

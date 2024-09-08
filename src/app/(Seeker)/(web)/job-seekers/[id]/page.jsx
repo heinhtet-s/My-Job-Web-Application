@@ -16,7 +16,7 @@ const page = () => {
       const personalData = await axios.get(
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/detail?id=${SeekerId}`
       );
-      console.log(personalData);
+    
       setInfoData(personalData.data);
     } catch (e) {}
   };

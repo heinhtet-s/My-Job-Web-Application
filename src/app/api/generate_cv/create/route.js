@@ -38,7 +38,7 @@ export async function POST(request) {
     createdBy: session?.user?.Id ? session.user.Id : null,
     updatedBy: session?.user?.Id ? session.user.Id : null,
   });
-  console.log(createData);
+ 
   if (createData.error) {
     return errorResponse();
   }

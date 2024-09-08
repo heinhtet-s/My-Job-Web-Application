@@ -18,7 +18,7 @@ export default async function page() {
    
     return <RegisterComponent data={data.value} />;
   } catch (error) {
-    console.error("Error fetching data:", error);
+  
     return <RegisterComponent data={{ count: 0, value: [] }} />;
   }
 }

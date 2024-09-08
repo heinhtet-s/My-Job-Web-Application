@@ -148,12 +148,12 @@ const ImageCropper = ({ handleSubmit }) => {
           ImageUrl: data?.url,
         });
       } catch (e) {
-        console.log(e);
+       
       }
 
       handleClose();
     } catch (err) {
-      console.error(err);
+     
       setError("Image upload failed. Please try again.");
     } finally {
       setLoading(false);

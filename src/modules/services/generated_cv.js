@@ -14,8 +14,7 @@ async function GetGeneratedCvLists(url) {
 }
 
 async function createCV(data) {
-  console.log(data);
-  console.log(GeneratedCVURL);
+
   return await axios
     .post(encodeURI(GeneratedCVURL), data, REQUEST_HEADER)
     .then(({ data }) => {

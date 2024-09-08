@@ -44,12 +44,12 @@ const Page = () => {
   const getFavJobList = async () => {
     setLoading(true);
     try {
-      console.log("sdfwfkjwhfjwfjwfhiw");
+    
       const data = await getFavJob(session?.user?.Id);
-      console.log(data?.value);
+      
       setData(data?.value);
     } catch (e) {
-      console.log(e);
+      
     } finally {
       setLoading(false);
     }

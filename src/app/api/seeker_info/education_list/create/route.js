@@ -23,24 +23,7 @@ export async function POST(request) {
     CityId,
     SeekerId,
   } = await request.json();
-  console.log({
-    Title,
-    University,
-    Certificate,
-    DegreeLevelId,
-    DegreeTypeId,
-    EndDate,
-    Address,
-    // CountryId,
-    // StateId,
-    // CityId,
-    Active,
-    SeekerId: session?.user?.Id ? session.user.Id : null,
-    createdAt: getCurrentDate(),
-    updatedAt: getCurrentDate(),
-    createdBy: session?.user?.Id ? session.user.Id : null,
-    updatedBy: session?.user?.Id ? session.user.Id : null,
-  });
+
   const createData = await createEdu({
     Title,
     University,

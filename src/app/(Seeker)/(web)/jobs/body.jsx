@@ -16,32 +16,46 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { workTypes, chooseTime } from "@/lib/const";
-import { EmployerJobPosts, EmployersConst } from "@/lib/queryConst";
+import { EmployerJobPosts, EmployersConst, StateConst } from "@/lib/queryConst";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import axios from "axios";
+import { GetCountry } from '@/modules/services/master'
+import { MasterdataURL } from "@/lib/apiConst";
+
 const JobPostPage = ({ data, industries, functionalAreas }) => {
   const [jobs, setJobs] = useState(data?.value);
   const [industry, setIndustry] = useState(industries?.value);
-  const [functionalArea, setFuncaionalArea] = useState(functionalAreas.value);
+  const [functionalArea, setFuncaionalArea] = useState(functionalAreas?.value);
   const [filter, setFilter] = useState(EmployerJobPosts.filter);
+  const [stateFilter, setStaeFilter] = useState(StateConst.filter);
   const initialData = data;
   const [title, setTitle] = useState("");
   const [jobType, setJobType] = useState("");
   const [functionalAreaId, setFunctionalAreaId] = useState("");
   const [loading, setLoading] = useState(false);
   const [industrialId, setIndustrialId] = useState("");
+  const [countries, setCountries] = useState([])
+  const [countryId, setCountryId] = useState("")
+  const [states, setStates] = useState([])
+  const [stateId, setStateId] = useState("")
+  const [matchStates, setMatchStates] = useState([])
+  const [matchCity, setMatchCity] = useState([])
+  const [city, setCity] = useState([])
+  const [cityId, setCityId] = useState("")
   const [paging, setPaging] = useState({
     pageNumber: 1,
-    perPage: 10,
+    perPage: 100,
     total: jobs?.count,
   });
 
   const searchParams = useSearchParams();
 
+
   //  Search when redirected from the Home Page
   const titleHome = searchParams.get("title");
   const jobTypeHome = searchParams.get("jobType");
   const industrialIdHome = searchParams.get("industryId");
+  console.log(jobTypeHome,"JJ")
 
   useEffect(() => {
     const formattedJobType = jobTypeHome ? `'${jobTypeHome}'` : "";
@@ -66,6 +80,62 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
 
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get('/api/master/get_country');
+        setCountries(res.data.value);
+      } catch (err) {
+
+      }
+    };
+
+    fetchCountries();
+  }, []);
+
+  useEffect(() => {
+    const fetchStates = async () => {
+      try {
+        const res = await axios.get('/api/master/get_state');
+        setStates(res.data.value);
+      } catch (err) {
+
+      }
+    };
+
+    fetchStates();
+  }, []);
+
+  useEffect(() => {
+    const fetchCities = async () => {
+      try {
+        const res = await axios.get('/api/master/get_city');
+        setCity(res.data.value);
+      } catch (err) {
+
+      }
+    };
+
+    fetchCities();
+  }, []);
+
+
+  useEffect(() => {
+    if (countryId) {
+      const MatchState = states.filter(state => state.CountryId === countryId)
+      setMatchStates(MatchState)
+    }
+  }, [countryId])
+
+
+  useEffect(() => {
+    if (stateId) {
+      const MatchCity = city.filter(city => city.StateId === stateId)
+
+      setMatchCity(MatchCity)
+    }
+  }, [stateId])
+
   const fetchJobLists = useCallback(
     async (pageNumber, perPage) => {
       setLoading(true);
@@ -84,6 +154,7 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
       axios
         .get(`/api/job_lists/get?${queryString}`)
         .then((res) => {
+          -
           setPaging({
             pageNumber,
             perPage,
@@ -93,7 +164,7 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
           setJobs(res.data.value);
         })
         .catch((error) => {
-          console.log(error);
+
         })
         .finally(() => {
           setLoading(false);
@@ -105,6 +176,56 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
   useEffect(() => {
     fetchJobLists(paging.pageNumber, paging.perPage);
   }, [filter, fetchJobLists]);
+
+
+  const handleSubmit = () => {
+    const formattedJobType = jobType ? `'${jobType}'` : "";
+
+    const queryParams = new URLSearchParams({
+      title: title.toLowerCase(),
+      jobType: `'${jobType}'`,
+      industryId: industrialId,
+      functionalAreaId: functionalAreaId,
+      CountryId: countryId,
+      StateId: stateId,
+      City: cityId
+    });
+
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      Title: {
+        ...prevFilter.Title,
+        value: title.toLocaleLowerCase(),
+      },
+      JobType: {
+        ...prevFilter.JobType,
+        value: formattedJobType,
+      },
+      IndustryId: {
+        ...prevFilter.IndustryId,
+        value: industrialId,
+      },
+      FunctionalAreaId: {
+        ...prevFilter.FunctionalAreaId,
+        value: functionalAreaId,
+      },
+      CountryId: {
+        ...prevFilter.CountryId,
+        value: countryId,
+      },
+      CityId: {
+        ...prevFilter.CityId,
+        value: cityId,
+      },
+      StateId: {
+        ...prevFilter.StateId,
+        value: stateId,
+      },
+
+    }));
+
+    router.push(`/jobs?${queryParams.toString()}`);
+  };
 
   useEffect(() => {
     const handlePopState = () => {
@@ -348,23 +469,33 @@ const JobPostPage = ({ data, industries, functionalAreas }) => {
                 <p className="text-[18px] font-[600]">Search by Location</p>
                 <div className="mt-2 lg:mt-3">
                   <label className="font-light block mb-2">Country</label>
-                  <select className="border-0 block w-full font-light text-[var(--pxpTextColor)] bg-white rounded-r-[30px] px-3 py-4 appearance-none border-none outline-none rounded-sm">
-                    <option>Myanmar</option>
+                  <select className="border-0 block w-full font-light text-[var(--pxpTextColor)] bg-white rounded-r-[30px] px-3 py-4 appearance-none border-none outline-none rounded-sm" onChange={(e) => setCountryId(e.target.value)}
+                    value={countryId}>
+                    <option value="">Select Country</option>
+                    {
+                      countries?.map(country => <option key={country.Id} value={country.Id}>{country.Name}</option>)
+                    }
                   </select>
                 </div>
                 <div className="mt-2 lg:mt-3">
                   <label className="font-light block mb-2">State</label>
-                  <select className="border-0 block w-full font-light text-[var(--pxpTextColor)] bg-white rounded-r-[30px] px-3 py-4 appearance-none border-none outline-none rounded-sm">
-                    <option>State</option>
+                  <select className="border-0 block w-full font-light text-[var(--pxpTextColor)] bg-white rounded-r-[30px] px-3 py-4 appearance-none border-none outline-none rounded-sm" onChange={(e) => setStateId(e.target.value)} value={stateId}>
+                    <option value="">Select State</option>
+                    {
+                      matchStates?.map(state => <option key={state.Id} value={state.Id}>{state.Name}</option>)
+                    }
                   </select>
                 </div>
                 <div className="mt-2 lg:mt-3">
                   <label className="font-light block mb-2">City</label>
-                  <select className="border-0 block w-full font-light text-[var(--pxpTextColor)] bg-white rounded-r-[30px] px-3 py-4 appearance-none border-none outline-none rounded-sm">
-                    <option>City</option>
+                  <select className="border-0 block w-full font-light text-[var(--pxpTextColor)] bg-white rounded-r-[30px] px-3 py-4 appearance-none border-none outline-none rounded-sm" onChange={(e) => setCityId(e.target.value)} value={cityId}>
+                    <option value="">Select City</option>
+                    {
+                      matchCity?.map(city => <option key={city.Id} value={city.Id}>{city.Name}</option>)
+                    }
                   </select>
                 </div>
-                <Button className="mt-4">Submit</Button>
+                <Button className="mt-4" onClick={handleSubmit} >Submit</Button>
               </div>
             </div>
             <div className="col-span-1 lg:col-span-1 xl:col-span-3">
