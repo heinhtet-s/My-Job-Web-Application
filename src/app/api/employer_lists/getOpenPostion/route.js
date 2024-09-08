@@ -8,6 +8,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 export async function GET(request) {
   const session = await getServerSession(authOptions);
+  console.log('request')
+  console.log(request.url)
 
   try {
     const query = await getQuery(request.url);

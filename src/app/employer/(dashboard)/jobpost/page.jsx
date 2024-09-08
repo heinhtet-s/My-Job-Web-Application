@@ -1,8 +1,9 @@
 "use client";
 import { inputStyle } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 import { Search } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 const menuItem = [
   "All Job Listings",
   "Active Jobs",
@@ -10,8 +11,98 @@ const menuItem = [
   "Anonymous jobs",
   "Pending jobs",
 ];
+
 const page = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [loading,setLoading] = useState(false)
+  const [jobs, setJobs] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [countData,setCountData] = useState([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await axios.get(`/api/employer_lists/jobposts`);
+        console.log(res.data);
+        setCountData(res.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+  const summarizeJobs = (jobs) => {
+    const totalCount = jobs?.length;
+    const onlineCount = jobs?.filter(job => job.Active && job.Online).length;
+    const offlineCount = jobs?.filter(job => !job.Active).length;
+  
+    return {
+      totalCount,
+      onlineCount,
+      offlineCount
+    };
+  };
+  
+  const result = summarizeJobs(countData?.jobs);
+ 
+  const fetchJobs = async (menuIndex, pageNumber) => {
+    setLoading(true);
+    let filter = '';
+    switch (menuIndex) {
+      case 0:
+        filter = '';
+        break;
+      case 1:
+        filter = 'Active eq true';
+        break;
+      case 2:
+        filter = 'Active eq false';
+        break;
+      case 3:
+        filter = 'Anonymous eq true';
+        break;
+      case 4:
+        filter = "JobStatus eq 'Active'";
+        break;
+      default:
+        filter = '';
+    }
+  
+    try {
+    
+      const url = filter
+        ? `/api/employer_lists/jobposts?$filter=${encodeURIComponent(filter)}&page=${pageNumber}`
+        : `/api/employer_lists/jobposts?page=${pageNumber}`;
+  
+      const res = await axios.get(url);
+      setJobs(res.data.jobs);
+      setTotalPages(res.data.totalPages);
+    } catch (error) {
+      console.error('Error fetching job posts:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    fetchJobs(activeIndex, page);
+  }, [activeIndex, page]);
+  
+
+  useEffect(() => {
+    fetchJobs(activeIndex, page);
+  }, [activeIndex, page]);
+
+
+  const nextPage = () => {
+    if (page < totalPages) setPage(page + 1);
+  };
+
+  const prevPage = () => {
+    if (page > 1) setPage(page - 1);
+  };
 
   return (
     <div>
@@ -47,7 +138,7 @@ const page = () => {
             />
           </svg>
           <div>
-            <p className="text-[36px] font-bold">2</p>
+            <p className="text-[36px] font-bold">{result?.totalCount}</p>
             <p className="text-[16px] font-[300]">Total Jobs</p>
           </div>
         </div>
@@ -68,7 +159,7 @@ const page = () => {
           </svg>
 
           <div>
-            <p className="text-[36px] font-bold">2</p>
+            <p className="text-[36px] font-bold">{result?.onlineCount}</p>
             <p className="text-[16px] font-[300]">Online Jobs </p>
           </div>
         </div>
@@ -89,7 +180,7 @@ const page = () => {
           </svg>
 
           <div>
-            <p className="text-[36px] font-bold">20</p>
+            <p className="text-[36px] font-bold">{result?.offlineCount}</p>
             <p className="text-[16px] font-[300]">Offline Jobs </p>
           </div>
         </div>
@@ -103,7 +194,10 @@ const page = () => {
           return (
             <li
               className="me-2 cursor-pointer"
-              onClick={() => setActiveIndex(index)}
+              onClick={() => {
+                setActiveIndex(index);
+                setPage(1); 
+              }}
             >
               <p
                 className={cn(
@@ -118,59 +212,67 @@ const page = () => {
           );
         })}
       </ul>
+{
+  jobs?.map(job=>{
 
-      <div className="relative mt-[20px]   flex flex-col min-w-0 break-words bg-white border border-gray-200 rounded-md">
-        <div className="flex justify-between p-2.5 mb-0 bg-gray-100 border-b border-gray-200">
-          <div className="flex items-center ">
-            <button className="inline-block  me-4 font-normal text-center text-white bg-green-700 border-green-700 py-2 px-3 text-base leading-6 rounded-lg cursor-default">
-              Online
-            </button>
-            <p className="font-[500]">HIGHLIGHT UNIT</p>
+  return  <div className="relative mt-[20px]   flex flex-col min-w-0 break-words bg-white border border-gray-200 rounded-md">
+    <div className="flex justify-between p-2.5 mb-0 bg-gray-100 border-b border-gray-200">
+    <div className="flex items-center">
+  <button
+    className={`inline-block me-4 font-normal text-center text-white py-2 px-3 text-base leading-6 rounded-lg cursor-default ${
+      job?.Active ? 'bg-green-700 border-green-700' : 'bg-red-700 border-red-700'
+    }`}
+  >
+    {job?.Active ? "Online" : "Offline"}
+  </button>
+  <p className="font-[500]">{job.JobUnitType}</p>
+</div>
+      <div className="flex items-center gap-2">
+        <Switch />
+        <p>{job?.Active===true?"Expire Job":"Clone Job"}</p>
+      </div>
+    </div>
+    <div className="flex flex-wrap justify-between px-[32px] py-[15px]">
+      <div className="w-[50%]">
+        <p className="font-[600] mb-[10px]">{job?.Title}</p>
+        <p className=" mb-[10px]">{job?.FunctionalArea?.TitleEng}</p>
+        <p className=" mb-[10px]">Location : Yangon, Myanmar</p>
+        <p className=" mb-[10px]">Expires : 21 June 2021 (in 5 days)</p>
+      </div>
+      <div className="w-[50%]">
+        <div className="flex justify-between items-center ">
+          <div className="flex items-center gap-2">
+            <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
+              120
+            </div>
+            <p>Views</p>
           </div>
           <div className="flex items-center gap-2">
-            <Switch />
-            <p>Expire Job</p>
+            <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
+              120
+            </div>
+            <p>Applications</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
+              120
+            </div>
+            <p>Shortlisted</p>
           </div>
         </div>
-        <div className="flex flex-wrap justify-between px-[32px] py-[15px]">
-          <div className="w-[50%]">
-            <p className="font-[600] mb-[10px]">Business Development Manager</p>
-            <p className=" mb-[10px]">Sales and marketing</p>
-            <p className=" mb-[10px]">Location : Yangon, Myanmar</p>
-            <p className=" mb-[10px]">Expires : 21 June 2021 (in 5 days)</p>
-          </div>
-          <div className="w-[50%]">
-            <div className="flex justify-between items-center ">
-              <div className="flex items-center gap-2">
-                <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
-                  120
-                </div>
-                <p>Views</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
-                  120
-                </div>
-                <p>Applications</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
-                  120
-                </div>
-                <p>Shortlisted</p>
-              </div>
-            </div>
-            <div className="flex  mt-[20px] gap-[10px] items-center">
-              <button className="inline-block  me-4 font-normal text-center text-white bg-primary border-primary py-2 px-3 text-base leading-6 rounded-lg cursor-default">
-                View Applications
-              </button>
-              <button className="inline-block  me-4 font-normal text-center text-white bg-[#7D7B7B] border-[#7D7B7B] py-2 px-3 text-base leading-6 rounded-lg cursor-default">
-                Edit Job
-              </button>
-            </div>
-          </div>
+        <div className="flex  mt-[20px] gap-[10px] items-center">
+          <button className="inline-block  me-4 font-normal text-center text-white bg-primary border-primary py-2 px-3 text-base leading-6 rounded-lg cursor-default">
+            View Applications
+          </button>
+          <button className="inline-block  me-4 font-normal text-center text-white bg-[#7D7B7B] border-[#7D7B7B] py-2 px-3 text-base leading-6 rounded-lg cursor-default">
+            Edit Job
+          </button>
         </div>
       </div>
+    </div>
+  </div>
+  })
+}
     </div>
   );
 };
