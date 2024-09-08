@@ -13,6 +13,7 @@ async function GetEmployerJobPostList(url) {
       return data;
     })
     .catch((err) => {
+      console.log(err)
     
       return { error: "Client and server connection error" };
     });

@@ -51,10 +51,12 @@ const JobPostPage = ({ industries, functionalAreas }) => {
   const searchParams = useSearchParams();
 
 console.log(filter)
-  //  Search when redirected from the Home Page
   const titleHome = searchParams.get("title");
   const jobTypeHome = searchParams.get("jobType");
   const industrialIdHome = searchParams.get("industryId");
+  const functionalId = searchParams.get("functionalAreaId");
+  const countryID = searchParams.get("countryId")
+
   console.log(jobTypeHome,"JJ")
   useEffect(() => {
     setFilter((prevFilter) => ({
