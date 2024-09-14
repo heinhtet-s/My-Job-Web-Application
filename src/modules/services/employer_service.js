@@ -13,7 +13,6 @@ async function GetEmployersList(url) {
     });
 }
 async function UpdateEmployerList(data, id) {
-  console.log(data, "data");
   return await axios
     .patch(encodeURI(`${EmployersURL}(${id})`), data, REQUEST_HEADER)
     .then(({ data }) => {

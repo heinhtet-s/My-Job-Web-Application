@@ -28,10 +28,10 @@ export async function POST(request) {
       DegreeType,
       EndDate,
       Address,
-      createdAt: getCurrentDate(),
-      updatedAt: getCurrentDate(),
-      createdBy: session?.user?.Id ? session?.user?.Id : "",
-      updatedBy: session?.user?.Id ? session?.user?.Id : "",
+      CreatedAt: getCurrentDate(),
+      UpdatedAt: getCurrentDate(),
+      CreatedBy: session?.user?.Id ? session?.user?.Id : "",
+      UpdatedBy: session?.user?.Id ? session?.user?.Id : "",
     },
     Id
   );

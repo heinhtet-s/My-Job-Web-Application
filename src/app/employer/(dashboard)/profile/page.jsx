@@ -11,6 +11,7 @@ import PrimaryBtn from "@/components/ui/primaryBtn";
 import toast from "react-hot-toast";
 import { inputStyle, labelStyle, selectStyle } from "@/components/ui/form";
 import dynamic from "next/dynamic";
+// import TinyEditor from "@/components/ui/TinyEditor";
 const TinyEditor = dynamic(() => import("@/components/ui/TinyEditor"), {
   ssr: false,
 });
@@ -53,7 +54,7 @@ const page = () => {
         ([key, value]) => key !== "@odata.context"
       )
     );
-    console.log(filteredObj);
+
     try {
       await ApiReq.post("api/employer_lists/update", {
         ...filteredObj,
@@ -67,7 +68,7 @@ const page = () => {
   const getIndustry = async () => {
     try {
       const data = await ApiReq.get("api/Industry_list/get");
-      console.log(data);
+
       setIndustryList(data?.data);
     } catch (e) {
       console.log(e);
@@ -93,7 +94,6 @@ const page = () => {
     handleSubmitProfile(data);
   };
   useEffect(() => {
-    console.log(infoData);
     reset({
       ...infoData,
       EstablishedIn: infoData?.EstablishedIn
@@ -152,7 +152,7 @@ const page = () => {
             <select
               className={selectStyle}
               {...register("IndustryId", {
-                required: "Functional Area is required",
+                required: "Industry is required",
               })}
             >
               <option value={""}>Select Industry</option>
@@ -304,8 +304,9 @@ const page = () => {
         <div className="mt-[20px]">
           <label className={labelStyle}>About the company</label>
           <TinyEditor
-            text={getValues("About")}
+            text={watch("About")}
             setTextEditor={(data) => {
+              console.log(data);
               setValue("About", data);
             }}
           />

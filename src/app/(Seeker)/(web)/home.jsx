@@ -6,7 +6,7 @@ import SearchIcon from "@/asset/Icon/SearchIcon";
 import FilterIcon from "@/asset/Icon/FilterIcon";
 import { cn } from "@/lib/utils";
 import LocationIcon from "@/asset/Icon/LocationIcon";
-import "./home.css";
+import "../../../components/css/home.css";
 import SportLightIcon from "@/asset/Icon/SportLightIcon";
 import HilightIcon from "@/asset/Icon/HilightIcon";
 import ArrowLeft from "@/asset/Icon/ArrowLeft";
@@ -22,10 +22,11 @@ import { EmployersConst } from "@/lib/queryConst";
 import { comma } from "postcss/lib/list";
 
 const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
+  console.log(jobPosts, "jobPosts");
   const { data: session } = useSession();
-  const [loading, setLoading] = useState(false)
-  const [filter, setFilter] = useState(EmployersConst.filter)
-  const [companies, setCompnanies] = useState([])
+  const [loading, setLoading] = useState(false);
+  const [filter, setFilter] = useState(EmployersConst.filter);
+  const [companies, setCompnanies] = useState([]);
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
     pageNumber: 1,
@@ -33,7 +34,7 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
     total: 0,
   });
   const router = useRouter();
-  console.log(functionalAreas)
+
   async function getEmployers(pageNumber, perPage) {
     setLoading(true);
     try {
@@ -51,28 +52,28 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
         )}`
       );
 
-
       setPaging((prev) => ({
         ...prev,
         total: result.data["@odata.count"],
       }));
       setCompnanies(result.data);
     } catch (error) {
-
       // errorMessage(error);
     } finally {
       setLoading(false);
     }
   }
   useEffect(() => {
-    getEmployers(paging.pageNumber, paging.perPage)
-  }, [])
-
+    getEmployers(paging.pageNumber, paging.perPage);
+  }, []);
 
   return (
     <>
       <BannerComponent />
-      <FilterJobComponent industries={industries} functionalAreas={functionalAreas} />
+      <FilterJobComponent
+        industries={industries}
+        functionalAreas={functionalAreas}
+      />
       <FeatureCampanyComponent companies={companies} />
       <FeatureJobPostComponent jobPosts={jobPosts} />
       <SubBannerComponent />
@@ -278,7 +279,6 @@ const ViewMoreBtn = ({ text }) => {
   );
 };
 const FeatureCampanyComponent = ({ companies }) => {
-
   const router = useRouter();
   return (
     <div
@@ -326,34 +326,33 @@ const FeatureCampanyComponent = ({ companies }) => {
 };
 
 const FilterJobComponent = ({ industries, functionalAreas }) => {
+  const [showFilter, setShowFilter] = useState(false);
   const FilterFunction = () => {
-  }
+    setShowFilter((prev) => !prev);
+  };
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [jobType, setJobType] = useState("");
   const [industrialId, setIndustrialId] = useState("");
-  const [countries, setCountries] = useState([])
-  const [countryId, setCountryId] = useState("")
-  const [functionalId, setFunctionalId] = useState("")
+  const [countries, setCountries] = useState([]);
+  const [countryId, setCountryId] = useState("");
+  const [functionalId, setFunctionalId] = useState("");
   const handleSearch = () => {
     const queryParams = new URLSearchParams({
       title: title.toLowerCase(),
       jobType: jobType,
       industryId: industrialId,
-      countryId:countryId,
-      functionalAreaId:functionalId,
-     
+      countryId: countryId,
+      functionalAreaId: functionalId,
     });
     router.push(`/jobs?${queryParams.toString()}`);
   };
   useEffect(() => {
     const fetchCountries = async () => {
       try {
-        const res = await axios.get('/api/master/get_country');
+        const res = await axios.get("/api/master/get_country");
         setCountries(res.data.value);
-      } catch (err) {
-
-      }
+      } catch (err) {}
     };
 
     fetchCountries();
@@ -402,6 +401,7 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
             </select>
           </div>
           <div className="h-12 w-px bg-[#ccc]" />
+
           <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
               className="block font w-full text-[14px] py-1 px-3  font-normal text-gray-800 bg-white  border-none rounded-md appearance-none outline-none focus:ring-0 "
@@ -415,7 +415,7 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
                 backgroundSize: "16px 12px",
               }}
             >
-              <option>Select Work Type Industry</option>
+              <option value="">Select Work Type Industry</option>
               {workTypes?.map((work) => {
                 return (
                   <option key={work.label} value={work.value}>
@@ -425,7 +425,9 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
               })}
             </select>
           </div>
-          <FilterIcon onClick={FilterFunction} />
+          <div onClick={FilterFunction} className="cursor-pointer">
+            <FilterIcon />
+          </div>
         </div>
         <div
           style={{
@@ -440,76 +442,76 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
             Find Jobs
           </button>
         </div>
-
       </div>
-      <div className="flex">
-        <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
-          <select
-            className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
-            value={functionalId}
-            onChange={(e) => setFunctionalId(e.target.value)}
-            style={{
-              backgroundImage:
-                "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 0.75rem center",
-              backgroundSize: "16px 12px",
-            }}
-          >
-            <option>Select Functional</option>
-            {functionalAreas?.map((industry) => (
-              <option key={industry.Id} value={industry.Id}>
-                {industry.TitleEng}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
-          <select
-            className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
-            value={countryId}
-            onChange={(e) => setCountryId(e.target.value)}
-            style={{
-              backgroundImage:
-                "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 0.75rem center",
-              backgroundSize: "16px 12px",
-            }}
-          >
-            <option>Select Country</option>
-            {countries?.map((industry) => (
-              <option key={industry.Id} value={industry.Id}>
-                {industry.NameEng}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
-          <select
-            className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
-            // value={industrialId}
-            // onChange={(e) => setIndustrialId(e.target.value)}
-            style={{
-              backgroundImage:
-                "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "right 0.75rem center",
-              backgroundSize: "16px 12px",
-            }}
-          >
-
-            <option>Any Time</option>
-            {chooseTime?.map((work) => {
-              return (
-                <option key={work.label} value={work.value}>
-                  {work.label}
+      {showFilter && (
+        <div className="flex">
+          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+            <select
+              className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              value={functionalId}
+              onChange={(e) => setFunctionalId(e.target.value)}
+              style={{
+                backgroundImage:
+                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 0.75rem center",
+                backgroundSize: "16px 12px",
+              }}
+            >
+              <option>Select Functional</option>
+              {functionalAreas?.map((industry) => (
+                <option key={industry.Id} value={industry.Id}>
+                  {industry.TitleEng}
                 </option>
-              );
-            })}
-          </select>
+              ))}
+            </select>
+          </div>
+          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+            <select
+              className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              value={countryId}
+              onChange={(e) => setCountryId(e.target.value)}
+              style={{
+                backgroundImage:
+                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 0.75rem center",
+                backgroundSize: "16px 12px",
+              }}
+            >
+              <option>Select Country</option>
+              {countries?.map((industry) => (
+                <option key={industry.Id} value={industry.Id}>
+                  {industry.NameEng}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+            <select
+              className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              // value={industrialId}
+              // onChange={(e) => setIndustrialId(e.target.value)}
+              style={{
+                backgroundImage:
+                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                backgroundRepeat: "no-repeat",
+                backgroundPosition: "right 0.75rem center",
+                backgroundSize: "16px 12px",
+              }}
+            >
+              <option>Any Time</option>
+              {chooseTime?.map((work) => {
+                return (
+                  <option key={work.label} value={work.value}>
+                    {work.label}
+                  </option>
+                );
+              })}
+            </select>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -523,7 +525,6 @@ const JobCardComponent = ({ isFeatureCard, jobPost }) => {
       }
     }
   } catch (error) {
-
     parsedDate = null;
   }
   const router = useRouter();
@@ -566,7 +567,7 @@ const JobCardComponent = ({ isFeatureCard, jobPost }) => {
             isFeatureCard && "text-white"
           )}
         >
-          Hlaing Township, Myanmar
+          {jobPost?.Employer?.MapAddress}
         </p>
         <div className="flex items-center gap-2 p-1 px-2 text-[#f69322] text-[10px] font-poppins font-normal leading-normal rounded-md bg-[#ffefdc] text-center">
           {jobPost?.JobType}

@@ -44,15 +44,22 @@ const Page = () => {
   const getFavJobList = async () => {
     setLoading(true);
     try {
-    
       const data = await getFavJob(session?.user?.Id);
-      
+
       setData(data?.value);
     } catch (e) {
-      
     } finally {
       setLoading(false);
     }
+  };
+  const JobType = {
+    0: "PartTime",
+    1: "FullTime",
+    2: "Contract",
+    3: "Freelance",
+    4: "DayShift",
+    5: "NightShift",
+    6: "Rotate",
   };
 
   useEffect(() => {
@@ -60,7 +67,7 @@ const Page = () => {
       getFavJobList();
     }
   }, [session?.user?.Id]);
-
+  console.log(data);
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Favourtie Jobs</h1>
@@ -70,9 +77,11 @@ const Page = () => {
       <Table>
         <TableHeader className="border-b-2 border-black">
           <TableRow>
-            <TableHead>Job Title </TableHead>
-            <TableHead>Job Type</TableHead>
-            <TableHead> Desc</TableHead>
+            <TableHead>Job </TableHead>
+            <TableHead>Company</TableHead>
+            <TableHead> Functional Area</TableHead>
+            <TableHead> Type</TableHead>
+            <TableHead>Save Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -86,10 +95,11 @@ const Page = () => {
                 <TableRow key={index}>
                   <TableCell>
                     <p className="text-primary font-[500]">{item?.title}</p>
+                    <p>{item?.employer?.mapAddress}</p>
                   </TableCell>
                   <TableCell>
                     <p className="flex items-center gap-1 font-[500]">
-                      {"fulltime"}
+                      {item?.employer?.companyName}
                     </p>
                   </TableCell>
                   <TableCell
@@ -102,7 +112,12 @@ const Page = () => {
                     }}
                     className="text-blue-500 font-[300]  "
                   >
-                    {item.description}
+                    {item.functionalArea?.titleEng}
+                  </TableCell>
+                  <TableCell>
+                    <p className="flex items-center gap-1 font-[500]">
+                      {JobType?.[item?.jobType]}
+                    </p>
                   </TableCell>
                 </TableRow>
               );

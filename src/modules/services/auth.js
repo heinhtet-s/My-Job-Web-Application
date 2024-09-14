@@ -4,7 +4,7 @@ import { REQUEST_HEADER } from "../../lib/config";
 import { EmployeerAuth, SeekerAuth, UploadCVURL } from "@/lib/apiConst";
 import { signOut } from "next-auth/react";
 async function SeekerLogin({ email, password }) {
-  const urlString = `${SeekerAuth}/login`;
+  const urlString = `${SeekerAuth}login`;
   try {
     await axios.post(urlString, {
       email,
@@ -18,9 +18,27 @@ async function SeekerLogin({ email, password }) {
 
     return data;
   } catch (e) {
+    console.log(e);
     throw e;
   }
 }
+const GetLinkedInInfo = async (customToken) => {
+  try {
+    const response = await axios(
+      "https://api.linkedin.com/v2/me?projection=(id,firstName,lastName,email)",
+      {
+        headers: {
+          Authorization: `Bearer ${customToken}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log(error);
+    console.error("Error authenticating with Firebase:", error);
+  }
+};
 async function SeekerSsoLogin({ token, email }) {
   const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/SignIns/seeker`;
   try {
@@ -174,6 +192,7 @@ export {
   SeekerRegister,
   Logout,
   SeekerSsoLogin,
+  GetLinkedInInfo,
   EmployerSsoLogin,
   EmployeerRegister,
   EmailVerifyEmployer,

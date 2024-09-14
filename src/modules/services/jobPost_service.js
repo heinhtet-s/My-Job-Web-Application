@@ -18,7 +18,6 @@ import { REQUEST_HEADER } from "../../lib/config";
 // }
 
 async function getGenerateData(data) {
-  console.log(data);
   return await axios
     .post(
       encodeURI(`${EmployerInfo}AIJobPost/CreateWithAI?AI=true`),
@@ -34,9 +33,32 @@ async function getGenerateData(data) {
     });
 }
 async function createJobPost(data) {
-  console.log(data);
   return await axios
     .post(encodeURI(`${EmployerInfo}/JobPosts`), data)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((e) => {
+      console.log(e);
+      // console.log(e?.response);
+      throw { error: e?.response || "No enough unit" };
+    });
+}
+async function getJobPost(url) {
+  return await axios
+    .get(encodeURI(`${EmployerInfo}JobPosts${url}`))
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((e) => {
+      console.log(e);
+      // console.log(e?.response);
+      throw { error: e?.response || "No enough unit" };
+    });
+}
+async function getJobPostById(id) {
+  return await axios
+    .get(encodeURI(`${EmployerInfo}/JobPosts/${id}`))
     .then(({ data }) => {
       return data;
     })
@@ -46,4 +68,22 @@ async function createJobPost(data) {
       throw { error: e?.response || "No enough unit" };
     });
 }
-export { getGenerateData, createJobPost };
+async function updateJobPost(id, data) {
+  return await axios
+    .patch(encodeURI(`${EmployerInfo}JobPosts(${id})`), data)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((e) => {
+      console.log(data);
+      // console.log(e?.response);
+      throw { error: e?.response || "No enough unit" };
+    });
+}
+export {
+  getGenerateData,
+  getJobPost,
+  getJobPostById,
+  createJobPost,
+  updateJobPost,
+};

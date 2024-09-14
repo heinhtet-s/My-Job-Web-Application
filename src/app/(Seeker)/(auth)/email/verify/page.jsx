@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
-const VerifyPage = () => {
+const page = () => {
   const searchParams = useSearchParams();
   const search = searchParams.get("token");
   const router = useRouter();
@@ -26,7 +26,7 @@ const VerifyPage = () => {
     }
   }, [search, router]);
 
-  return <div></div>;
+  return <></>;
 };
 
-export default VerifyPage;
+export default page;

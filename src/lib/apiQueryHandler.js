@@ -1,7 +1,6 @@
 import { CHILDREN_TABLES_HANDLER_ENUM, ORDER_ENUM } from "./const";
 
 async function apiGetData(query, queryObject, odataFunction) {
-
   return await odataQueryHandler(
     queryObject,
     query.filter ? JSON.parse(query.filter) : queryObject.filter,
@@ -19,31 +18,45 @@ async function apiFilterHandler(filter_object, query_filter) {
     if (
       query_filter[key] &&
       query_filter[key].value &&
-      query_filter[key].value !== ""
+      query_filter[key].value?.length > 0 &&
+      query_filter[key].value !== "null"
     ) {
       const target = filter_object[key];
       const query = query_filter[key];
 
       switch (true) {
+        // case target.value === "null":
+        //   console.log("dd");
+        //   return;
         case target.type === "isNull" && target.enum.includes(query.value):
+          // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
         case target.type === "boolean" && target.enum.includes(query.value):
+          // if (target.value === "null")
           filter = { ...filter, [key]: { vaule: query.value } };
           break;
         case target.type === "enum" && target.enum.includes(query.value):
+          // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
         case target.type === "number" && target.enum.includes(query.key):
-          filter = { ...filter, [key]: { value: query.value, key: query.key } };
+          // if (target.value === "null")
+          filter = {
+            ...filter,
+            [key]: { value: query.value, key: query.key },
+          };
           break;
         case target.type === "string":
+          // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
         case target.type === "foreign":
+          // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
         case target.type === "foreignString":
+          // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
         default:
@@ -106,8 +119,6 @@ async function apiQueryHandler(
 async function filterHandler(filter, query_filter) {
   let filterString = "";
 
-
-
   for (const key of Object.keys(filter)) {
     if (
       query_filter[key] &&
@@ -161,7 +172,6 @@ async function filterHandler(filter, query_filter) {
       }
     }
   }
-
 
   return filterString;
 }
@@ -247,8 +257,6 @@ async function odataQueryHandler(
   pagination,
   odataFunction
 ) {
-
-
   let queryString = `?$count=true`;
   // addSelect
   let selectFields = queryObject?.fields.filter((value) =>
@@ -264,12 +272,9 @@ async function odataQueryHandler(
 
   // add expand child tables
   if (CHILDREN_TABLES_HANDLER_ENUM.includes(have_childs)) {
-   
-
     switch (true) {
       case have_childs === "normal":
         for (const child of queryObject?.children) {
-         
           queryString = `${queryString}&$expand=${
             child?.name
           }(${await odataExpandQueryHandler(
@@ -316,7 +321,6 @@ async function odataQueryHandler(
       response = await idsToNameReplacer(response, i);
     }
   }
-console.log(response)
   return response;
 }
 
@@ -326,7 +330,6 @@ async function odataExpandQueryHandler(
   query_order,
   type
 ) {
-
   let queryString = `${
     type === "multi" ? "" : ""
   }$select=${queryObject.fields.toString()}`;

@@ -70,7 +70,7 @@ async function getEmployerById(lists) {
 
     const titleList = await GetEmployerJobPostList(
       `?$count=true&$select=
-EmployerId&$filter=${urlString}`
+EmployerId,JobStatus,IsExpired&$filter=${urlString}`
     );
 
     if (!titleList.error) {

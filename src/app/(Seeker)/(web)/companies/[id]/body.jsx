@@ -3,6 +3,7 @@ import CardLayout from "@/components/share/CardLayout";
 import { Earth } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
 import React from "react";
+import moment from "moment";
 
 const CompanyDetail = ({ companyLists }) => {
   const params = useParams();
@@ -53,10 +54,10 @@ const CompanyDetail = ({ companyLists }) => {
                 <h1 className="font-bold text-[28px] tracking-[-1px] mb-[30px]">
                   About Me
                 </h1>
-                <p
+                <div
                   className="font-light leading-[1.7rem]"
-                  dangerouslySetInnerHTML={data?.About}
-                ></p>
+                  dangerouslySetInnerHTML={{ __html: data?.About }}
+                ></div>
                 <p></p>
               </div>
             </div>
@@ -72,11 +73,16 @@ const CompanyDetail = ({ companyLists }) => {
                 </div>
                 <div className="mt-[1.5rem]">
                   <p className="opacity-70 text-[13px]">Founded in</p>
-                  <p className="font-[500]">1996</p>
+                  <p className="font-[500]">
+                    {" "}
+                    {data?.EstablishedIn
+                      ? moment(data?.EstablishedIn)?.format("D/MM/YYYY")
+                      : "-"}
+                  </p>
                 </div>
                 <div className="mt-[1.5rem]">
                   <p className="opacity-70 text-[13px]">Phone </p>
-                  <p className="font-[500]">09.........</p>
+                  <p className="font-[500]">{data?.CompanyPhoneNum}</p>
                 </div>
                 <div className="mt-[1.5rem]">
                   <p className="opacity-70 text-[13px]">Email </p>

@@ -14,7 +14,7 @@ import AboutMeComponent from "./AboutMe";
 import Experiences from "./Experiences";
 import Education from "./Education";
 import LanguageSkill from "./LanguageSkill";
-import PersonalInfo from "./PersonalInfo";
+import CareerInfo from "./CareerInfo";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
@@ -93,10 +93,11 @@ const page = () => {
               <AboutMeComponent
                 fetchInfoData={fetchInfoData}
                 personalData={infoData}
+                masterData={masterData}
               />
             )}
             {activeIndex === 1 && (
-              <PersonalInfo
+              <CareerInfo
                 fetchInfoData={fetchInfoData}
                 personalData={infoData}
                 masterData={masterData}

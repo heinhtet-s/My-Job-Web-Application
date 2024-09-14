@@ -34,8 +34,6 @@ export async function POST(request) {
     About,
     FromSalary,
     ToSalary,
-    SalaryNegotiable = false,
-    ProfileCompletion,
     ProjectUrl,
     AboutMe,
     Id,
@@ -66,14 +64,13 @@ export async function POST(request) {
       About,
       FromSalary,
       ToSalary,
-      SalaryNegotiable,
-      ProfileCompletion,
+
       ProjectUrl,
       AboutMe,
-      createdAt: getCurrentDate(),
-      updatedAt: getCurrentDate(),
-      createdBy: session.user?.Id ? session.user.Id : "",
-      updatedBy: session.user?.Id ? session.user.Id : "",
+      CreatedAt: getCurrentDate(),
+      UpdatedAt: getCurrentDate(),
+      CreatedBy: session.user?.Id ? session.user.Id : "",
+      UpdatedBy: session.user?.Id ? session.user.Id : "",
     },
     Id
   );

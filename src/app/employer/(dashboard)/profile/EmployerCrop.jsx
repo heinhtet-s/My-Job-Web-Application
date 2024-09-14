@@ -144,7 +144,7 @@ const EmployerImageCropper = ({ handleSubmit }) => {
 
       try {
         const data = await UploadedImageApi(session?.user?.Id, formData);
-        console.log(data, "ggg");
+
         // await handleSubmit({
         //   CompanyLogo: data?.url,
         // });

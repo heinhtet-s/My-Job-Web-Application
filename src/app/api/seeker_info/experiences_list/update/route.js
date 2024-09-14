@@ -33,10 +33,10 @@ export async function POST(request) {
       EndDate,
       Active,
       JobDescription,
-      createdAt: getCurrentDate(),
-      updatedAt: getCurrentDate(),
-      createdBy: session?.user?.Id ? session.user.Id : null,
-      updatedBy: session?.user?.Id ? session.user.Id : null,
+      CreatedAt: getCurrentDate(),
+      UpdatedAt: getCurrentDate(),
+      CreatedBy: session?.user?.Id ? session.user.Id : null,
+      UpdatedBy: session?.user?.Id ? session.user.Id : null,
     },
     Id
   );

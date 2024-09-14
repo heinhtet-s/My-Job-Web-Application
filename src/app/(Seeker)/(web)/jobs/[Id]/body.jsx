@@ -15,9 +15,9 @@ import { UploadCv } from "@/modules/services/auth";
 import ApiReq from "@/lib/axiosHandler";
 import { UploadedCv } from "@/modules/services/uploadcv_service";
 import { getFavJob, postFavJob } from "@/modules/services/jobFav_service";
-
 import toast from "react-hot-toast";
 const JobDetailComponent = ({ data }) => {
+  console.log(data);
   const [openModal, setOpenModal] = useState(false);
   const [alreadyApplied, setAlreadyApply] = useState(false);
   const [favoJob, setFavoJob] = useState(false);
@@ -42,19 +42,14 @@ const JobDetailComponent = ({ data }) => {
 
       setCvList(data?.data);
       setSelectedCvForm(data?.data?.filter((el) => el?.Active)?.[0]?.Id);
-    } catch (e) {
-     
-    }
+    } catch (e) {}
   };
-  
+
   const getFavJobList = async () => {
     try {
-    
       const data = await getFavJob(session?.user?.Id);
       setFavList(data?.value);
-    } catch (e) {
-     
-    }
+    } catch (e) {}
   };
   useEffect(() => {
     getCvList();
@@ -65,7 +60,6 @@ const JobDetailComponent = ({ data }) => {
     }
   }, [session?.user?.Id]);
   useEffect(() => {
-    
     setFavoJob(!!favList?.filter((el) => el?.id === JobId)?.[0]);
   }, [favList]);
 
@@ -102,10 +96,7 @@ const JobDetailComponent = ({ data }) => {
         toast.success("Apply Successfully");
         handleModalClose();
         setAlreadyApply(true);
-       
-      } catch (e) {
-       
-      }
+      } catch (e) {}
       return;
     }
     if (selectedCvForm) {
@@ -119,9 +110,7 @@ const JobDetailComponent = ({ data }) => {
         toast.success("Apply Successfully");
         handleModalClose();
         setAlreadyApply(true);
-      } catch (e) {
-       
-      }
+      } catch (e) {}
       return;
     }
   };
@@ -163,7 +152,6 @@ const JobDetailComponent = ({ data }) => {
                 <select
                   value={selectedCvForm}
                   onChange={(e) => {
-                   
                     setSelectedCvForm(e.target.value);
                   }}
                   id="countries"
@@ -343,7 +331,13 @@ const JobDetailComponent = ({ data }) => {
                     </div>
                     <div className="mt-[1.5rem]">
                       <p className="opacity-70 text-[13px]">Founded in</p>
-                      <p className="font-[500]">2013</p>
+                      <p className="font-[500]">
+                        {data?.Employer?.EstablishedIn
+                          ? moment(data?.Employer?.EstablishedIn)?.format(
+                              "D/MM/YYYY"
+                            )
+                          : "-"}
+                      </p>
                     </div>
                     <div className="mt-[1.5rem]">
                       <p className="opacity-70 text-[13px]">Location</p>

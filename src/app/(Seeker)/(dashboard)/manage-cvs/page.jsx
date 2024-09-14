@@ -20,6 +20,7 @@ import { UploadedCv } from "../../../../modules/services/uploadcv_service";
 import toast from "react-hot-toast";
 import ApiReq from "@/lib/axiosHandler";
 import Swal from "sweetalert2";
+import moment from "moment";
 const Page = () => {
   const { data: session } = useSession();
   const [filter, setFilter] = useState(GeneratedCvConst.filter);
@@ -37,7 +38,7 @@ const Page = () => {
     perPage: 100,
     total: 0,
   });
- 
+
   useEffect(() => {
     if (SEEKERID) {
       setFilter((prevFilter) => ({
@@ -149,13 +150,13 @@ const Page = () => {
         </TableHeader>
         <TableBody>
           {data.map((cv) => {
-            const isoDate = cv?.CreatedAt;
-            const formattedDate = format(parseISO(isoDate), "dd/MM/yy"); // Format the date
             return (
               <TableRow key={cv.Id}>
                 <TableCell className="text-primary">{cv.CVFileName}</TableCell>
                 <TableCell className="text-green-600">
-                  {formattedDate}
+                  {cv?.CreatedAt
+                    ? moment(cv?.CreatedAt).format("D/MM/YYYY")
+                    : "-"}
                 </TableCell>
                 <TableCell>
                   <Switch checked={cv.Active} />

@@ -32,6 +32,7 @@ const DashboardConst = [
       />
     ),
     header: "Dashboard",
+    link: "/employer/home",
   },
   {
     icon: (
@@ -42,6 +43,7 @@ const DashboardConst = [
       />
     ),
     header: "Manage Profile",
+    link: "/employer/profile",
   },
 
   {
@@ -53,6 +55,7 @@ const DashboardConst = [
       />
     ),
     header: "Manage Jobs",
+    link: "/employer/jobpost",
   },
   {
     icon: (
@@ -63,6 +66,7 @@ const DashboardConst = [
       />
     ),
     header: "Manage Applications",
+    link: "/employer/candidate",
   },
   {
     icon: (
@@ -73,6 +77,7 @@ const DashboardConst = [
       />
     ),
     header: "Job Report",
+    link: "/employer/candidate",
   },
   {
     icon: (
@@ -83,6 +88,7 @@ const DashboardConst = [
       />
     ),
     header: "Schedule",
+    link: "/employer/candidate",
   },
   {
     icon: (
@@ -93,10 +99,11 @@ const DashboardConst = [
       />
     ),
     header: "Widget",
+    link: "/employer/candidate",
   },
 ];
-export default function Layout({ children }: { children: React.ReactNode }) {
-  const { data: session } = useSession() as any;
+export default function Layout({ children }) {
+  const { data: session } = useSession();
   const router = useRouter();
   const Logout = async () => {
     await signOut({ redirect: false });
@@ -110,7 +117,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="pb-[100px] mt-3 lg:mt-6 justify-between flex-col">
           {DashboardConst?.map((el) => (
-            <div className="px-4 py-[1rem] cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center gap-3 no-underline transition-all duration-500 ease-in-out text-[15px] leading-[18px] hover:text-primary group">
+            <div
+              onClick={() => {
+                router.push(el?.link);
+              }}
+              className="px-4 py-[1rem] cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center gap-3 no-underline transition-all duration-500 ease-in-out text-[15px] leading-[18px] hover:text-primary group"
+            >
               {el?.icon}
               {el?.header}
             </div>

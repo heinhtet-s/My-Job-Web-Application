@@ -6,23 +6,57 @@ import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
+import ApiReq from "@/lib/axiosHandler";
 const page = () => {
   const { data: session, status } = useSession();
   const params = useParams();
   const { id: SeekerId } = params;
+  const [loading, setLoading] = useState(true);
+  const [functionalArea, setFuncaionalArea] = useState([]);
+
   const [infoData, setInfoData] = useState({});
+  const [careerInfo, setCareerInfo] = useState([]);
+  const getFunctionalArea = async () => {
+    try {
+      const data = await ApiReq.get("api/functional_area/get");
+
+      setFuncaionalArea(data?.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const fetchInfoData = async () => {
     try {
       const personalData = await axios.get(
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/detail?id=${SeekerId}`
       );
-    
+
       setInfoData(personalData.data);
-    } catch (e) {}
+    } catch (e) {
+    } finally {
+      setLoading(false);
+    }
   };
+  const getCareerInfoData = async () => {
+    try {
+      const data = await ApiReq.get(
+        `api/seeker_info/career_info_list/getById?id=${SeekerId}`
+      );
+
+      setCareerInfo(data?.data?.[0]);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   useEffect(() => {
     fetchInfoData();
+    getCareerInfoData();
+    getFunctionalArea();
   }, []);
+  if (loading) {
+    return <></>;
+  }
   return (
     <CardLayout>
       <div className="grid pt-[15px]   gap-8 grid-cols-12">
@@ -196,43 +230,49 @@ const page = () => {
                 {" "}
                 {session?.user?.Id === SeekerId ||
                 session?.user?.role === "employee"
-                  ? infoData?.seekerData?.ContactPhoneNumber
+                  ? infoData?.seekerData?.PhoneNum
                   : "locked"}
               </p>
             </div>
           </div>
-          {/* <div className="bg-jobBg w-full p-[30px] mb-[10px] rounded-[30px]">
+          <div className="bg-jobBg w-full p-[30px] mb-[10px] rounded-[30px]">
             <p className="text-primary font-[600] mb-[20px]">
               Career Information
             </p>
             <div>
               <p className="opacity-70 text-[13px]">Professional Headline</p>
-              <p className="font-[500]">Junior Web Developer</p>
+              <p className="font-[500]">{careerInfo?.CurrentPosition}</p>
             </div>
 
             <div className="mt-[1.5rem]">
               <p className="opacity-70 text-[13px]">Years of Experience</p>
-              <p className="font-[500]">locked</p>
+              <p className="font-[500]">{careerInfo?.YearsOfExperience}</p>
             </div>
             <div className="mt-[1.5rem]">
               <p className="opacity-70 text-[13px]">Career Level</p>
-              <p className="font-[500]">locked</p>
+              <p className="font-[500]">{careerInfo?.CareerLevel}</p>
             </div>
             <div className="mt-[1.5rem]">
               <p className="opacity-70 text-[13px]">
                 Preferred Functional Area
               </p>
-              <p className="font-[500]">locked</p>
+              <p className="font-[500]">
+                {
+                  functionalArea?.filter(
+                    (el) => el?.Id === careerInfo?.CurrentFunctionalArea
+                  )?.[0]?.TitleEng
+                }
+              </p>
             </div>
             <div className="mt-[1.5rem]">
               <p className="opacity-70 text-[13px]">Preferred Job Type</p>
-              <p className="font-[500]">locked</p>
+              <p className="font-[500]">{careerInfo?.JobType}</p>
             </div>
             <div className="mt-[1.5rem]">
               <p className="opacity-70 text-[13px]"> Expected Salary</p>
-              <p className="font-[500]">locked</p>
+              <p className="font-[500]">{careerInfo?.ExpectedSalary}</p>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </CardLayout>

@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useRef } from "react";
 import toast from "react-hot-toast";
 
-const VerifyPage = () => {
+const page = () => {
   const searchParams = useSearchParams();
   const search = searchParams.get("token");
   const router = useRouter();
@@ -15,7 +15,6 @@ const VerifyPage = () => {
       toast.success("Successfully verified email");
       router.push("/employer/login");
     } catch (e) {
-     
       toast.success("Successfully verified email");
       router.push("/employer/login");
     }
@@ -30,4 +29,4 @@ const VerifyPage = () => {
   return <div></div>;
 };
 
-export default VerifyPage;
+export default page;

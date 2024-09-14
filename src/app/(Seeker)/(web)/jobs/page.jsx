@@ -9,7 +9,7 @@ import JobPostPage from "./body";
 import { GetInsdustriesList } from "@/modules/services/industries";
 import { GetFunctionalAreaLists } from "@/modules/services/employer_service";
 
-export default async function JobPost() {
+export default async function page() {
   try {
     const data = await odataQueryHandler(
       EmployerJobPosts,
@@ -26,7 +26,7 @@ export default async function JobPost() {
       IndustriesConst.order,
       IndustriesConst.fields,
       "no_child",
-      { top: 10, skip: 0 },
+      { top: 100, skip: 0 },
       GetInsdustriesList
     );
     const functionalAreas = await odataQueryHandler(
@@ -35,19 +35,14 @@ export default async function JobPost() {
       FunctionalAreasConst.order,
       FunctionalAreasConst.fields,
       "no_child",
-      { top: 10, skip: 0 },
+      { top: 100, skip: 0 },
       GetFunctionalAreaLists
     );
 
     return (
-      <JobPostPage
-       
-        industries={industries}
-        functionalAreas={functionalAreas}
-      />
+      <JobPostPage industries={industries} functionalAreas={functionalAreas} />
     );
   } catch (error) {
-   
     return <JobPostPage data={{ count: 0, value: [] }} />;
   }
 }

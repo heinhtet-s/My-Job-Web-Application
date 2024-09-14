@@ -9,9 +9,10 @@ import PrimaryBtn from "@/components/ui/primaryBtn";
 import ApiReq from "@/lib/axiosHandler";
 import axios from "axios";
 import { Modal } from "flowbite-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import ImageUpaladComponent from "./ImageUploadComponent.jsx";
+import PersonalInfo from "./PersonalInfo.jsx";
 const personalInfo = [
   {
     title: "First Name",
@@ -75,7 +76,7 @@ const personalInfo = [
     value: "500000 -800000",
   },
 ];
-const AboutMe = ({ fetchInfoData, personalData }) => {
+const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
   const [openModal, setOpenModal] = useState(false);
   const file = useRef(null);
   const fileExplore = () => {
@@ -177,6 +178,11 @@ const AboutMe = ({ fetchInfoData, personalData }) => {
           </button>
         </div>
       </div>
+      <PersonalInfo
+        masterData={masterData}
+        fetchInfoData={fetchInfoData}
+        personalData={personalData}
+      />
       <EditCareerInfo
         handleSubmit={handleSubmit}
         personalData={personalData}
@@ -193,6 +199,9 @@ const EditCareerInfo = ({
   personalData,
 }) => {
   const [aboutMe, setAboutMe] = useState(personalData?.AboutMe);
+  useEffect(() => {
+    setAboutMe(personalData?.AboutMe);
+  }, [personalData?.AboutMe]);
   return (
     <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
       <Modal.Body className="rounded-[30px]">

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import {
   Table,
@@ -13,19 +13,52 @@ import {
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import PaginatedItems from "@/components/share/pagination";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
-import { AppliedJobPostConst } from "@/lib/queryConst";
-import { format } from 'date-fns';
+import { AppliedJobPostConst, EmployersConst } from "@/lib/queryConst";
+import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 
 const Page = () => {
   const [loading, setLoading] = useState(false);
-  const { data: session } = useSession() 
-  const [filter,setFilter] = useState(AppliedJobPostConst.filter)
+  const { data: session } = useSession();
+  const [filter, setFilter] = useState(AppliedJobPostConst.filter);
   const SEEKERID = session?.user?.Id;
   const [data, setData] = useState([]);
+  const [companyData, setCompanyData] = useState([]);
+  const fetchCompanyList = useCallback(
+    async (pageNumber, perPage) => {
+      setLoading(true);
+      const queryString = await apiQueryHandler(
+        EmployersConst,
+        EmployersConst.filter,
+        EmployersConst.order,
+        EmployersConst.fields,
+        "normal",
+        {
+          pageNumber,
+          perPage,
+        }
+      );
+
+      axios
+        .get(`/api/company_lists/get?${queryString}`)
+        .then((res) => {
+          setPaging({
+            pageNumber,
+            perPage,
+            total: res["@odata.count"],
+          });
+          setCompanyData(res.data.value);
+        })
+        .catch((error) => {})
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [filter]
+  );
   const [paging, setPaging] = useState({
     pageNumber: 1,
-    perPage: 10,
+    perPage: 100,
     total: 0,
   });
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,7 +79,7 @@ const Page = () => {
       const result = await axios.get(
         `/api/appliedJobpost/get?${await apiQueryHandler(
           AppliedJobPostConst,
-        filter,
+          filter,
           AppliedJobPostConst.order,
           AppliedJobPostConst.fields,
           "no_child",
@@ -62,20 +95,18 @@ const Page = () => {
       }));
       setData(result.data);
     } catch (error) {
-    
       // errorMessage(error);
     } finally {
       setLoading(false);
     }
   }
 
-useEffect(() => {
-  if (filter.SeekerId.value) {
-    getApplications(paging.pageNumber, paging.perPage);
-  }
-}, [paging.pageNumber, paging.perPage, filter]);
-
- 
+  useEffect(() => {
+    if (filter.SeekerId.value) {
+      fetchCompanyList(paging.pageNumber, paging.perPage);
+      getApplications(paging.pageNumber, paging.perPage);
+    }
+  }, [paging.pageNumber, paging.perPage, filter]);
 
   useEffect(() => {
     setPaging((prev) => ({
@@ -107,14 +138,21 @@ useEffect(() => {
             </TableRow>
           ) : data?.length > 0 ? (
             data?.map((item, index) => {
-              const formattedDate = format(new Date(item.CreatedAt), 'dd/MM/yy hh:mm a');
+              const formattedDate = format(
+                new Date(item.CreatedAt),
+                "dd/MM/yy hh:mm a"
+              );
               return (
                 <TableRow key={index}>
                   <TableCell>
                     <p className="text-primary font-[500]">{item.JobTitle}</p>
                     <p className="flex items-center gap-1 font-[500]">
                       <EarthIcon />
-                      {item.location}
+                      {
+                        companyData?.filter(
+                          (el) => el?.Id === item?.EmployerId
+                        )?.[0]?.MapAddress
+                      }
                     </p>
                   </TableCell>
                   <TableCell className="text-blue-500 font-[300] ">
@@ -122,9 +160,7 @@ useEffect(() => {
                   </TableCell>
                   <TableCell>{item.FunctionalArea}</TableCell>
                   <TableCell className="font-[500]">{item.JobType}</TableCell>
-                  <TableCell className="font-[300]">
-                    {formattedDate}
-                  </TableCell>
+                  <TableCell className="font-[300]">{formattedDate}</TableCell>
                 </TableRow>
               );
             })

@@ -2,20 +2,28 @@
 import DotIcon from "@/asset/Icon/DotIcon";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
+import ApiReq from "@/lib/axiosHandler";
 import { AppliedJobPostConst, GeneratedCvConst } from "@/lib/queryConst";
 import axios from "axios";
-import { CircleUser, FileText, Mail } from "lucide-react";
+import { CircleUser, Eye, FileText, Mail } from "lucide-react";
+import moment from "moment";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 const page = () => {
   const { data: session } = useSession();
-  const [cvcount,setCvcount] = useState(0)
-  const [loading,setLoading] = useState(false)
-  const [applicationcount,setApplicationCount] = useState(0)
+  const [cvcount, setCvcount] = useState(0);
+  const [lastestCv, setLastestCv] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [applicationcount, setApplicationCount] = useState(0);
   const [filter, setFilter] = useState(GeneratedCvConst.filter);
-  const [applicationFilter,setApplicationFilter] = useState(AppliedJobPostConst.filter)
+  const [recJobs, setRecJobs] = useState([]);
+  const [applicationFilter, setApplicationFilter] = useState(
+    AppliedJobPostConst.filter
+  );
   const SEEKERID = session?.user?.Id;
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
@@ -45,7 +53,6 @@ const page = () => {
       }));
     }
   }, [SEEKERID]);
- 
 
   async function getCvs(pageNumber, perPage) {
     setLoading(true);
@@ -67,15 +74,39 @@ const page = () => {
         ...prev,
         total: result.data["@odata.count"],
       }));
-   setCvcount(result.data['@odata.count'])
+      console.log(result);
+      setLastestCv(result?.data?.value?.[0]);
+      setCvcount(result.data["@odata.count"]);
     } catch (error) {
-      
     } finally {
       setLoading(false);
     }
   }
+  async function getRecJobs() {
+    try {
+      const data = await ApiReq.get("/api/recommand-job/get");
+      setRecJobs(data?.data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const [infoData, setInfoData] = useState({});
+  const router = useRouter();
+  const fetchInfoData = async () => {
+    if (!session?.user?.Id) {
+      return;
+    }
+    try {
+      const personalData = await axios.get(
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
+      );
+      setInfoData(personalData.data);
+    } catch (e) {}
+  };
 
   useEffect(() => {
+    fetchInfoData();
+    getRecJobs();
     if (filter.SeekerId.value) {
       getCvs(paging.pageNumber, paging.perPage);
     }
@@ -86,7 +117,7 @@ const page = () => {
       const result = await axios.get(
         `/api/appliedJobpost/get?${await apiQueryHandler(
           AppliedJobPostConst,
-        applicationFilter,
+          applicationFilter,
           AppliedJobPostConst.order,
           AppliedJobPostConst.fields,
           "no_child",
@@ -100,21 +131,20 @@ const page = () => {
         ...prev,
         total: result.data["@odata.count"],
       }));
-     
-    setApplicationCount(result?.data?.length)
+
+      setApplicationCount(result?.data?.length);
     } catch (error) {
-    
       // errorMessage(error);
     } finally {
       setLoading(false);
     }
   }
 
-useEffect(() => {
-  if (filter.SeekerId.value) {
-    getApplications(paging.pageNumber, paging.perPage);
-  }
-}, [paging.pageNumber, paging.perPage, filter]);
+  useEffect(() => {
+    if (filter.SeekerId.value) {
+      getApplications(paging.pageNumber, paging.perPage);
+    }
+  }, [paging.pageNumber, paging.perPage, filter]);
 
   return (
     <div>
@@ -130,7 +160,12 @@ useEffect(() => {
         }}
       >
         <div className=" flex justify-end">
-          Last Login: <span> 25 Aug 2024</span>
+          Last Login:{"    "}
+          <span>
+            {infoData?.LastLogin
+              ? moment(infoData?.LastLogin).format("DD MMM YYYY")
+              : moment().format("DD MMM YYYY")}
+          </span>
           <div className="flex gap-2 ml-[20px]">
             <DotIcon /> <DotIcon /> <DotIcon />
           </div>
@@ -138,7 +173,9 @@ useEffect(() => {
         <div className="grid mt-[15px] grid-cols-12  gap-4 lg:grid-cols-12 xl:grid-cols-12">
           <div className="col-span-6 lg:col-span-5 xl:col-span-3 flex flex-col justify-center items-center">
             <img
-              src="/image/no-image.png"
+              src={
+                infoData?.ImageUrl ? infoData?.ImageUrl : "/image/no-image.png"
+              }
               className="w-[150px] h-[150px] rounded-full"
             />
             <p
@@ -148,9 +185,9 @@ useEffect(() => {
                 wordBreak: "break-word", // Break words if needed
               }}
             >
-              {session?.user?.FirstName
-                ? session?.user?.FirstName + "  " + session?.user?.LastName
-                : session?.user?.email}
+              {infoData?.FirstName
+                ? infoData?.FirstName + "  " + infoData?.LastName
+                : infoData?.email}
             </p>
           </div>
           <div className="col-span-9 flex">
@@ -159,13 +196,13 @@ useEffect(() => {
                 <div className="mb-2">
                   <p className="mb-1 text-muteColor font-[400]">Eamil</p>
                   <p className="mb-1 font-[400] break-words ">
-                    {session?.user?.email}
+                    {infoData?.Email}
                   </p>
                 </div>
                 <div className="mb-2">
                   <p className="mb-1 text-muteColor font-[400]">Phone</p>
                   <p className="mb-1 font-[400] break-words ">
-                    {session?.user?.PhoneNum}
+                    {infoData?.PhoneNum}
                   </p>
                 </div>
               </div>
@@ -175,12 +212,16 @@ useEffect(() => {
                     Date of birth
                   </p>
                   <p className="mb-1 font-[400] break-words ">
-                    Please fill out your birthday{" "}
+                    {infoData?.DateOfBirth
+                      ? infoData?.DateOfBirth
+                      : "Please fill out your birthday"}
                   </p>
                 </div>
                 <div className="mb-2">
                   <p className="mb-1 text-muteColor font-[400]">Location</p>
-                  <p className="mb-1 font-[400] break-words "></p>
+                  <p className="mb-1 font-[400] break-words ">
+                    {infoData?.Address}
+                  </p>
                 </div>
               </div>
             </div>
@@ -191,7 +232,9 @@ useEffect(() => {
                   <p className="mb-[1rem] text-[13px] font-light">
                     Enhance your professional branding to potential employers
                   </p>
-                  <IconSwitcher />
+                  <div className="w-[100px]">
+                    <IconSwitcher defaultValue={infoData?.IsPublic} />
+                  </div>
                 </div>
               </div>
               <div>
@@ -200,7 +243,9 @@ useEffect(() => {
                   <p className="mb-[1rem] text-[13px] font-light">
                     Let employers know you are actively seeking a job
                   </p>
-                  <IconSwitcher2 />
+                  <div className="w-[100px]">
+                    <IconSwitcher2 defaultValue={infoData?.AvailableJob} />
+                  </div>
                 </div>
               </div>
             </div>
@@ -254,13 +299,18 @@ useEffect(() => {
           <p className="mb-[1.5rem] text-[1.25rem]">Profile Completion</p>
           <div className="flex justify-between mb-[48px] gap-8">
             <div>
-              <h1 className="text-[1.5rem] text-[700]">0 %</h1>
+              <h1 className="text-[1.5rem] text-[700]">
+                {infoData?.ProfileCompletion} %
+              </h1>
               <p className="break-words font-light">
                 of your profile is complete
               </p>
             </div>
             <div className="w-[60%]">
-              <Progress value={33} className="w-[100%]" />
+              <Progress
+                value={+infoData?.ProfileCompletion}
+                className="w-[100%]"
+              />
               <p className="text-[1rem] font-[500]">
                 Complete 100% to boost your profile!
               </p>
@@ -306,11 +356,44 @@ useEffect(() => {
             <p className="text-muteColor mb-[1rem] text-[13px] font-light ">
               Always keep your CV up to date to get great opportunities
             </p>
-            <div className="flex justify-between items-center">
-              <button className="bg-primary text-white text-[18px] font-medium px-5 py-2.5 transition-[background-color] rounded-full">
+            <Table className="border ">
+              <TableBody>
+                <TableRow>
+                  <TableCell className="border ">
+                    <p className="text-primary font-[500]">
+                      {lastestCv?.CVFileName}
+                    </p>
+                  </TableCell>
+                  <TableCell className="border ">
+                    <p className="text-primary font-[500]">
+                      {moment(lastestCv?.CreatedAt).format("DD MMM YYYY")}
+                    </p>
+                  </TableCell>
+                  <TableCell className="border ">
+                    <p className="text-primary font-[500]">
+                      {lastestCv?.Active ? "Not Default" : "Default"}
+                    </p>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+            <div className="flex justify-between items-center mt-[20px]">
+              <button
+                onClick={() => {
+                  router.push("/manage-cvs");
+                }}
+                className="bg-primary text-white text-[18px] font-medium px-5 py-2.5 transition-[background-color] rounded-full"
+              >
                 Upload Now
               </button>
-              <p className="text-[#0d6efd]">See More</p>
+              <p
+                className="text-[#0d6efd]"
+                onClick={() => {
+                  router.push("/manage-cvs");
+                }}
+              >
+                See More
+              </p>
             </div>
           </div>
           <div
@@ -337,12 +420,50 @@ useEffect(() => {
         </div>
       </div>
       <p className="text-[24px] font-[600]">Recommended Jobs</p>
+      <Table>
+        <TableBody>
+          {recJobs?.map((el, key) => (
+            <TableRow
+              className="border-b cursor-pointer"
+              key={key}
+              onClick={() => {
+                router.push(`/jobs/${el?.Id}`);
+              }}
+            >
+              <TableCell>
+                <div className="flex gap-3 items-center">
+                  <img
+                    className="block w-[40px] h-[40px] rounded-[10px] object-cover object-center"
+                    src={
+                      el?.Employer?.CompanyLogo
+                        ? el?.Employer?.CompanyLogo
+                        : "/image/no-image.png"
+                    }
+                  />
+                  <div>
+                    <p className="text-primary font-[500] text-[16px]">
+                      {el?.Title}
+                    </p>
+                    <p className="text-[14px]">{el?.Employer?.CompanyName}</p>
+                  </div>
+                </div>
+              </TableCell>
+
+              <TableCell className="text-right">
+                <Eye color="#F08000" width="14px" />
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 };
-const IconSwitcher = () => {
+const IconSwitcher = ({ defaultValue = false }) => {
   const [isSwitched, setIsSwitched] = useState(false);
-
+  useEffect(() => {
+    setIsSwitched(defaultValue);
+  }, [defaultValue]);
   return (
     <div
       className="relative w-[82px] h-[32px] cursor-pointer"
@@ -351,7 +472,7 @@ const IconSwitcher = () => {
       {/* First Icon */}
       <svg
         className={`absolute transition-opacity duration-300 ease-in-out ${
-          isSwitched ? "opacity-0" : "opacity-100"
+          !isSwitched ? "opacity-0" : "opacity-100"
         }`}
         width="82"
         height="32"
@@ -375,7 +496,7 @@ const IconSwitcher = () => {
       {/* Second Icon */}
       <svg
         className={`absolute transition-opacity duration-300 ease-in-out ${
-          isSwitched ? "opacity-100" : "opacity-0"
+          !isSwitched ? "opacity-100" : "opacity-0"
         }`}
         width="82"
         height="32"
@@ -405,74 +526,156 @@ const IconSwitcher = () => {
     </div>
   );
 };
-const IconSwitcher2 = () => {
+const IconSwitcher2 = ({ defaultValue = false }) => {
   const [isSwitched, setIsSwitched] = useState(false);
-
+  useEffect(() => {
+    setIsSwitched(defaultValue);
+  }, [defaultValue]);
+  console.log(isSwitched, "Switch");
   return (
     <div
       className="relative w-[82px] h-[32px] cursor-pointer"
       onClick={() => setIsSwitched(!isSwitched)}
     >
-      {/* First Icon */}
       <svg
         className={`absolute transition-opacity duration-300 ease-in-out ${
-          isSwitched ? "opacity-0" : "opacity-100"
+          !isSwitched ? "opacity-0" : "opacity-100"
         }`}
         width="82"
         height="32"
-        viewBox="0 0 82 32"
+        viewBox="0 0 75 29"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
-          fill="#ABA9A9"
-          stroke="#ABA9A9"
+          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H36.7812V28.625H5C2.44568 28.625 0.375 26.5543 0.375 24V5Z"
+          stroke="#6C757D"
           strokeWidth="0.75"
         />
         <path
-          d="M41.375 0.375H77C79.5543 0.375 81.625 2.44568 81.625 5V27C81.625 29.5543 79.5543 31.625 77 31.625H41.375V0.375Z"
-          stroke="#ABA9A9"
-          strokeWidth="0.75"
+          d="M37.1562 0H69.3125C72.0739 0 74.3125 2.23858 74.3125 5V24C74.3125 26.7614 72.0739 29 69.3125 29H37.1562V0Z"
+          fill="#6C757D"
         />
-        <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
-        <circle cx="61.5" cy="15.5" r="5.5" stroke="#ABA9A9" strokeWidth="2" />
+        <line
+          x1="20.0312"
+          y1="8.15625"
+          x2="20.0312"
+          y2="19.9375"
+          stroke="#6C757D"
+          strokeWidth="2"
+        />
+        <circle
+          cx="55.7344"
+          cy="14.0469"
+          r="4.89062"
+          stroke="white"
+          strokeWidth="2"
+        />
       </svg>
 
-      {/* Second Icon */}
       <svg
         className={`absolute transition-opacity duration-300 ease-in-out ${
-          isSwitched ? "opacity-100" : "opacity-0"
+          !isSwitched ? "opacity-100" : "opacity-0"
         }`}
         width="82"
         height="32"
-        viewBox="0 0 82 32"
+        viewBox="0 0 75 29"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
       >
         <path
-          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
-          fill="#ABA9A9" // Same fill color as the first icon
-          stroke="#ABA9A9" // Same stroke color as the first icon
-          strokeWidth="0.75"
+          d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H36.7812V28.625H5C2.44568 28.625 0.375 26.5543 0.375 24V5Z"
+          fill="#6C757D"
         />
         <path
-          d="M41.375 0.375H77C79.5543 0.375 81.625 2.44568 81.625 5V27C81.625 29.5543 79.5543 31.625 77 31.625H41.375V0.375Z"
-          stroke="#ABA9A9" // Same stroke color as the first icon
+          d="M37.1562 0H69.3125C72.0739 0 74.3125 2.23858 74.3125 5V24C74.3125 26.7614 72.0739 29 69.3125 29H37.1562V0Z"
+          stroke="#6C757D"
           strokeWidth="0.75"
         />
-        <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
+        <line
+          x1="20.0312"
+          y1="8.15625"
+          x2="20.0312"
+          y2="19.9375"
+          stroke="white"
+          strokeWidth="2"
+        />
         <circle
-          cx="61.5"
-          cy="15.5"
-          r="5.5"
-          stroke="#ABA9A9" // Same stroke color as the first icon
+          cx="55.7344"
+          cy="14.0469"
+          r="4.89062"
+          stroke="#6C757D"
           strokeWidth="2"
           fill="none"
         />
       </svg>
     </div>
   );
+  // return (
+  //   <div
+  //     className="relative w-[82px] h-[32px] cursor-pointer"
+  //     onClick={() => setIsSwitched(!isSwitched)}
+  //   >
+  //     {/* First Icon */}
+  //     <svg
+  //       className={`absolute transition-opacity duration-300 ease-in-out ${
+  //         isSwitched ? "opacity-0" : "opacity-100"
+  //       }`}
+  //       width="82"
+  //       height="32"
+  //       viewBox="0 0 82 32"
+  //       fill="none"
+  //       xmlns="http://www.w3.org/2000/svg"
+  //     >
+  //       <path
+  //         d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
+  //         fill="#ABA9A9"
+  //         stroke="#ABA9A9"
+  //         strokeWidth="0.75"
+  //       />
+  //       <path
+  //         d="M41.375 0.375H77C79.5543 0.375 81.625 2.44568 81.625 5V27C81.625 29.5543 79.5543 31.625 77 31.625H41.375V0.375Z"
+  //         stroke="#ABA9A9"
+  //         strokeWidth="0.75"
+  //       />
+  //       <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
+  //       <circle cx="61.5" cy="15.5" r="5.5" stroke="#ABA9A9" strokeWidth="2" />
+  //     </svg>
+
+  //     {/* Second Icon */}
+  //     <svg
+  //       className={`absolute transition-opacity duration-300 ease-in-out ${
+  //         isSwitched ? "opacity-100" : "opacity-0"
+  //       }`}
+  //       width="82"
+  //       height="32"
+  //       viewBox="0 0 82 32"
+  //       fill="none"
+  //       xmlns="http://www.w3.org/2000/svg"
+  //     >
+  //       <path
+  //         d="M0.375 5C0.375 2.44568 2.44568 0.375 5 0.375H40.625V31.625H5C2.44568 31.625 0.375 29.5543 0.375 27V5Z"
+  //         fill="#ABA9A9"
+  //         stroke="#ABA9A9"
+  //         strokeWidth="0.75"
+  //       />
+  //       <path
+  //         d="M41.375 0.375H77C79.5543 0.375 81.625 2.44568 81.625 5V27C81.625 29.5543 79.5543 31.625 77 31.625H41.375V0.375Z"
+  //         stroke="#ABA9A9"
+  //         strokeWidth="0.75"
+  //       />
+  //       <line x1="22" y1="9" x2="22" y2="22" stroke="white" strokeWidth="2" />
+  //       <circle
+  //         cx="61.5"
+  //         cy="15.5"
+  //         r="5.5"
+  //         stroke="#ABA9A9"
+  //         strokeWidth="2"
+  //         fill="none"
+  //       />
+  //     </svg>
+  //   </div>
+  // );
 };
 
 export default page;

@@ -5,9 +5,11 @@ import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
 import { CircleUser, FileText, Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
 const page = () => {
+  const router = useRouter();
   const { data: session } = useSession() as any;
   return (
     <div>
@@ -57,7 +59,12 @@ const page = () => {
                 flex: "1 1 300px",
               }}
             >
-              <PrimaryBtn text="Public Profile" />
+              <PrimaryBtn
+                handleClick={() => {
+                  router.push(`/companies/${session?.user?.Id}`);
+                }}
+                text="Public Profile"
+              />
             </div>
           </div>
         </div>

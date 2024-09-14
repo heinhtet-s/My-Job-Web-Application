@@ -13,10 +13,10 @@ export async function POST(request) {
   const createData = await updateSkill(
     {
       Name,
-      createdAt: getCurrentDate(),
-      updatedAt: getCurrentDate(),
-      createdBy: session?.user?.Id ? session.user.Id : null,
-      updatedBy: session?.user?.Id ? session.user.Id : null,
+      CreatedAt: getCurrentDate(),
+      UpdatedAt: getCurrentDate(),
+      CreatedBy: session?.user?.Id ? session.user.Id : null,
+      UpdatedBy: session?.user?.Id ? session.user.Id : null,
     },
     Id
   );

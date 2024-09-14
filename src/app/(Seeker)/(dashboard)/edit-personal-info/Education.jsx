@@ -41,8 +41,6 @@ const Education = ({ masterData }) => {
       setOpenModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-
-    
     }
   };
   const handleDelete = async (id) => {
@@ -86,12 +84,10 @@ const Education = ({ masterData }) => {
       const personalData = await ApiReq.get(
         `api/seeker_info/education_list/getById`
       );
-     
+
       setExpInfo(personalData?.data);
       // setPersona(personalData.data);
-    } catch (e) {
-      
-    }
+    } catch (e) {}
   };
   useEffect(() => {
     fetchExpData();
@@ -168,7 +164,6 @@ const EduForm = ({
   personalData,
   masterData,
 }) => {
-
   const {
     register,
     watch,
@@ -194,7 +189,7 @@ const EduForm = ({
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };
- 
+
   return (
     <Modal dismissible show={openModal} onClose={handleClose}>
       <form
@@ -267,7 +262,7 @@ const EduForm = ({
                 Major subject <span className="text-red-800">*</span>
               </label>
               <select
-                defaultValue={personalData?.StateId}
+                defaultValue={personalData?.DegreeTypeId}
                 className={selectStyle}
                 {...register("DegreeTypeId", { required: true })}
               >
@@ -371,7 +366,6 @@ const EduForm = ({
               <div className="flex items-center space-x-2">
                 <Switch
                   onCheckedChange={(e) => {
-                    
                     if (e) {
                       setValue("EndDate", null);
                     }

@@ -55,7 +55,4 @@ async function GetDegreeTypes() {
     });
 }
 
-
-
-
-export { GetCountry, GetDegreeTypes, GetDegreeLevels, GetState, GetCity};
+export { GetCountry, GetDegreeTypes, GetDegreeLevels, GetState, GetCity };

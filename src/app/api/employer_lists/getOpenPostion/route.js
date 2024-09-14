@@ -8,15 +8,14 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 export async function GET(request) {
   const session = await getServerSession(authOptions);
-  console.log('request')
-  console.log(request.url)
+  console.log("request");
+  console.log(request.url);
 
   try {
     const query = await getQuery(request.url);
 
     const getData = await apiGetData(query, EmployersConst, GetEmployersList);
-
-   
+    console.log;
     const filteredIds = getData?.value
       .filter((item) => item.Status === "Accepted")
       .map((item) => item.Id);
@@ -29,7 +28,10 @@ export async function GET(request) {
     const addJobCountToCompanies = (companies, jobs) => {
       return companies.map((company) => {
         const jobCount = jobs.filter(
-          (job) => job.EmployerId === company.Id
+          (job) =>
+            job.EmployerId === company.Id &&
+            job.JobStatus == "Active" &&
+            job.IsExpired === false
         ).length;
         return {
           ...company,

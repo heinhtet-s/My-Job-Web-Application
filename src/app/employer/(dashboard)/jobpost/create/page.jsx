@@ -29,8 +29,7 @@ const page = () => {
   } = useForm({
     Anonymous: false,
   });
-  console.log(errors, "error");
-  console.log(watch("JobUnitType"));
+
   const [industryList, setIndustryList] = useState([]);
   const [masterData, setMasterData] = useState({});
   const fetchMasterData = async () => {
@@ -80,13 +79,13 @@ const page = () => {
     const YearsOfExperience = watch("YearsOfExperience");
     const Benefits = watch("Benefits");
     if (
-      JobUnitType === null ||
+      !JobUnitType ||
       !Expired ||
       !FunctionalAreaId ||
       !Title ||
       !IndustryId ||
-      JobType === null ||
-      YearsOfExperience === null ||
+      !JobType ||
+      !YearsOfExperience ||
       !Benefits
     ) {
       toast.error("Please fill all require field to generate Ai ");
@@ -101,9 +100,9 @@ const page = () => {
         YearsOfExperience,
         Benefits,
         // EmployerId: session?.user?.Id,
-        EmployerId: "483570cc-d0b1-4b8b-9343-cd3cc2eba128",
-        JobUnitType: +JobUnitType,
-        jobType: +JobType,
+        EmployerId: session?.user?.Id,
+        JobUnitType: JobUnitType,
+        jobType: JobType,
       });
       console.log(data);
       if (data?.error) {
@@ -125,29 +124,26 @@ const page = () => {
       const datas = await createJobPost({
         ...data,
         // EmployerId: session?.user?.Id,
-        EmployerId: "483570cc-d0b1-4b8b-9343-cd3cc2eba128",
+        EmployerId: session?.user?.Id,
         JobUnitType: JobUnitTypeConst[data?.JobUnitType],
         JobType: JobType?.filter((el) => {
           const [Id, label] = Object.entries(el)[0]; // Extract only the key (label)
           return label == data?.JobType; // Compare the label with data.JobType
         })?.map((el) => Object.keys(el)[0])?.[0],
-        createdAt: getCurrentDate(),
-        updatedAt: getCurrentDate(),
-        Online: true,
+        CreatedAt: getCurrentDate(),
+        UpdatedAt: getCurrentDate(),
         CareerLevel: "NoExperience",
         HideSalary: false,
         NoOfPosition: 0,
         Gender: null,
-        YearsOfExperience: +data?.YearsOfExperience,
+        YearsOfExperience: data?.YearsOfExperience,
         OtherSkill: null,
-        Active: true,
-        Applie: true,
+        Applie: false,
         RejectReason: null,
-        Online: true,
         JobStatus: "Pending",
         DegreeLevelId: null,
-        createdAt: getCurrentDate(),
-        updatedAt: getCurrentDate(),
+        CreatedAt: getCurrentDate(),
+        UpdatedAt: getCurrentDate(),
         // "CreatedAt": "2024-09-03T03:39:07.039555Z",
         // "UpdatedAt": "2024-09-03T03:39:07.039556Z",
         // "CreatedBy": null,
@@ -180,9 +176,9 @@ const page = () => {
                       required: "This field is required",
                     })}
                     onChange={() => {
-                      setValue("JobUnitType", 0);
+                      setValue("JobUnitType", "Standard");
                     }}
-                    checked={watch("JobUnitType") === 0}
+                    checked={watch("JobUnitType") === "Standard"}
                     name="default-radio"
                     className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
                   />
@@ -200,9 +196,9 @@ const page = () => {
                       required: "This field is required",
                     })}
                     onChange={() => {
-                      setValue("JobUnitType", 1);
+                      setValue("JobUnitType", "Highlight");
                     }}
-                    checked={watch("JobUnitType") === 1}
+                    checked={watch("JobUnitType") === "Highlight"}
                     type="radio"
                     value="Highlight"
                     name="default-radio"
@@ -223,9 +219,9 @@ const page = () => {
                       required: "This field is required",
                     })}
                     onChange={() => {
-                      setValue("JobUnitType", 2);
+                      setValue("JobUnitType", "Spotlight");
                     }}
-                    checked={watch("JobUnitType") === 2}
+                    checked={watch("JobUnitType") === "Spotlight"}
                     value="Spotlight"
                     name="default-radio"
                     className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
@@ -379,7 +375,7 @@ const page = () => {
                 <select
                   className={selectStyle}
                   {...register("IndustryId", {
-                    required: "Functional Area is required",
+                    required: "Industry  is required",
                   })}
                 >
                   <option value={""}>Select Industry</option>
@@ -404,10 +400,9 @@ const page = () => {
                 >
                   <option value={""}>Select Job Type</option>
                   {JobType?.map((el) => {
-                    const [Id, label] = Object.entries(el)[0];
                     return (
-                      <option value={label} key={label}>
-                        {Id}
+                      <option value={el} key={el}>
+                        {el}
                       </option>
                     );
                   })}
@@ -430,10 +425,9 @@ const page = () => {
                 >
                   <option value={""}>Select Required Job Experience</option>
                   {EXPCONST?.map((el) => {
-                    const [Id, label] = Object.entries(el)[0];
                     return (
-                      <option value={Id} key={Id}>
-                        {label}
+                      <option value={el} key={el}>
+                        {el}
                       </option>
                     );
                   })}
@@ -476,7 +470,7 @@ const page = () => {
           <div className="mb-[20px]">
             <label className={labelStyle}>description</label>
             <TinyEditor
-              text={getValues("Description")}
+              text={watch("Description")}
               setTextEditor={(data) => {
                 setValue("Description", data);
               }}
@@ -484,7 +478,7 @@ const page = () => {
           </div>
           <label className={labelStyle}>Requirement</label>
           <TinyEditor
-            text={getValues("Requirement")}
+            text={watch("Requirement")}
             setTextEditor={(data) => {
               setValue("Requirement", data);
             }}

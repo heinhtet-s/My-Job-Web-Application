@@ -3,7 +3,7 @@ import EditIcon from "@/asset/Icon/EditIcon";
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import ApiReq from "@/lib/axiosHandler";
 import { Modal } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import ProfileUpload from "./ImageUploadComponent";
@@ -201,14 +201,16 @@ const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
           </button>
         </div>
       </div>
-      <EditPersonalInfo
-        openModal={openModal}
-        setOpenModal={setOpenModal}
-        fetchInfoData={fetchInfoData}
-        personalData={personalData}
-        handleSubmitApi={handleSubmitApi}
-        masterData={masterData}
-      />
+      {openModal && (
+        <EditPersonalInfo
+          openModal={openModal}
+          setOpenModal={setOpenModal}
+          fetchInfoData={fetchInfoData}
+          personalData={personalData}
+          handleSubmitApi={handleSubmitApi}
+          masterData={masterData}
+        />
+      )}
     </>
   );
 };
@@ -222,14 +224,20 @@ const EditPersonalInfo = ({
   const {
     register,
     watch,
+    reset,
     handleSubmit,
     formState: { errors },
   } = useForm({
     defaultValues: personalData,
   });
+  useEffect(() => {
+    reset(personalData);
+  }, [personalData, masterData]);
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };
+  console.log(personalData);
+  console.log(watch("CountryId"));
   return (
     <Modal dismissible show={openModal} onClose={() => setOpenModal(false)}>
       <form
@@ -307,9 +315,9 @@ const EditPersonalInfo = ({
                 <option value="null">Select Material Status</option>
                 <option value="Single">Single</option>
                 <option value="Married">Married</option>
-                <option value="Separated">Separated</option>
+                {/* <option value="Separated">Separated</option>
                 <option value="Divorced">Divorced</option>
-                <option value="Widow/er">Widow/er</option>
+                <option value="Widow/er">Widow/er</option> */}
               </select>
             </div>
 
@@ -320,8 +328,9 @@ const EditPersonalInfo = ({
               <select
                 className={selectStyle}
                 {...register("CountryId", { required: true })}
+                defaultValue={personalData?.CountryId}
               >
-                <option>Select Country</option>
+                <option value="">Select Country</option>
                 {masterData?.country?.map((el) => (
                   <option value={el?.Id} key={el?.Id}>
                     {el?.Name}
@@ -343,13 +352,22 @@ const EditPersonalInfo = ({
                 State <span className="text-red-800">*</span>
               </label>
               <select
+                defaultValue={personalData?.StateId}
                 className={selectStyle}
-                // {...register("CityId", { required: true })}
+                {...register("StateId", { required: true })}
               >
                 <option>Select State</option>
-                {/* Populate with state options */}
+                {masterData?.state
+                  ?.filter((ele) => {
+                    return ele?.CountryId == watch("CountryId");
+                  })
+                  .map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.Name}
+                    </option>
+                  ))}
               </select>
-              {errors.CityId && (
+              {errors.StateId && (
                 <p className="text-red-800 text-[13px] mt-[2px]">
                   This field is required
                 </p>

@@ -18,7 +18,8 @@ async function UpdateSeekerList(data, id) {
     .then(({ data }) => {
       return data;
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log(e);
       return { error: "Client and server connection error" };
     });
 }
