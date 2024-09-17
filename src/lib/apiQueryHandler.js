@@ -17,13 +17,13 @@ async function apiFilterHandler(filter_object, query_filter) {
   for (const key of Object.keys(filter_object)) {
     if (
       query_filter[key] &&
-      query_filter[key].value &&
-      query_filter[key].value?.length > 0 &&
-      query_filter[key].value !== "null"
+      query_filter[key].value !== "" &&
+      query_filter[key].value !== "null" &&
+      query_filter[key].value !== null
     ) {
       const target = filter_object[key];
       const query = query_filter[key];
-
+      console.log(query, "query");
       switch (true) {
         // case target.value === "null":
         //   console.log("dd");
@@ -32,9 +32,9 @@ async function apiFilterHandler(filter_object, query_filter) {
           // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
-        case target.type === "boolean" && target.enum.includes(query.value):
+        case target.type === "boolean":
           // if (target.value === "null")
-          filter = { ...filter, [key]: { vaule: query.value } };
+          filter = { ...filter, [key]: { value: query.value } };
           break;
         case target.type === "enum" && target.enum.includes(query.value):
           // if (target.value === "null")
@@ -56,6 +56,9 @@ async function apiFilterHandler(filter_object, query_filter) {
           filter = { ...filter, [key]: { value: query.value } };
           break;
         case target.type === "foreignString":
+          // if (target.value === "null")
+          filter = { ...filter, [key]: { value: query.value } };
+        case target.type === "date":
           // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
@@ -90,6 +93,7 @@ async function apiQueryHandler(
   // get filter
   const filter = await apiFilterHandler(queryObject.filter, query_filter);
   // get order
+  console.log(filter, "filter");
   const order = await apiOrderHandler(queryObject.order, query_order);
   // check fields
   const selectedFields = queryObject.fields?.filter((value) =>
@@ -120,22 +124,18 @@ async function filterHandler(filter, query_filter) {
   let filterString = "";
 
   for (const key of Object.keys(filter)) {
-    if (
-      query_filter[key] &&
-      query_filter[key].value &&
-      query_filter[key].value !== ""
-    ) {
+    if (query_filter[key] && query_filter[key].value !== "") {
       // if this field is filter object
       const target = filter[key];
       const query = query_filter[key];
 
       switch (true) {
-        case target.type === "isNull" && target.enum.includes(query.value):
+        case target.type === "isNull":
           filterString = `${
             filterString === "" ? "" : `${filterString} and `
           }${key} ${query.value} null`;
           break;
-        case target.type === "boolean" && target.enum.includes(query.value):
+        case target.type === "boolean":
           filterString = `${
             filterString === "" ? "" : `${filterString} and `
           }${key} eq ${query.value}`;
@@ -145,7 +145,7 @@ async function filterHandler(filter, query_filter) {
             filterString === "" ? "" : `${filterString} and `
           }${key} eq '${query.value}'`;
           break;
-        case target.type === "number" && target.enum.includes(query.key):
+        case target.type === "number":
           filterString = `${
             filterString === "" ? "" : `${filterString} and `
           }${key} ${query.key} ${query.value}`;
@@ -165,6 +165,10 @@ async function filterHandler(filter, query_filter) {
           filterString = `${
             filterString === "" ? "" : `${filterString} and `
           }${key} eq '${query.value}'`;
+        case target.type === "date":
+          filterString = `${
+            filterString === "" ? "" : `${filterString} and `
+          }${key} ge ${query.value}`;
           break;
 
         default:

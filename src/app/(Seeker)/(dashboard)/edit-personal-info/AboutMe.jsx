@@ -70,12 +70,29 @@ const personalInfo = [
     key: "National ID",
     value: "2343",
   },
-  {
-    title: "Expected Salary",
-    key: "Expected Salary",
-    value: "500000 -800000",
-  },
+  // {
+  //   title: "Expected Salary",
+  //   key: "Expected Salary",
+  //   value: "500000 -800000",
+  // },
 ];
+const CareerInfoConts = {
+  CurrentPosition: "",
+  HighQualification: "",
+  CurrentFunctionalArea: "",
+  YearsOfExperience: "",
+  CareerLevel: "",
+  OverSeaExperience: "",
+  CountryId: "",
+  CityId: "",
+  StateId: "",
+  JobType: "",
+  ExpectedSalary: "",
+  SalaryNegotiable: "",
+  Active: "",
+  AboutMe: "",
+  SeekerId: "",
+};
 const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
   const [openModal, setOpenModal] = useState(false);
   const file = useRef(null);
@@ -96,6 +113,47 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
   //     );
   //   }
   // };
+  const [careerInfoData, setCareerInfoData] = useState({});
+
+  const getCareerInfoData = async () => {
+    try {
+      const data = await ApiReq.get("api/seeker_info/career_info_list/getById");
+
+      setCareerInfoData(data?.data?.[0]);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const handleSubmitCareerInfo = async (data) => {
+    console.log(data);
+    try {
+      if (data?.Id) {
+        await ApiReq.post("api/seeker_info/career_info_list/update", {
+          ...careerInfoData,
+          ...data,
+        });
+        getCareerInfoData();
+
+        setOpenModal(false);
+        toast.success("Successfully Updated");
+      } else {
+        await ApiReq.post("api/seeker_info/career_info_list/create", {
+          ...CareerInfoConts,
+          ...careerInfoData,
+          ...data,
+        });
+        getCareerInfoData();
+
+        setOpenModal(false);
+        toast.success("Successfully Updated");
+      }
+    } catch (e) {
+      toast.error("something wrong");
+    }
+  };
+  useEffect(() => {
+    getCareerInfoData();
+  }, []);
   const handleSubmit = async (AboutMe) => {
     try {
       await ApiReq.post("api/seekers/update", {
@@ -104,6 +162,7 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
       });
       fetchInfoData();
       setOpenModal(false);
+      toast.success("Successfully Updated");
     } catch (e) {
       toast.error("something worng");
     }
@@ -184,8 +243,8 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
         personalData={personalData}
       />
       <EditCareerInfo
-        handleSubmit={handleSubmit}
-        personalData={personalData}
+        handleSubmit={handleSubmitCareerInfo}
+        personalData={careerInfoData}
         openModal={openModal}
         setOpenModal={setOpenModal}
       />

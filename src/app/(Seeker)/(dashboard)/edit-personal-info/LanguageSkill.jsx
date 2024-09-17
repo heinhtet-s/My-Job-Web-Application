@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import moment from "moment";
 import Swal from "sweetalert2";
 import { Label } from "@/components/ui/label";
+import { EXPCONST } from "@/lib/const";
 const spokenLanguages = [
   "English",
   "Spanish",
@@ -62,7 +63,6 @@ const LanguageSkill = () => {
   const [selectedIndex, setSelectedIndex] = useState(null);
 
   const handleSubmitApi = async (data) => {
-   
     try {
       if (selectedIndex === null) {
         await ApiReq.post("api/seeker_info/languate_list/create", {
@@ -80,7 +80,6 @@ const LanguageSkill = () => {
       setOpenModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-     
     }
   };
   const handleSubmitSkillApi = async (data) => {
@@ -101,7 +100,6 @@ const LanguageSkill = () => {
       setOpenSkillModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-      
     }
   };
   const handleDelete = async (Id) => {
@@ -244,7 +242,7 @@ const LanguageSkill = () => {
           {skillInfo?.map?.((el, index) => (
             <div className="bg-[#E6F0F9]  px-[4px]  mb-[20px] flex  rounded-[30px] py-[5px]">
               <p className="flex-1 text-center">{el?.Name}</p>
-
+              <p className="flex-1 text-center">{el?.YearsOfExperience}</p>
               <p className="flex-1 text-center">
                 <span
                   onClick={() => {
@@ -300,7 +298,6 @@ const LanguageForm = ({
   handleSubmitApi,
   personalData,
 }) => {
-
   const {
     register,
     watch,
@@ -311,7 +308,7 @@ const LanguageForm = ({
   } = useForm({
     defaultValues: personalData,
   });
- 
+
   useEffect(() => {
     if (personalData) {
       reset({
@@ -427,11 +424,11 @@ const SkillForm = ({
       >
         <Modal.Body className="rounded-[30px]">
           <h3 className="text-[1.5rem] font-[600] mb-[30px] mt-[15px]">
-            {personalData?.Id ? "Edit" : "Add"} Word Experiences
+            {personalData?.Id ? "Edit" : "Add"} Work Experiences
           </h3>
 
           <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
-            <div className="col-span-2">
+            <div className="col-span-1">
               <label className={labelStyle}>
                 Name <span className="text-red-800">*</span>
               </label>
@@ -440,6 +437,30 @@ const SkillForm = ({
                 {...register("Name", { required: true })}
               />
               {errors.Name && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                Year of experiences
+                <span className="text-red-800">*</span>
+              </label>
+              <select
+                className={selectStyle}
+                {...register("YearsOfExperience", {
+                  required: "This field is required",
+                })}
+              >
+                <option value={""}>Year of experiences</option>
+                {EXPCONST?.map((el) => (
+                  <option value={el} key={el}>
+                    {el}
+                  </option>
+                ))}
+              </select>
+              {errors.CurrentFunctionalArea && (
                 <p className="text-red-800 text-[13px] mt-[2px]">
                   This field is required
                 </p>

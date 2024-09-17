@@ -30,7 +30,7 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
     pageNumber: 1,
-    perPage: 10,
+    perPage: 100,
     total: 0,
   });
   const router = useRouter();
@@ -41,7 +41,10 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
       const result = await axios.get(
         `/api/employer_lists/getOpenPostion?${await apiQueryHandler(
           EmployersConst,
-          EmployersConst.filter,
+          {
+            isFeatured: { value: "true", type: "boolean", label: "isFeatured" },
+          },
+
           EmployersConst.order,
           EmployersConst.fields,
           "no_child",
@@ -307,7 +310,9 @@ const FeatureCampanyComponent = ({ companies }) => {
               <div>
                 <img
                   className="w-[120px] h-[120px] object-contain"
-                  src="https://myjobs-company-logo.s3.ap-south-1.amazonaws.com/bb2e01ff-5e10-4ee0-8ba6-2bf377fbb865.jfif"
+                  src={
+                    str.companyLogo ? str.companyLogo : "/image/no-image.png"
+                  }
                   alt="logo"
                 />
               </div>
@@ -336,6 +341,7 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
   const [industrialId, setIndustrialId] = useState("");
   const [countries, setCountries] = useState([]);
   const [countryId, setCountryId] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [functionalId, setFunctionalId] = useState("");
   const handleSearch = () => {
     const queryParams = new URLSearchParams({
@@ -343,6 +349,7 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
       jobType: jobType,
       industryId: industrialId,
       countryId: countryId,
+      selectedTime,
       functionalAreaId: functionalId,
     });
     router.push(`/jobs?${queryParams.toString()}`);
@@ -415,7 +422,7 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
                 backgroundSize: "16px 12px",
               }}
             >
-              <option value="">Select Work Type Industry</option>
+              <option value="">Select Work Type</option>
               {workTypes?.map((work) => {
                 return (
                   <option key={work.label} value={work.value}>
@@ -490,8 +497,8 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
           <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
               className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
-              // value={industrialId}
-              // onChange={(e) => setIndustrialId(e.target.value)}
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
               style={{
                 backgroundImage:
                   "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",

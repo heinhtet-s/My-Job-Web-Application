@@ -140,7 +140,7 @@ const page = () => {
   useEffect(() => {
     console.log(jobDetail);
     reset(jobDetail);
-  }, [jobDetail]);
+  }, [jobDetail, masterData]);
   const onSubmit = async (data) => {
     try {
       const updateData = {

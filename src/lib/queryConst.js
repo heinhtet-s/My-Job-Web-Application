@@ -38,7 +38,9 @@ const SeekersConst = {
     "CreatedBy",
     "UpdatedBy",
   ],
-  filter: {},
+  filter: {
+    IsPublic: { value: true, type: "boolean", label: "IsPublic" },
+  },
   order: { UpdatedAt: "desc" },
   children: [],
   top: 10,
@@ -74,7 +76,7 @@ const FunctionalAreasConst = {
   filter: {},
   order: { UpdatedAt: "desc" },
   children: [],
-  top: 10,
+  top: 100,
   skip: 0,
 };
 
@@ -117,8 +119,9 @@ const EmployersConst = {
     "CreatedBy",
     "UpdatedBy",
   ],
-
-  filter: { CompanyName: { value: "", type: "string", label: "CompanyName" } },
+  filter: {
+    CompanyName: { value: "", type: "string", label: "CompanyName" },
+  },
   order: { CompanyName: "asc" },
   children: [
     {
@@ -127,7 +130,7 @@ const EmployersConst = {
       data: IndustriesConst,
     },
   ],
-  top: 10,
+  top: 100,
   skip: 0,
 };
 
@@ -224,6 +227,11 @@ const EmployerJobPosts = {
       type: "enum",
       enum: ["Pending", "Active"],
       label: "JobStatus",
+    },
+    CreatedAt: {
+      value: "",
+      type: "date",
+      lable: "CreatedAt",
     },
     IsExpired: { value: false, type: "boolean", label: "IsExpired" },
     FunctionalAreaId: {
@@ -369,7 +377,7 @@ const StateConst = {
   },
   order: { UpdatedAt: "desc" },
   childrens: [],
-  top: 10,
+  top: 100,
   skip: 0,
 };
 

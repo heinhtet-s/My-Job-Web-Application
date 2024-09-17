@@ -5,6 +5,7 @@ import { updateJobPost } from "@/modules/services/jobPost_service";
 import axios from "axios";
 import { Search } from "lucide-react";
 import moment from "moment";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
@@ -20,6 +21,8 @@ const page = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [jobs, setJobs] = useState([]);
+  const { data: session } = useSession();
+
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [countData, setCountData] = useState([]);
@@ -62,8 +65,8 @@ const page = () => {
   };
   const summarizeJobs = (jobs) => {
     const totalCount = jobs?.length;
-    const onlineCount = jobs?.filter((job) => job.Active && job.Online).length;
-    const offlineCount = jobs?.filter((job) => !job.Active).length;
+    const onlineCount = jobs?.filter((job) => !job.IsExpired).length;
+    const offlineCount = jobs?.filter((job) => job.IsExpired).length;
 
     return {
       totalCount,
@@ -86,27 +89,24 @@ const page = () => {
 
   const fetchJobs = async (menuIndex, pageNumber) => {
     setLoading(true);
-    let filter = "";
+    let filter = `EmployerId eq ${session?.user?.Id} `;
     let orderBy = "$orderby=CreatedAt desc"; // Order by CreatedAt in descending order
-
     switch (menuIndex) {
       case 0:
-        filter = "";
         break;
       case 1:
-        filter = "IsExpired eq false";
+        filter += "and IsExpired eq false ";
         break;
       case 2:
-        filter = "IsExpired eq true";
+        filter += "and IsExpired eq true";
         break;
       case 3:
-        filter = "Anonymous eq true";
+        filter += "and Anonymous eq true";
         break;
       case 4:
-        filter = "JobStatus eq 'Pending'";
+        filter += "and JobStatus eq 'Pending'";
         break;
       default:
-        filter = "";
     }
 
     try {
@@ -127,12 +127,8 @@ const page = () => {
   };
 
   useEffect(() => {
-    fetchJobs(activeIndex, page);
-  }, [activeIndex, page]);
-
-  useEffect(() => {
-    fetchJobs(activeIndex, page);
-  }, [activeIndex, page]);
+    if (session?.user?.Id) fetchJobs(activeIndex, page);
+  }, [activeIndex, page, session?.user?.Id]);
 
   const nextPage = () => {
     if (page < totalPages) setPage(page + 1);

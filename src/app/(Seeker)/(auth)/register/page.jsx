@@ -18,7 +18,8 @@ const Register = () => {
     formState: { errors },
   } = useForm();
   const pathName = usePathname();
-  const notify = () => toast.success("Successfully Registe Please Login");
+  const notify = () =>
+    toast.success("Successfully Register.Please check you email to verify");
   const router = useRouter();
   const onSubmit = async (data) => {
     try {
@@ -32,7 +33,8 @@ const Register = () => {
       notify();
       router.push("/login");
     } catch (e) {
-      
+      toast.error(e?.message || "something wrong");
+      console.log(e);
     }
   };
   const [activeButton, setActiveButton] = useState("register");
@@ -154,6 +156,10 @@ const Register = () => {
                   placeholder="Password"
                   {...register("password", {
                     required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters long",
+                    },
                   })}
                   className="mt-1 w-full border rounded-lg p-2"
                 />

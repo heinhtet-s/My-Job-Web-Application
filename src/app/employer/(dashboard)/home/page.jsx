@@ -3,14 +3,30 @@ import DotIcon from "@/asset/Icon/DotIcon";
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
+import ApiReq from "@/lib/axiosHandler";
 import { CircleUser, FileText, Mail } from "lucide-react";
+import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 const page = () => {
   const router = useRouter();
-  const { data: session } = useSession() as any;
+  const { data: session } = useSession();
+  const [overviewData, setOverviewData] = useState({});
+  const fetchOverviewData = async () => {
+    try {
+      const data = await ApiReq.get(
+        "api/dashboard/overview?include=totalJob,onlineJob,offlineJob,sportlightJob,totalApplication,JobView"
+      );
+      setOverviewData(data?.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    fetchOverviewData();
+  }, []);
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Welcome</h1>
@@ -25,7 +41,13 @@ const page = () => {
         }}
       >
         <div className=" flex float-right text-white text-[13px] justify-end">
-          Last Login: <span className="text-white"> 25 Aug 2024</span>
+          Last Login: &nbsp; &nbsp;
+          <span className="text-white">
+            {" "}
+            {session?.user?.LastLogin
+              ? moment(session?.user?.LastLogin).format("DD MMM YYYY")
+              : moment().format("DD MMM YYYY")}
+          </span>
         </div>
         <div className="grid  grid-cols-12 items-center  gap-4 lg:grid-cols-12 xl:grid-cols-12">
           <div className="col-span-6 lg:col-span-5 xl:col-span-3 flex flex-col justify-center items-center">
@@ -92,7 +114,9 @@ const page = () => {
           </div>
 
           <div>
-            <p className="text-[36px] font-bold text-primary">120</p>
+            <p className="text-[36px] font-bold text-primary">
+              {overviewData?.totalJob}
+            </p>
             <p className="text-[14px] font-[300]">Total Jobs</p>
           </div>
         </div>
@@ -118,7 +142,9 @@ const page = () => {
           </div>
 
           <div>
-            <p className="text-[36px] font-bold text-[#198754]">22</p>
+            <p className="text-[36px] font-bold text-[#198754]">
+              {overviewData?.onlineJob}
+            </p>
             <p className="text-[14px] font-[300]">Online Jobs</p>
           </div>
         </div>
@@ -143,7 +169,10 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#DC3545]">100</p>
+            <p className="text-[36px] font-bold text-[#DC3545]">
+              {" "}
+              {overviewData?.offlineJob}
+            </p>
             <p className="text-[14px] font-[300]">Offline Jobs</p>
           </div>
         </div>
@@ -168,7 +197,10 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#002745]">100</p>
+            <p className="text-[36px] font-bold text-[#002745]">
+              {" "}
+              {overviewData?.sportlightJob}
+            </p>
             <p className="text-[14px] font-[300]">Spotlight Jobs</p>
           </div>
         </div>
@@ -193,7 +225,9 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#0969C3]">1200</p>
+            <p className="text-[36px] font-bold text-[#0969C3]">
+              {overviewData?.JobApplication}
+            </p>
             <p className="text-[14px] font-[300]">Total Applications</p>
           </div>
         </div>
@@ -219,7 +253,9 @@ const page = () => {
           </div>
 
           <div>
-            <p className="text-[36px] font-bold text-[#FFC107]">2 K</p>
+            <p className="text-[36px] font-bold text-[#FFC107]">
+              {overviewData?.jobView}
+            </p>
             <p className="text-[14px] font-[300]">Total Job Views</p>
           </div>
         </div>
@@ -276,7 +312,7 @@ const page = () => {
           </div>
         </div>
       </div>
-      <p className="text-[24px] font-[600] mt-[20px] ">Recent Notifications</p>
+      {/* <p className="text-[24px] font-[600] mt-[20px] ">Recent Notifications</p> */}
     </div>
   );
 };

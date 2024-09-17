@@ -141,9 +141,9 @@ const ImageCropper = ({ handleSubmit }) => {
       const fileBlob = dataURLToBlob(dataUrl);
 
       formData.append("imgfile", fileBlob);
-
+      formData.append("path", "Seeker");
       try {
-        const data = await UploadedImageApi(session?.user?.Id, formData);
+        const data = await UploadedImageApi(formData);
         await handleSubmit({
           ImageUrl: data?.url,
         });

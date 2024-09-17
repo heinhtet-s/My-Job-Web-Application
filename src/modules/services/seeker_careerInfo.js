@@ -1,13 +1,16 @@
+"use server";
 import axios from "axios";
 import { SeekerInfo } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 async function getCareefInfo(url) {
+  console.log(`${SeekerInfo}CareerInfos${url}`);
   return await axios
     .get(encodeURI(`${SeekerInfo}CareerInfos${url}`), REQUEST_HEADER)
     .then(({ data }) => {
       return data;
     })
     .catch((e) => {
+      console.log(e);
       return { error: "Client and server connection error" };
     });
 }
@@ -19,6 +22,7 @@ async function createCareefInfo(data) {
       return data;
     })
     .catch((e) => {
+      console.log(e);
       return { error: "Client and server connection error" };
     });
 }

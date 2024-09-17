@@ -18,8 +18,25 @@ import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import { getFavJob } from "@/modules/services/jobFav_service";
 import { GetCandidateList } from "@/modules/services/employer_jobposts";
+import moment from "moment";
+import { Earth } from "lucide-react";
+import { inputStyle, labelStyle, selectStyle } from "@/components/ui/form";
+import { CareerLevel, EXPCONST, HighestQua, JobType } from "@/lib/const";
 
 const Page = () => {
+  const [functionalArea, setFuncaionalArea] = useState([]);
+  const getFunctionalArea = async () => {
+    try {
+      const data = await ApiReq.get("api/functional_area/get");
+
+      setFuncaionalArea(data?.data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    getFunctionalArea();
+  }, []);
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
   const [filter, setFilter] = useState(AppliedJobPostConst.filter);
@@ -61,7 +78,7 @@ const Page = () => {
     setLoading(true);
     try {
       const data = await GetCandidateList(session?.user?.Id);
-
+      console.log(data);
       setData(data?.value);
     } catch (e) {
     } finally {
@@ -74,19 +91,93 @@ const Page = () => {
       getFavJobList();
     }
   }, [session?.user?.Id]);
-
+  console.log(
+    countData?.jobs?.filter(
+      (el) => el?.Id === "84b76980-0ed3-4546-bb3c-1604edbc453b"
+    )
+  );
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Candidate</h1>
       <p className="opacity-60 mb-[40px]">Detailed list of your Candidate</p>
+
+      <div className="grid  grid-rows-1 grid-cols-12 gap-8 mb-[40px] ">
+        <div className="col-span-4">
+          <label className={labelStyle}>Current Functional Area</label>
+          <select className={selectStyle}>
+            <option value={""}>Select Functional Area</option>
+            {functionalArea?.map((el) => (
+              <option value={el?.Id} key={el?.Id}>
+                {el?.TitleEng}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-span-4">
+          <label className={labelStyle}>Preferred Job Type</label>
+          <select className={selectStyle}>
+            <option value={""}>Select Preferred Job Type</option>
+            {JobType?.map((el) => (
+              <option value={el} key={el}>
+                {el}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-span-4">
+          <label className={labelStyle}>
+            Education Level <span className="text-red-800">*</span>
+          </label>
+          <select className={selectStyle}>
+            <option>Select </option>
+            {HighestQua.map((el) => (
+              <option value={el} key={el}>
+                {el}
+              </option>
+            ))}
+            {/* Populate with country options */}
+          </select>
+        </div>
+        <div className="col-span-4">
+          <label className={labelStyle}>Experience Length</label>
+          <select className={selectStyle}>
+            <option value={""}>Select</option>
+            {EXPCONST?.map((el) => (
+              <option value={el} key={el}>
+                {el}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-span-4">
+          <label className={labelStyle}>Career Level</label>
+          <select className={selectStyle}>
+            <option value={""}>Select Career Level</option>
+            {CareerLevel?.map((el) => (
+              <option value={el} key={el}>
+                {el}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="col-span-4 flex items-center gap-2">
+          <PrimaryBtn text="Search" />
+          <button class="text-base border-0 outline-none p-2.5 text-[#pxpMainColor] bg-white underline">
+            Reset
+          </button>
+        </div>
+      </div>
       <Table>
         <TableHeader className="border-b-2 border-black">
           <TableRow>
             <TableHead>Name</TableHead>
             <TableHead>Applied For</TableHead>
             <TableHead> Current Functional Area</TableHead>
-            <TableHead> Current Functional Area</TableHead>
-            <TableHead> Current Functional Area</TableHead>
+            <TableHead> Work Type</TableHead>
+            <TableHead> Education Level</TableHead>
+            <TableHead> Experiences Length</TableHead>
+            <TableHead>Career Level </TableHead>
+            <TableHead>Apply Date</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -99,29 +190,42 @@ const Page = () => {
               return (
                 <TableRow key={index}>
                   <TableCell>
-                    <p className="text-primary font-[500]">
-                      {item?.Seeker?.FirstName + " " + item?.Seeker?.LastName}
-                    </p>
+                    {/* <p className="text-primary font-[500]"> */}
+                    {item?.Seeker?.FirstName + " " + item?.Seeker?.LastName}
+                    {/* </p> */}
+                    {/* <p className="flex gap-1 items-center">
+                      <Earth width={"12px"} />
+                      {item?.Seeker?.Address}
+                    </p> */}
                   </TableCell>
                   <TableCell>
-                    {item?.JobId}
                     {
                       countData?.jobs?.filter(
                         (el) => el?.Id === item?.JobId
-                      )?.[0]?.Id
+                      )?.[0]?.Title
                     }
                   </TableCell>
-                  <TableCell
-                    style={{
-                      display: "-webkit-box",
-                      WebkitBoxOrient: "vertical",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      WebkitLineClamp: 2, // Number of lines to clamp
-                    }}
-                    className="text-blue-500 font-[300]  "
-                  >
-                    {item.description}
+                  <TableCell>
+                    {
+                      countData?.jobs?.filter(
+                        (el) => el?.Id === item?.JobId
+                      )?.[0]?.FunctionalArea?.TitleEng
+                    }
+                  </TableCell>
+                  <TableCell>
+                    {item?.Seeker?.CareerInfos?.[0]?.JobType}
+                  </TableCell>
+                  <TableCell>
+                    {item?.Seeker?.CareerInfos?.[0]?.HighQualification}
+                  </TableCell>
+                  <TableCell>
+                    {item?.Seeker?.CareerInfos?.[0]?.YearsOfExperience}
+                  </TableCell>
+                  <TableCell>
+                    {item?.Seeker?.CareerInfos?.[0]?.CareerLevel}
+                  </TableCell>
+                  <TableCell>
+                    {moment(item?.Seeker?.CreatedAt).format("DD MMM YYYY")}
                   </TableCell>
                 </TableRow>
               );

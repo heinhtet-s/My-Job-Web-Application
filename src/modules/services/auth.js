@@ -91,6 +91,7 @@ async function EmployerLogin({ email, password }) {
 
     return data;
   } catch (e) {
+    console.log(e);
     throw e?.response?.data;
   }
 }
@@ -104,18 +105,19 @@ async function SeekerRegister(data) {
 
     return data;
   } catch (e) {
-    throw e;
+    console.log(e?.response?.data);
+    throw Error(e?.response?.data);
   }
 }
 async function EmployeerRegister(data) {
   const urlString = `${process.env.NEXT_PUBLIC_API_URL}employer/v1/Auth/register`;
-
+  console.log(data, "data");
   try {
     await axios.post(urlString, {
       ...data,
     });
   } catch (e) {
-    throw e;
+    throw Error(e?.response?.data);
   }
 }
 async function ResetPasswordEmployer({ email }) {

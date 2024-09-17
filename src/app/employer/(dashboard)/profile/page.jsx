@@ -100,7 +100,7 @@ const page = () => {
         ? moment(infoData?.EstablishedIn)?.format("YYYY-MM-DD")
         : infoData?.EstablishedIn,
     });
-  }, [infoData]);
+  }, [infoData, masterLoading]);
   if (masterLoading) {
     <></>;
   }

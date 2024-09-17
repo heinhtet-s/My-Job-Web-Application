@@ -9,6 +9,7 @@ import {
   Search,
   Volume,
 } from "lucide-react";
+import moment from "moment";
 import React, { useCallback, useEffect, useState } from "react";
 import "../../../../components/css/job.css";
 import { Autoplay, Navigation } from "swiper/modules";
@@ -21,6 +22,8 @@ import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import axios from "axios";
 import { GetCountry } from "@/modules/services/master";
 import { MasterdataURL } from "@/lib/apiConst";
+import { getJobPost } from "@/modules/services/jobPost_service";
+import PaginatedItems from "@/components/share/pagination";
 
 const JobPostPage = ({ industries, functionalAreas }) => {
   const [jobs, setJobs] = useState([]);
@@ -28,7 +31,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
   const [functionalArea, setFuncaionalArea] = useState(functionalAreas?.value);
   const [filter, setFilter] = useState(EmployerJobPosts.filter);
   const [stateFilter, setStaeFilter] = useState(StateConst.filter);
-  const initialData = [];
+  const [sportLightJob, setSportLightJob] = useState([]);
   const [title, setTitle] = useState("");
   const [jobType, setJobType] = useState("");
   const [functionalAreaId, setFunctionalAreaId] = useState("");
@@ -44,33 +47,35 @@ const JobPostPage = ({ industries, functionalAreas }) => {
   const [cityId, setCityId] = useState("");
   const [paging, setPaging] = useState({
     pageNumber: 1,
-    perPage: 100,
-    total: jobs?.count,
+    perPage: 10,
+    total: 0,
   });
+  const [totalPage, setTotal] = useState(0);
 
+  const [selectedTime, setSelectedTime] = useState("");
   const searchParams = useSearchParams();
-
-  console.log(filter);
   const titleHome = searchParams.get("title");
   const jobTypeHome = searchParams.get("jobType");
   const industrialIdHome = searchParams.get("industryId");
   const functionalId = searchParams.get("functionalAreaId");
   const countryID = searchParams.get("CountryId");
-
-  console.log(jobTypeHome, "JJ");
+  const cityID = searchParams.get("CityId");
+  const stateID = searchParams.get("StateId");
+  const TimeHome = decodeURI(searchParams.get("selectedTime") || "");
+  console.log(TimeHome);
+  const formattedJobType =
+    jobTypeHome?.length > 0 && jobTypeHome !== null && jobTypeHome !== "null"
+      ? `'${jobTypeHome}'`
+      : null;
   useEffect(() => {
-    setFilter((prevFilter) => ({
-      ...prevFilter, // keep the rest of the filter object
-      JobType: {
-        ...prevFilter.JobType,
-        value: jobTypeHome,
-      },
-    }));
-  }, [jobTypeHome]);
-
-  useEffect(() => {
-    const formattedJobType = jobTypeHome ? `'${jobTypeHome}'` : "";
-
+    setTitle(titleHome || "");
+    setJobType((prev) =>
+      jobTypeHome !== "null" && jobTypeHome?.length > 0 ? jobTypeHome : ""
+    );
+    setSelectedTime(TimeHome);
+    setIndustrialId(functionalId);
+    setFunctionalAreaId(functionalId);
+    setCountryId(countryID);
     setFilter((prevFilter) => ({
       ...prevFilter,
       Title: {
@@ -86,8 +91,42 @@ const JobPostPage = ({ industries, functionalAreas }) => {
         ...prevFilter.IndustryId,
         value: industrialIdHome,
       },
+      FunctionalAreaId: {
+        ...prevFilter.FunctionalAreaId,
+        value: functionalId,
+      },
     }));
+  }, [
+    titleHome,
+    jobTypeHome,
+    industrialIdHome,
+    functionalId,
+    countryID,
+    cityID,
+    stateID,
+  ]);
+  const fetchSportLightJob = async () => {
+    try {
+      const data = await getJobPost(
+        "?$filter=isExpired eq false and JobStatus eq 'Active' and JobUnitType eq 'Spotlight'&$top=100&$skip=0&$expand=Employer,FunctionalArea"
+      );
+      setSportLightJob(data?.value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    fetchSportLightJob();
   }, []);
+  // useEffect(() => {
+  //   setFilter((prevFilter) => ({
+  //     ...prevFilter, // keep the rest of the filter object
+  //     JobType: {
+  //       ...prevFilter.JobType,
+  //       value: jobTypeHome?.length > 0 ? jobTypeHome : null,
+  //     },
+  //   }));
+  // }, [jobTypeHome]);
 
   const router = useRouter();
 
@@ -123,12 +162,51 @@ const JobPostPage = ({ industries, functionalAreas }) => {
 
     fetchCities();
   }, []);
-
-  const fetchJobLists = useCallback(async (pageNumber, perPage) => {
+  const calculateDateRange = (selectedTime) => {
+    const currentDate = moment();
+    switch (selectedTime) {
+      case "Last 3 days":
+        return currentDate.subtract(3, "days").toISOString();
+      case "Last 7 days":
+        return currentDate.subtract(7, "days").toISOString();
+      case "Last 24 days":
+        return currentDate.subtract(24, "days").toISOString();
+      case "Last 30 days":
+        return currentDate.subtract(30, "days").toISOString();
+      default:
+        return null;
+    }
+  };
+  const fetchJobLists = async (pageNumber, perPage) => {
     setLoading(true);
+
+    const createdAtFilter = calculateDateRange(TimeHome);
+    console.log(createdAtFilter, EmployerJobPosts.filter);
     const queryString = await apiQueryHandler(
       EmployerJobPosts,
-      filter,
+      {
+        ...EmployerJobPosts.filter,
+        Title: {
+          ...EmployerJobPosts.filter.Title,
+          value: titleHome,
+        },
+        JobType: {
+          ...EmployerJobPosts.filter.JobType,
+          value: formattedJobType,
+        },
+        IndustryId: {
+          ...EmployerJobPosts.filter.IndustryId,
+          value: industrialIdHome,
+        },
+        FunctionalAreaId: {
+          ...EmployerJobPosts.filter.FunctionalAreaId,
+          value: functionalId,
+        },
+        CreatedAt: {
+          ...EmployerJobPosts.filter.CreatedAt,
+          value: createdAtFilter,
+        },
+      },
       EmployerJobPosts.order,
       EmployerJobPosts.fields,
       "normal",
@@ -137,27 +215,30 @@ const JobPostPage = ({ industries, functionalAreas }) => {
         perPage,
       }
     );
-
+    console.log(queryString);
     axios
       .get(`/api/job_lists/get?${queryString}`)
       .then((res) => {
-        -setPaging({
-          pageNumber,
-          perPage,
-          total: res["@odata.count"],
-        });
-
+        setTotal(res?.data?.["@odata.count"]);
         setJobs(res.data.value);
       })
       .catch((error) => {})
       .finally(() => {
         setLoading(false);
       });
-  });
+  };
 
   useEffect(() => {
     fetchJobLists(paging.pageNumber, paging.perPage);
-  }, [filter]);
+  }, [
+    paging,
+    titleHome,
+    jobTypeHome,
+    industrialIdHome,
+    functionalId,
+    TimeHome,
+    countryID,
+  ]);
 
   const handleSubmit = () => {
     const formattedJobType = jobType ? `'${jobType}'` : "";
@@ -167,42 +248,11 @@ const JobPostPage = ({ industries, functionalAreas }) => {
       jobType: `'${jobType}'`,
       industryId: industrialId,
       functionalAreaId: functionalAreaId,
+      selectedTime,
       CountryId: countryId,
       StateId: stateId,
       CityId: cityId,
     });
-
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      Title: {
-        ...prevFilter.Title,
-        value: title.toLocaleLowerCase(),
-      },
-      JobType: {
-        ...prevFilter.JobType,
-        value: formattedJobType,
-      },
-      IndustryId: {
-        ...prevFilter.IndustryId,
-        value: industrialId,
-      },
-      FunctionalAreaId: {
-        ...prevFilter.FunctionalAreaId,
-        value: functionalAreaId,
-      },
-      CountryId: {
-        ...prevFilter.CountryId,
-        value: countryId,
-      },
-      CityId: {
-        ...prevFilter.CityId,
-        value: cityId,
-      },
-      StateId: {
-        ...prevFilter.StateId,
-        value: stateId,
-      },
-    }));
 
     router.push(`/jobs?${queryParams.toString()}`);
   };
@@ -226,34 +276,34 @@ const JobPostPage = ({ industries, functionalAreas }) => {
     const formattedJobType = jobType ? `'${jobType}'` : "";
     const queryParams = new URLSearchParams({
       title: title.toLowerCase(),
-      jobType: `'${jobType}'`,
+      jobType: `${jobType?.length > 0 ? jobType : null}`,
       industryId: industrialId,
       functionalAreaId: functionalAreaId,
+      selectedTime,
     });
 
-    setFilter((prevFilter) => ({
-      ...prevFilter,
-      Title: {
-        ...prevFilter.Title,
-        value: title.toLocaleLowerCase(),
-      },
-      JobType: {
-        ...prevFilter.JobType,
-        value: formattedJobType,
-      },
-      IndustryId: {
-        ...prevFilter.IndustryId,
-        value: industrialId,
-      },
-      FunctionalAreaId: {
-        ...prevFilter.FunctionalAreaId,
-        value: functionalAreaId,
-      },
-    }));
+    // setFilter((prevFilter) => ({
+    //   ...prevFilter,
+    //   Title: {
+    //     ...prevFilter.Title,
+    //     value: title.toLocaleLowerCase(),
+    //   },
+    //   JobType: {
+    //     ...prevFilter.JobType,
+    //     value: formattedJobType,
+    //   },
+    //   IndustryId: {
+    //     ...prevFilter.IndustryId,
+    //     value: industrialId,
+    //   },
+    //   FunctionalAreaId: {
+    //     ...prevFilter.FunctionalAreaId,
+    //     value: functionalAreaId,
+    //   },
+    // }));
 
     router.push(`/jobs?${queryParams.toString()}`);
   };
-  console.log(filter);
   return (
     <>
       <div className="bg-searchJobBg py-[60px] ">
@@ -372,7 +422,10 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                   <CalendarDays width={"18px"} strokeWidth="1.5" />
                   <select
                     className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
-                    // onChange={orderHandler}
+                    onChange={(e) => {
+                      setSelectedTime(e.target.value);
+                    }}
+                    value={selectedTime}
                     placeholder="Select Industry"
                     style={{
                       padding: "0.375rem 1.5rem 0.375rem 0.75rem",
@@ -432,7 +485,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
               modules={[Autoplay, Navigation]}
               className="mySwiper"
             >
-              {initialData?.map((str, index) => (
+              {sportLightJob?.map((str, index) => (
                 <SwiperSlide>
                   <JobPostComponent job={str} />
                 </SwiperSlide>
@@ -513,6 +566,19 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                   </div>
                 ))}
               </div>
+              <PaginatedItems
+                itemsPerPage={paging.perPage}
+                totalPage={Math.ceil(totalPage / paging.perPage)}
+                currentPage={paging.pageNumber}
+                setCurrentPage={(el) => {
+                  setPaging((prev) => {
+                    return {
+                      ...prev,
+                      pageNumber: el,
+                    };
+                  });
+                }}
+              />
             </div>
           </div>
         </div>

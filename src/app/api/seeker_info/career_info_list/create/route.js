@@ -17,7 +17,6 @@ export async function POST(request) {
     // CountryId,
     // StateId,
     // CityId,
-    YearsOfExperience,
     Active: true,
     SeekerId: session?.user?.Id ? session.user.Id : null,
     CreatedAt: getCurrentDate(),

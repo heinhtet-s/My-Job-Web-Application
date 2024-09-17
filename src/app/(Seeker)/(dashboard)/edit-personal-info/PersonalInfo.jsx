@@ -63,7 +63,7 @@ const personalInfo = [
   },
   {
     title: "State",
-    key: "State",
+    key: "StateId",
     value: "Awayawaddy",
   },
   {
@@ -73,14 +73,14 @@ const personalInfo = [
   },
   {
     title: "National ID",
-    key: "National ID",
+    key: "NationalId",
     value: "2343",
   },
-  {
-    title: "Expected Salary",
-    key: "Expected Salary",
-    value: "500000 -800000",
-  },
+  // {
+  //   title: "Expected Salary",
+  //   key: "Expected Salary",
+  //   value: "500000 -800000",
+  // },
 ];
 const nationalities = [
   { value: "Myanmar", label: "Myanmar" },
@@ -148,6 +148,8 @@ const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
         ...personalData,
         ...data,
       });
+      fetchInfoData();
+      toast.success("Successfully Edit");
       setOpenModal(false);
     } catch (e) {
       toast.error("something wrong");
@@ -162,6 +164,10 @@ const PersonalInfo = ({ fetchInfoData, personalData, masterData }) => {
 
       case "CityId":
         return masterData?.city?.filter(
+          (el) => el?.Id === personalData[key]
+        )?.[0]?.Name;
+      case "StateId":
+        return masterData?.state?.filter(
           (el) => el?.Id === personalData[key]
         )?.[0]?.Name;
       default:
@@ -452,9 +458,9 @@ const EditPersonalInfo = ({
                 type="text"
                 placeholder="12/ABC(CDE)123456"
                 className={inputStyle}
-                {...register("NationalID", { required: true })}
+                {...register("NationalId", { required: true })}
               />
-              {errors.NationalID && (
+              {errors.NationalId && (
                 <p className="text-red-800 text-[13px] mt-[2px]">
                   This field is required
                 </p>
@@ -503,9 +509,9 @@ const EditPersonalInfo = ({
               <input
                 type="text"
                 className={inputStyle}
-                {...register("ProjectUrl")}
+                {...register("ProjectUrl1")}
               />
-              {errors.ProjectUrl && (
+              {errors.ProjectUrl1 && (
                 <p className="text-red-800 text-[13px] mt-[2px]">
                   This field is required
                 </p>

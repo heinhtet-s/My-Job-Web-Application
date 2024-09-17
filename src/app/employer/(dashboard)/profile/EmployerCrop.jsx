@@ -141,13 +141,14 @@ const EmployerImageCropper = ({ handleSubmit }) => {
       const fileBlob = dataURLToBlob(dataUrl);
 
       formData.append("imgfile", fileBlob);
+      formData.append("path", "Employer");
 
       try {
-        const data = await UploadedImageApi(session?.user?.Id, formData);
-
-        // await handleSubmit({
-        //   CompanyLogo: data?.url,
-        // });
+        const data = await UploadedImageApi(formData);
+        console.log(data);
+        await handleSubmit({
+          CompanyLogo: data?.url,
+        });
       } catch (e) {
         console.log(e);
       }

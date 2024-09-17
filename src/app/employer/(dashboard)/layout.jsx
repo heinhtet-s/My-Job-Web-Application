@@ -79,28 +79,6 @@ const DashboardConst = [
     header: "Job Report",
     link: "/employer/candidate",
   },
-  {
-    icon: (
-      <Heart
-        className="group-hover:stroke-primary  transition-all duration-500 "
-        width="18px"
-        strokeWidth={1.75}
-      />
-    ),
-    header: "Schedule",
-    link: "/employer/candidate",
-  },
-  {
-    icon: (
-      <Lock
-        className="group-hover:stroke-primary  transition-all duration-500 "
-        width="18px"
-        strokeWidth={1.75}
-      />
-    ),
-    header: "Widget",
-    link: "/employer/candidate",
-  },
 ];
 export default function Layout({ children }) {
   const { data: session } = useSession();

@@ -189,7 +189,7 @@ const page = () => {
               <p className="opacity-70 text-[13px]">Date of Birth</p>
               <p className="font-[500]">
                 {session?.user?.Id === SeekerId ||
-                session?.user?.role === "employee"
+                session?.user?.role === "employeer"
                   ? infoData?.seekerData?.DateOfBirth
                   : "locked"}
               </p>
@@ -199,7 +199,7 @@ const page = () => {
               <p className="opacity-70 text-[13px]">Email</p>
               <p className="font-[500]">
                 {session?.user?.Id === SeekerId ||
-                session?.user?.role === "employee"
+                session?.user?.role === "employeer"
                   ? infoData?.seekerData?.Email
                   : "locked"}
               </p>
@@ -209,7 +209,7 @@ const page = () => {
               <p className="font-[500]">
                 {" "}
                 {session?.user?.Id === SeekerId ||
-                session?.user?.role === "employee"
+                session?.user?.role === "employeer"
                   ? infoData?.seekerData?.Address
                   : "locked"}
               </p>
@@ -219,7 +219,7 @@ const page = () => {
               <p className="font-[500]">
                 {" "}
                 {session?.user?.Id === SeekerId ||
-                session?.user?.role === "employee"
+                session?.user?.role === "employeer"
                   ? infoData?.seekerData?.PhoneNum
                   : "locked"}
               </p>
@@ -229,7 +229,7 @@ const page = () => {
               <p className="font-[500]">
                 {" "}
                 {session?.user?.Id === SeekerId ||
-                session?.user?.role === "employee"
+                session?.user?.role === "employeer"
                   ? infoData?.seekerData?.PhoneNum
                   : "locked"}
               </p>

@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 
 const page = () => {
   const searchParams = useSearchParams();
-  const search = searchParams.get("token");
+  const search = decodeURI(searchParams.get("token") || "");
   const router = useRouter();
   const hasVerified = useRef(false);
   const verifyToken = async () => {

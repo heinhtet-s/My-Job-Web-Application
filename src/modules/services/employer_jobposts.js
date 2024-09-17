@@ -12,6 +12,7 @@ async function GetEmployerJobPostList(url) {
     })
     .catch((err) => {
       console.log(err);
+
       return { error: "Client and server connection error" };
     });
 }
@@ -19,8 +20,23 @@ async function GetCandidateList(id) {
   return await axios
     .get(
       encodeURI(
-        `https://myjobs.dev/seeker/v1/AppliedJobPosts?$expand=Seeker&$filter=EmployerId eq ${id}`
+        `https://myjobs.dev/seeker/v1/AppliedJobPosts?$expand=Seeker($expand=CareerInfos)&$filter=EmployerId eq ${id}`
       ),
+      REQUEST_HEADER
+    )
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
+
+      return { error: "Client and server connection error" };
+    });
+}
+async function GetCandidate(url) {
+  return await axios
+    .get(
+      encodeURI(`https://myjobs.dev/seeker/v1/AppliedJobPosts${url}`),
       REQUEST_HEADER
     )
     .then(({ data }) => {
@@ -39,6 +55,7 @@ async function createAppliedJobPost(data) {
       return data;
     })
     .catch((e) => {
+      console.log(e);
       return { error: "Client and server connection error" };
     });
 }
@@ -50,11 +67,25 @@ async function GetAppliedJobPostList(url) {
       return data;
     })
     .catch((err) => {
+      console.log(err);
+      return { error: "Client and server connection error" };
+    });
+}
+async function UpdatApplicationList(data, id) {
+  return await axios
+    .patch(encodeURI(`${AppliedJobPostURL}(${id})`), data, REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
       return { error: "Client and server connection error" };
     });
 }
 
 export {
+  UpdatApplicationList,
+  GetCandidate,
   GetEmployerJobPostList,
   GetCandidateList,
   createAppliedJobPost,

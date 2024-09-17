@@ -22,7 +22,6 @@ const Experiences = ({ masterData }) => {
   const [openModal, setOpenModal] = useState(false);
   const [expInfo, setExpInfo] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(null);
- 
 
   const handleSubmitApi = async (data) => {
     try {
@@ -42,7 +41,6 @@ const Experiences = ({ masterData }) => {
       setOpenModal(false);
     } catch (e) {
       toast.error("Somethings wrong.Please try again");
-     
     }
   };
   const handleDelete = async (id) => {
@@ -127,7 +125,9 @@ const Experiences = ({ masterData }) => {
                   <p className="text-primary ">
                     {moment(el?.StartDate).format("DD-MMM-YYYY")}
                     {" - "}
-                    {moment(el?.EndDate).format("DD-MMM-YYYY")}
+                    {el?.EndDate
+                      ? moment(el?.EndDate).format("DD-MMM-YYYY")
+                      : "current"}
                   </p>
                   <div className="flex items-center gap-2 cursor-pointer">
                     <div
@@ -172,7 +172,6 @@ const ExperiencesForm = ({
   personalData,
   masterData,
 }) => {
-
   const {
     register,
     watch,
@@ -194,7 +193,7 @@ const ExperiencesForm = ({
           ? moment(personalData?.EndDate).format("YYYY-MM-DD")
           : personalData?.EndDate,
       });
-  }, [personalData]);
+  }, [personalData, masterData]);
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };
@@ -324,7 +323,6 @@ const ExperiencesForm = ({
               <div className="flex items-center space-x-2">
                 <Switch
                   onCheckedChange={(e) => {
-                    
                     if (e) {
                       setValue("EndDate", null);
                     }

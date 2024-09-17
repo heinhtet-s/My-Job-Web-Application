@@ -185,7 +185,7 @@ const EduForm = ({
           ? moment(personalData?.EndDate).format("YYYY-MM-DD")
           : personalData?.EndDate,
       });
-  }, [personalData]);
+  }, [personalData, masterData]);
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };

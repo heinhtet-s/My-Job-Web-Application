@@ -13,8 +13,8 @@ async function UploadedCv(data) {
   }
 }
 
-async function UploadedImageApi(id, data) {
-  const url = `https://myjobs.dev/seeker/v1/Image/ImageUrl?SeekerId=${id}`;
+async function UploadedImageApi(data) {
+  const url = `https://myjobs.dev/seeker/v1/Image/ImageUrl`;
   try {
     const response = await axios.post(encodeURI(url), data);
 

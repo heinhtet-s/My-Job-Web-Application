@@ -11,15 +11,6 @@ import { GetFunctionalAreaLists } from "@/modules/services/employer_service";
 
 export default async function page() {
   try {
-    const data = await odataQueryHandler(
-      EmployerJobPosts,
-      EmployerJobPosts.filter,
-      EmployerJobPosts.order,
-      EmployerJobPosts.fields,
-      "normal",
-      { top: 100, skip: 0 },
-      GetEmployerJobPostList
-    );
     const industries = await odataQueryHandler(
       IndustriesConst,
       IndustriesConst.fields,

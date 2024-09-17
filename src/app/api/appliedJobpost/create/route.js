@@ -14,10 +14,10 @@ export async function POST(request) {
   const { JobId, EmployerId } = await request.json();
 
   const createData = await createAppliedJobPost({
-    Status: true,
+    Status: "None",
     EmployerId: EmployerId,
     JobId: JobId,
-    IsDisplay: false,
+    IsDisplay: true,
     SeekerId: session?.user?.Id ? session.user.Id : null,
     CreatedAt: getCurrentDate(),
     UpdatedAt: getCurrentDate(),

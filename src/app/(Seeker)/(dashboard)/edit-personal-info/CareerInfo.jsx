@@ -14,7 +14,14 @@ import {
   selectStyle,
 } from "@/components/ui/form";
 import { cn } from "@/lib/utils";
-import { EXPCONST, JobType } from "@/lib/const";
+import {
+  CareerLevel,
+  EXPCONST,
+  HighestQua,
+  JobType,
+  OverSeaExperience,
+  PreferredLoaction,
+} from "@/lib/const";
 const personalInfo = [
   {
     title: "Professional Headline (Current Position)",
@@ -63,159 +70,6 @@ const personalInfo = [
   },
 ];
 
-const OverSeaExperience = ["Never", "Repat", "Expat"];
-const CareerLevel = [
-  "Graduate Trainee",
-  "Internship",
-  "Entry Level",
-  "Mid Level",
-  "Senior Level",
-  "Management Level",
-  "Executive Level (C-Suit)",
-  "No Experience",
-  "Junior Level",
-  "Specialist / Expert Level",
-];
-const PreferredLoaction = [
-  "Sittwe",
-  "Aunglan",
-  "Arakan",
-  "Bago",
-  "Bhamo",
-  "Bogale",
-  "Chauk",
-  "Dawei",
-  "Falam",
-  "Hinthada",
-  "Hpa-an",
-  "Kalay",
-  "Taik Kyi",
-  "Katha",
-  "Khayan",
-  "Keng Tung",
-  "Kyaikkami",
-  "Kyaiklat",
-  "Kyaikto",
-  "Kyaukse",
-  "Labutta",
-  "Lashio",
-  "Letpadan",
-  "Loikaw",
-  "Magway",
-  "Mandalay",
-  "Mottama",
-  "Maubin",
-  "Mawlaik",
-  "Mawlamyine",
-  "Pyin Oo Lwin",
-  "Meiktila",
-  "Myeik",
-  "Minbu",
-  "Mogok",
-  "Monywa",
-  "Mawlamyinegyun",
-  "Mudon",
-  "Myanaung",
-  "Myingyan",
-  "Myitkyina",
-  "Nyaunglebin",
-  "Pakokku",
-  "Pathein",
-  "Paungde",
-  "Pyapon",
-  "Pyay",
-  "Pyinmana",
-  "Pyu",
-  "Sagaing",
-  "Shwebo",
-  "Thanlyin",
-  "Taungdwingyi",
-  "Taunggyi",
-  "Thanatpin",
-  "Tharrawaddy",
-  "Thaton",
-  "Thayet",
-  "Thongwa",
-  "Toungoo",
-  "Twantay",
-  "Wakema",
-  "Yamethin",
-  "Nyaungdoon",
-  "Yangon",
-  "Yegyi",
-  "Yenangyaung",
-  "Nay Pyi Taw",
-  "Kamaryut Township",
-  "Kyauktada Township",
-  "Kyimyindine Township",
-  "Ahlone Township",
-  "Bahan Township",
-  "Botataung Township",
-  "Dagon Myothit Seikkan Township",
-  "Dagon Township",
-  "Dala Township",
-  "Dawbon Township",
-  "East Dagon Township",
-  "Hlaing Township",
-  "Hlaingthaya Township",
-  "Lanmadaw Township",
-  "Latha Township",
-  "Mayangon Township",
-  "Mingala Taungnyunt Township",
-  "Mingaladon Township",
-  "North Okkalapa Township",
-  "Pabedan Township",
-  "Pazundaung Township",
-  "Sanchaung Township",
-  "Shwepyitha Township",
-  "South Dagon Township",
-  "South Okkalapa Township",
-  "Tamwe Township",
-  "Thaketa Township",
-  "Thingangyun Township",
-  "Yankin Township",
-  "Hlegu",
-  "Hmawbi",
-  "Kyauktan",
-  "Kawhmu",
-  "North Dagon",
-  "Insein Township",
-  "Hakha",
-];
-const HighestQua = [
-  "Bachelor Degree",
-  "Master Degree",
-  "Doctor of Philosophy (Ph.D.)",
-  "Diploma",
-  "Highschool",
-  "Postgraduate",
-  "Certificate",
-  "Unspecified",
-  "Higher National Diploma (HND)",
-  "Bachelor of Medicine and Surgery (M.B.B.S)",
-  "Others",
-  "Vocational",
-  "Post Graduate Diploma",
-  "Higher Diploma",
-  "Executive Diploma",
-  "Advanced Diploma",
-  "Bachelor of Arts (B.A)",
-  "Bachelor of Science (B.Sc.)",
-  "Bachelor of Engineering (B.E.)",
-  "Bachelor of Education (B.Ed.)",
-  "Bachelor of Computer Science (B.C.Sc.)",
-  "Bachelor of Computer Technology (B.C.Tech)",
-  "Bachelor of Agricultural Science (B.Agr.Sc.)",
-  "Bachelor of Technology (B.Tech)",
-  "Master of Architecture (M.Arch)",
-  "Master of Computer Science (M.C.Sc.)",
-  "Master of Computer Technology (M.C.Tech)",
-  "Master of Medical Technology (M.Med.Tech.)",
-  "Master of Agricultural Science (M.Agr.Sc.)",
-  "Master of Medical Science (M.Med.Sci.)",
-  "Master of Science (M.Sc)",
-];
-
 const CareerInfo = ({ fetchInfoData, masterData }) => {
   const [functionalArea, setFuncaionalArea] = useState([]);
   const [personalData, setPersonalData] = useState({});
@@ -243,31 +97,36 @@ const CareerInfo = ({ fetchInfoData, masterData }) => {
   }, []);
   const [openModal, setOpenModal] = useState(false);
   const handleSubmitApi = async (data) => {
-    if (data?.Id) {
-      try {
+    try {
+      if (data?.Id) {
         await ApiReq.post("api/seeker_info/career_info_list/update", {
           ...personalData,
           ...data,
         });
+        getCareerInfoData();
+
         setOpenModal(false);
         toast.success("Successfully Updated");
-      } catch (e) {
-        toast.error("something wrong");
+      } else {
+        await ApiReq.post("api/seeker_info/career_info_list/create", {
+          ...personalData,
+          ...data,
+        });
+        getCareerInfoData();
+
+        setOpenModal(false);
+        toast.success("Successfully Updated");
       }
-    } else {
-      await ApiReq.post("api/seeker_info/career_info_list/create", {
-        ...personalData,
-        ...data,
-      });
-      setOpenModal(false);
-      toast.success("Successfully Updated");
+    } catch (e) {
+      toast.error("something wrong");
     }
   };
   const FormattedData = (key) => {
     switch (key) {
       case "CurrentFunctionalArea":
-        return functionalArea?.filter((el) => el?.Id === personalData[key])?.[0]
-          ?.TitleEng;
+        return functionalArea?.filter(
+          (el) => el?.Id === personalData?.[key]
+        )?.[0]?.TitleEng;
       default:
         return personalData?.[key];
         break;

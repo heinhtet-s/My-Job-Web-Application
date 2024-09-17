@@ -121,6 +121,9 @@ select {
   justify-content: center;
   align-items: center;
 }
+.swiper-slide {
+  height: auto !important;
+}
 .pagination-next {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
