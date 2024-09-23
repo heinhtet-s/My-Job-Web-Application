@@ -280,7 +280,7 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#17171D]">100</p>
+            <p className="text-[36px] font-bold text-[#17171D]">0</p>
             <p className="text-[14px] font-[300] text-[#17171D]">
               Unread messages
             </p>
@@ -307,7 +307,13 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#002745]">100</p>
+            <p className="text-[36px] font-bold text-[#002745]">
+              {(
+                (overviewData?.JobApplication / overviewData?.totalJob) *
+                100
+              ).toFixed(2) || 0}
+              %
+            </p>
             <p className="text-[14px] font-[300]">Average Applications /jobs</p>
           </div>
         </div>

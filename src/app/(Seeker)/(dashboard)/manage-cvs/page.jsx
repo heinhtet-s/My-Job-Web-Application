@@ -14,24 +14,28 @@ import PrimaryBtn from "@/components/ui/primaryBtn";
 import axios from "axios";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import { GeneratedCvConst } from "@/lib/queryConst";
-import { format, parseISO } from "date-fns"; // Import necessary functions from date-fns
 import { useSession } from "next-auth/react";
 import { UploadedCv } from "../../../../modules/services/uploadcv_service";
 import toast from "react-hot-toast";
 import ApiReq from "@/lib/axiosHandler";
 import Swal from "sweetalert2";
 import moment from "moment";
+import { updateCv } from "@/modules/services/generated_cv";
+
 const Page = () => {
   const { data: session } = useSession();
   const [filter, setFilter] = useState(GeneratedCvConst.filter);
   const SEEKERID = session?.user?.Id;
   const [loading, setLoading] = useState(false);
   const file = useRef(null);
+  const isApiCallInProgress = useRef(false); // Ref to track API call status
+
   const fileExplore = () => {
     if (file.current) {
       file.current.click();
     }
   };
+
   const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
     pageNumber: 1,
@@ -52,7 +56,10 @@ const Page = () => {
   }, [SEEKERID]);
 
   async function getCvs(pageNumber, perPage) {
+    if (isApiCallInProgress.current) return; // Prevent multiple API calls
+    isApiCallInProgress.current = true;
     setLoading(true);
+
     try {
       const result = await axios.get(
         `/api/generate_cv/get?${await apiQueryHandler(
@@ -73,8 +80,9 @@ const Page = () => {
       }));
       setData(result.data.value);
     } catch (error) {
-      // errorMessage(error);
+      // Handle error
     } finally {
+      isApiCallInProgress.current = false;
       setLoading(false);
     }
   }
@@ -84,39 +92,67 @@ const Page = () => {
       getCvs(paging.pageNumber, paging.perPage);
     }
   }, [paging.pageNumber, paging.perPage, filter]);
+
   const handleChange = async (event) => {
     if (event.target.files) {
       const formData = new FormData();
       formData.append("SeekerId", session?.user?.Id);
       formData.append("CvType", "1");
-      formData.append("Active", "true");
+      formData.append("Active", "false");
       formData.append("file", event.target.files[0]);
+
       try {
         const data = await UploadedCv(formData);
+        console.log(data);
         if (data.error) {
-          toast.error("somethings wrong");
+          toast.error("Something's wrong");
           return;
         }
-        await ApiReq.post("api/generate_cv/create", {
-          CVFileName: event.target.files[0]?.name,
-          CVS3Url: data?.url,
-        });
+        console.log("ddd");
+        console.log(data?.url);
+        // await ApiReq.post("api/generate_cv/create", {
+        //   CVFileName: event.target.files[0]?.name,
+        //   CVS3Url: data?.url,
+        // });
+
+        // Call getCvs once to update the list
         await getCvs(paging.pageNumber, paging.perPage);
-        toast.success("successfully created CV");
+        toast.success("Successfully created CV");
       } catch (e) {
-        toast.error("something wrong");
+        toast.error("Something went wrong");
       }
     }
   };
+
   const handleDelete = async (Id) => {
     try {
       await ApiReq.post("api/generate_cv/delete", {
         Id,
       });
       await getCvs(paging.pageNumber, paging.perPage);
-      toast.success("Delete Successfully");
+      toast.success("Deleted Successfully");
     } catch (e) {
-      toast.error("Somethings wrong.Please try again");
+      toast.error("Something's wrong. Please try again.");
+    }
+  };
+  const handleChangeActive = async (id) => {
+    console.log(id);
+    try {
+      const ActiveCv = data?.filter((el) => el?.Active && el?.Id !== id);
+      console.log(ActiveCv);
+      if (ActiveCv) {
+        await updateCv(ActiveCv?.[0]?.Id, {
+          Active: false,
+        });
+      }
+      const getChangeCv = data?.filter((el) => el?.Id === id);
+      await updateCv(id, {
+        Active: !Boolean(getChangeCv?.[0]?.Active),
+      });
+      await getCvs(paging.pageNumber, paging.perPage);
+      toast.success("Successfully Updated");
+    } catch (e) {
+      console.log(e);
     }
   };
   const handleConfirmDelete = (id) => {
@@ -126,12 +162,12 @@ const Page = () => {
       showCancelButton: true,
       confirmButtonText: "Delete",
     }).then(async (result) => {
-      /* Read more about isConfirmed, isDenied below */
       if (result.isConfirmed) {
         handleDelete(id);
       }
     });
   };
+
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Manage CVs</h1>
@@ -145,7 +181,6 @@ const Page = () => {
             <TableHead>Uploaded Date</TableHead>
             <TableHead>Default CV</TableHead>
             <TableHead>Action</TableHead>
-            <TableHead>MyLoad Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -159,13 +194,20 @@ const Page = () => {
                     : "-"}
                 </TableCell>
                 <TableCell>
-                  <Switch checked={cv.Active} />
+                  <ShowCvSwift
+                    defalutActive={cv?.Active}
+                    handleChange={(e) => {
+                      handleChangeActive(cv?.Id);
+                    }}
+                  />
                 </TableCell>
                 <TableCell
-                  className="text-red-700"
-                  onClick={() => handleConfirmDelete(cv?.Id)}
+                  className={`${!cv?.Active ? "text-red-700" : ""}`}
+                  onClick={() => {
+                    if (!cv?.Active) handleConfirmDelete(cv?.Id);
+                  }}
                 >
-                  Delete
+                  {!cv?.Active ? "Delete" : "Cannot Delete"}
                 </TableCell>
               </TableRow>
             );
@@ -176,13 +218,21 @@ const Page = () => {
         type="file"
         id="file"
         ref={file}
-        accept="pdf/*"
+        accept="application/pdf"
         style={{ display: "none" }}
         onChange={handleChange}
       />
       <PrimaryBtn text="Upload" handleClick={fileExplore} />
     </div>
   );
+};
+
+const ShowCvSwift = ({ defalutActive, handleChange }) => {
+  const [active, setActive] = useState(defalutActive);
+  useEffect(() => {
+    setActive(defalutActive);
+  }, [defalutActive]);
+  return <Switch checked={active} onClick={handleChange} />;
 };
 
 export default Page;

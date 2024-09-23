@@ -44,6 +44,8 @@ const JobPostPage = ({ industries, functionalAreas }) => {
   const [matchStates, setMatchStates] = useState([]);
   const [matchCity, setMatchCity] = useState([]);
   const [city, setCity] = useState([]);
+  const [order, setOrder] = useState(EmployerJobPosts.order);
+
   const [cityId, setCityId] = useState("");
   const [paging, setPaging] = useState({
     pageNumber: 1,
@@ -207,7 +209,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
           value: createdAtFilter,
         },
       },
-      EmployerJobPosts.order,
+      order,
       EmployerJobPosts.fields,
       "normal",
       {
@@ -238,6 +240,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
     functionalId,
     TimeHome,
     countryID,
+    order,
   ]);
 
   const handleSubmit = () => {
@@ -272,6 +275,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
   // }, [router, initialData]);
 
   // Search On Clik
+
   const handleSearch = () => {
     const formattedJobType = jobType ? `'${jobType}'` : "";
     const queryParams = new URLSearchParams({
@@ -304,9 +308,17 @@ const JobPostPage = ({ industries, functionalAreas }) => {
 
     router.push(`/jobs?${queryParams.toString()}`);
   };
+  const handleOrderChange = (event) => {
+    const selectedOrder = event.target.value;
+    if (selectedOrder?.length < 1) {
+      setOrder(EmployerJobPosts.order);
+      return;
+    }
+    setOrder({ Title: selectedOrder });
+  };
   return (
     <>
-      <div className="bg-searchJobBg py-[60px] ">
+      <div className="bg-searchJobBg py-[60px]  ">
         <div className="2xl:max-w-[1400px] xl:max-w-[1320px] w-full px-3 mx-auto ">
           <p className="font-bold text-[48px] tracking-tight">Search Jobs</p>
           <p className="text-[18px] font-light">
@@ -330,7 +342,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                 <div className="relative flex  items-center w-full">
                   <Folder width={"18px"} strokeWidth="1.5" />
                   <select
-                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  border-0 focus:ring-0   "
                     value={industrialId}
                     onChange={(e) => setIndustrialId(e.target.value)}
                     placeholder="Select Industry"
@@ -359,7 +371,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                 <div className="relative flex  items-center w-full">
                   <BriefcaseBusiness width={"18px"} strokeWidth={1.75} />
                   <select
-                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  border-0 focus:ring-0   "
                     value={jobType}
                     onChange={(e) => setJobType(e.target.value)}
                     placeholder="Select Industry"
@@ -388,7 +400,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                 <div className="relative flex  items-center w-full">
                   <Folder width={"18px"} strokeWidth="1.5" />
                   <select
-                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  border-0 focus:ring-0  "
                     value={functionalAreaId}
                     onChange={(e) => setFunctionalAreaId(e.target.value)}
                     placeholder="Select Industry"
@@ -421,7 +433,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                 <div className="relative flex  items-center w-full">
                   <CalendarDays width={"18px"} strokeWidth="1.5" />
                   <select
-                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    className="block w-full py-1 px-3  placeholder:font-bold text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  border-0 focus:ring-0  "
                     onChange={(e) => {
                       setSelectedTime(e.target.value);
                     }}
@@ -494,7 +506,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
           </div>
         </div>
       </div>
-      <div className="mt-[100px]">
+      <div className="mt-[100px] pb-10">
         <div className="2xl:max-w-[1400px] xl:max-w-[1320px] w-full px-3 mx-auto ">
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
             <div className="col-span-1 lg:col-span-1 xl:col-span-1">
@@ -556,7 +568,10 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                   Showing {jobs?.length} Jobs
                 </h3>
                 <div className="w-[155px]">
-                  <SeekerSelectBox placeholder="Most relevant" />
+                  <SeekerSelectBox
+                    placeholder="Most relevant"
+                    orderHandler={handleOrderChange}
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">

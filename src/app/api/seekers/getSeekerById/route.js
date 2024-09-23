@@ -6,7 +6,7 @@ export async function GET(req) {
 
   try {
     const seekerResponse = await fetch(
-      `https://myjobs.dev/seeker/v1/Seekers/${seekerId}`,
+      `https://myjobs.dev/seeker/v1/Seekers/${seekerId}?&$expand=ProfilePercentage`,
       {
         method: "GET",
         headers: {

@@ -294,17 +294,15 @@ const chooseTime = [
 ];
 
 const OverSeaExperience = ["Never", "Repat", "Expat"];
+
 const CareerLevel = [
-  "Graduate Trainee",
-  "Internship",
-  "Entry Level",
-  "Mid Level",
-  "Senior Level",
-  "Management Level",
-  "Executive Level (C-Suit)",
-  "No Experience",
-  "Junior Level",
-  "Specialist / Expert Level",
+  "NoExperience",
+  "Intership",
+  "JuniorLevel",
+  "MidLevel",
+  "SeniorLevel",
+  "ManagementLevel",
+  "ExecutiveLevel",
 ];
 const PreferredLoaction = [
   "Sittwe",

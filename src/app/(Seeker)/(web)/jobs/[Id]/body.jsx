@@ -74,7 +74,7 @@ const JobDetailComponent = ({ data }) => {
       const formData = new FormData();
       formData.append("SeekerId", session?.user?.Id);
       formData.append("CvType", "1");
-      formData.append("Active", "true");
+      formData.append("Active", "false");
       formData.append("file", selectedFile);
       try {
         // const uploadResponse = await UploadCv({ file: formData }, '167553d6-a4bd-4c22-89a2-2a2c7fa215e2');
@@ -83,15 +83,15 @@ const JobDetailComponent = ({ data }) => {
           toast.error("somethings wrong");
           return;
         }
-        const Cvdata = await ApiReq.post("api/generate_cv/create", {
-          CVFileName: selectedFile.name,
-          CVS3Url: data?.url,
-        });
-
+        // const Cvdata = await ApiReq.post("api/generate_cv/create", {
+        //   CVFileName: selectedFile.name,
+        //   CVS3Url: data?.url,
+        // });
+        console.log(data);
         const appliedJob = await ApiReq.post("/api/appliedJobpost/create", {
           JobId,
           EmployerId,
-          CVsId: Cvdata?.data?.Id,
+          CVsId: data?.cvId,
         });
         toast.success("Apply Successfully");
         handleModalClose();

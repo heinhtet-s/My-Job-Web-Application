@@ -10,15 +10,15 @@ async function SeekerLogin({ email, password }) {
       email,
       password,
     });
+    console.log(email, "email");
     const data = await axios.get(
-      `http://localhost:3000/api/seekers/getSeekerByEmail?email=${encodeURI(
+      `http://localhost:3000/api/seekers/getSeekerByEmail?email=${encodeURIComponent(
         email
       )}`
     );
 
     return data;
   } catch (e) {
-    console.log(e);
     throw e;
   }
 }
@@ -46,6 +46,7 @@ async function SeekerSsoLogin({ token, email }) {
       accesstoken: token,
       login: true,
     });
+
     const data = await axios.get(
       `http://localhost:3000/api/seekers/getSeekerByEmail?email=${encodeURI(
         email
@@ -54,6 +55,7 @@ async function SeekerSsoLogin({ token, email }) {
 
     return data;
   } catch (e) {
+    console.log(e);
     throw e;
   }
 }
@@ -64,9 +66,7 @@ async function EmployerSsoLogin({ token, email }) {
       accesstoken: token,
     });
     const data = await axios.get(
-      `http://localhost:3000/api/company_lists/getSeekerByEmail?email=${encodeURI(
-        email
-      )}`
+      `http://localhost:3000/api/company_lists/getSeekerByEmail?email=${email}`
     );
 
     return data;

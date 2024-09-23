@@ -16,11 +16,11 @@ async function GetEmployerJobPostList(url) {
       return { error: "Client and server connection error" };
     });
 }
-async function GetCandidateList(id) {
+async function GetCandidateList(id, url) {
   return await axios
     .get(
       encodeURI(
-        `https://myjobs.dev/seeker/v1/AppliedJobPosts?$expand=Seeker($expand=CareerInfos)&$filter=EmployerId eq ${id}`
+        `https://myjobs.dev/seeker/v1/AppliedJobPosts?$count=true&$expand=Seeker($expand=CareerInfos)&$filter=EmployerId eq ${id}&$orderby=CreatedAt desc${url}`
       ),
       REQUEST_HEADER
     )

@@ -1,7 +1,10 @@
 "use client";
+import PaginatedItems from "@/components/share/pagination";
 import { inputStyle } from "@/components/ui/form";
+import PrimaryBtn from "@/components/ui/primaryBtn";
 import { cn } from "@/lib/utils";
-import { updateJobPost } from "@/modules/services/jobPost_service";
+import { GetAppliedJobPostList } from "@/modules/services/employer_jobposts";
+import { getJobPost, updateJobPost } from "@/modules/services/jobPost_service";
 import axios from "axios";
 import { Search } from "lucide-react";
 import moment from "moment";
@@ -18,20 +21,49 @@ const menuItem = [
 ];
 
 const page = () => {
+  const [totalPage, setTotal] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
   const [loading, setLoading] = useState(false);
   const [jobs, setJobs] = useState([]);
   const { data: session } = useSession();
-
+  const [paging, setPaging] = useState({
+    pageNumber: 1,
+    perPage: 10,
+    total: 0,
+  });
+  const [totalCount, setTotalCount] = useState(0);
+  const [activeCount, setActiveCount] = useState(0);
+  const [expireCount, setExpireCount] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [countData, setCountData] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [ApplicationCount, setApplicationCount] = useState([]);
+  const [ShortlistedCount, setShortListCount] = useState([]);
+  const getApplicationCount = async () => {
+    try {
+      const data = await GetAppliedJobPostList(
+        `?$apply=filter(EmployerId eq ${session?.user?.Id})/groupby((JobId), aggregate($count as ApplicationCount))`
+      );
+      const data1 = await GetAppliedJobPostList(
+        `?$apply=filter(EmployerId eq ${session?.user?.Id} and Status eq 'ShortListed')/groupby((JobId), aggregate($count as ApplicationCount))`
+      );
+      setApplicationCount(data?.value);
+      setShortListCount(data1?.value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    if (session?.user?.Id) {
+      getApplicationCount();
+    }
+  }, [session?.user?.Id]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await axios.get(`/api/employer_lists/jobposts`);
-
         setCountData(res.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -86,39 +118,36 @@ const page = () => {
     }
   };
   const result = summarizeJobs(countData?.jobs);
-
   const fetchJobs = async (menuIndex, pageNumber) => {
     setLoading(true);
-    let filter = `EmployerId eq ${session?.user?.Id} `;
-    let orderBy = "$orderby=CreatedAt desc"; // Order by CreatedAt in descending order
+    let filter = `EmployerId eq ${session?.user?.Id}`;
+    let orderBy = "&$orderby=CreatedAt desc"; // Order by CreatedAt in descending order
     switch (menuIndex) {
       case 0:
         break;
       case 1:
-        filter += "and IsExpired eq false ";
+        filter += " and IsExpired eq false and JobStatus eq 'Active'";
         break;
       case 2:
-        filter += "and IsExpired eq true";
+        filter += " and IsExpired eq true";
         break;
       case 3:
-        filter += "and Anonymous eq true";
+        filter += " and Anonymous eq true";
         break;
       case 4:
-        filter += "and JobStatus eq 'Pending'";
+        filter += " and JobStatus eq 'Pending'";
         break;
       default:
     }
-
+    if (searchText?.length > 0) filter += `and contains(Title,'${searchText}')`;
     try {
-      const url = filter
-        ? `/api/employer_lists/jobposts?$filter=${encodeURIComponent(
-            filter
-          )}&${orderBy}&page=${pageNumber}`
-        : `/api/employer_lists/jobposts?${orderBy}&page=${pageNumber}`;
+      const url = `?$count=true&$filter=${filter}&${orderBy}&$top=${
+        paging?.perPage
+      }&$skip=${(paging?.pageNumber - 1) * paging?.perPage}`;
 
-      const res = await axios.get(url);
-      setJobs(res.data.jobs);
-      setTotalPages(res.data.totalPages);
+      const res = await getJobPost(url);
+      setJobs(res.value);
+      setTotal(res?.["@odata.count"]);
     } catch (error) {
       console.error("Error fetching job posts:", error);
     } finally {
@@ -128,7 +157,29 @@ const page = () => {
 
   useEffect(() => {
     if (session?.user?.Id) fetchJobs(activeIndex, page);
-  }, [activeIndex, page, session?.user?.Id]);
+  }, [activeIndex, paging, session?.user?.Id]);
+
+  const fetchJobsCount = async () => {
+    const TotalCount = await getJobPost(
+      `/$count?$filter=EmployerId eq ${session?.user?.Id}`
+    );
+    console.log(TotalCount, "ggggg");
+    setTotalCount(TotalCount);
+    const ActiveCount = await getJobPost(
+      `/$count?$filter=EmployerId eq ${session?.user?.Id} and IsExpired eq false and JobStatus eq 'Active'`
+    );
+
+    setActiveCount(ActiveCount);
+    const ExpireCount = await getJobPost(
+      `/$count?$filter=EmployerId eq ${session?.user?.Id} and IsExpired eq true`
+    );
+    setExpireCount(ExpireCount);
+  };
+  useEffect(() => {
+    if (session?.user?.Id) {
+      fetchJobsCount();
+    }
+  }, [session?.user?.Id]);
 
   const nextPage = () => {
     if (page < totalPages) setPage(page + 1);
@@ -146,12 +197,19 @@ const page = () => {
         <div className="relative h-fit">
           <input
             placeholder="search"
+            onChange={(e) => setSearchText(e?.target?.value)}
             className="pl-[35px] h-[50px] border border-[rgba(0,0,0,0.2)] font-light text-[var(--pxpTextColor)] bg-white rounded-[30px] p-4 mr-4 outline-none focus:outline-none"
           />
 
           <Search
             width="16px"
             className="absolute left-[10px] top-[50%] translate-y-[-50%] "
+          />
+          <PrimaryBtn
+            text="Submit"
+            handleClick={() => {
+              fetchJobs(activeIndex, page);
+            }}
           />
         </div>
       </div>
@@ -172,7 +230,7 @@ const page = () => {
             />
           </svg>
           <div>
-            <p className="text-[36px] font-bold">{result?.totalCount}</p>
+            <p className="text-[36px] font-bold">{totalCount}</p>
             <p className="text-[16px] font-[300]">Total Jobs</p>
           </div>
         </div>
@@ -193,7 +251,7 @@ const page = () => {
           </svg>
 
           <div>
-            <p className="text-[36px] font-bold">{result?.onlineCount}</p>
+            <p className="text-[36px] font-bold">{activeCount}</p>
             <p className="text-[16px] font-[300]">Online Jobs </p>
           </div>
         </div>
@@ -214,7 +272,7 @@ const page = () => {
           </svg>
 
           <div>
-            <p className="text-[36px] font-bold">{result?.offlineCount}</p>
+            <p className="text-[36px] font-bold">{expireCount}</p>
             <p className="text-[16px] font-[300]">Offline Jobs </p>
           </div>
         </div>
@@ -258,7 +316,11 @@ const page = () => {
                       : "bg-red-700 border-red-700"
                   }`}
                 >
-                  {job?.IsExpired == false ? "Online" : "Offline"}
+                  {job?.IsExpired == false
+                    ? job?.JobStatus === "Active"
+                      ? "Online"
+                      : job?.JobStatus
+                    : "Offline"}
                 </button>
                 <p className="font-[500]">{job.JobUnitType}</p>
               </div>
@@ -290,32 +352,41 @@ const page = () => {
                 <div className="flex justify-between items-center ">
                   <div className="flex items-center gap-2">
                     <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
-                      {jobs.ViewCount || 0}
+                      {job.ViewCount || 0}
                     </div>
                     <p>Views</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
-                      0
+                      {ApplicationCount?.filter(
+                        (el) => el?.JobId === job?.Id
+                      )?.[0]?.ApplicationCount || 0}
                     </div>
                     <p>Applications</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="bg-[#7D7B7B] text-white  px-2 py-1 rounded-lg">
-                      0
+                      {ShortlistedCount?.filter(
+                        (el) => el?.JobId === job?.Id
+                      )?.[0]?.ApplicationCount || 0}
                     </div>
                     <p>Shortlisted</p>
                   </div>
                 </div>
                 <div className="flex  mt-[20px] gap-[10px] items-center">
-                  <button className="inline-block  me-4 font-normal text-center text-white bg-primary border-primary py-2 px-3 text-base leading-6 rounded-lg cursor-default">
+                  <button
+                    onClick={() => {
+                      router.push(`/employer/jobpost/candidate/${job?.Id}`);
+                    }}
+                    className="inline-block cursor-pointer  me-4 font-normal text-center text-white bg-primary border-primary py-2 px-3 text-base leading-6 rounded-lg "
+                  >
                     View Applications
                   </button>
                   <button
                     onClick={() => {
                       router.push(`/employer/jobpost/update/${job?.Id}`);
                     }}
-                    className="inline-block  me-4 font-normal text-center text-white bg-[#7D7B7B] border-[#7D7B7B] py-2 px-3 text-base leading-6 rounded-lg cursor-default"
+                    className="inline-block  me-4 font-normal text-center text-white bg-[#7D7B7B] border-[#7D7B7B] py-2 px-3 text-base leading-6 rounded-lg "
                   >
                     Edit Job
                   </button>
@@ -325,6 +396,19 @@ const page = () => {
           </div>
         );
       })}
+      <PaginatedItems
+        itemsPerPage={paging.perPage}
+        totalPage={Math.ceil(totalPage / paging.perPage)}
+        currentPage={paging.pageNumber}
+        setCurrentPage={(el) => {
+          setPaging((prev) => {
+            return {
+              ...prev,
+              pageNumber: el,
+            };
+          });
+        }}
+      />
     </div>
   );
 };

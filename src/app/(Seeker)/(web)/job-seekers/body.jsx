@@ -1,12 +1,31 @@
 "use client";
 import CardLayout from "@/components/share/CardLayout";
+import { workTypes } from "@/lib/const";
+import { GetSeekerList } from "@/modules/services/seeker_service";
+import axios from "axios";
 import { ChevronRight, Earth, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-const CandidatePage = ({ data }) => {
-  const [candidates, setCandidates] = useState(data?.value);
- 
+const CandidatePage = ({ data, functionalAreas }) => {
+  console.log(functionalAreas);
+  const [jobType, setJobType] = useState("");
+  const [candidates, setCandidates] = useState();
+  const handleSubmitApi = async () => {
+    try {
+      let filter = "&$filter=IsPublic eq true";
+      if (jobType?.length > 0) {
+        filter = `&$expand=CareerInfos($filter=JobType eq '${jobType}')&$filter=IsPublic eq true and CareerInfos/any(c: c/JobType eq '${jobType}')`;
+      }
+      const data = await GetSeekerList(`?$count=true${filter}`);
+      setCandidates(data?.value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    handleSubmitApi();
+  }, []);
   const router = useRouter();
   return (
     <>
@@ -45,18 +64,28 @@ const CandidatePage = ({ data }) => {
                 <div className="relative flex  items-center w-full">
                   <Search strokeWidth={2.5} width={"16px"} />
                   <select
-                    className="block w-full py-1 px-3   text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  "
+                    value={jobType}
+                    onChange={(e) => setJobType(e.target.value)}
+                    className="block w-full py-1 px-3   text-[16px] text-gray-800 font-light bg-transparent outline-none border-none rounded-md appearance-none  border-0 focus:ring-0  "
                     style={{
                       padding: "0.375rem 1.5rem 0.375rem 0.75rem",
-                    }} 
+                    }}
                   >
-                    <option>All</option>
+                    <option value="">All</option>
+                    {workTypes.map((el) => (
+                      <option value={el?.value}>{el?.label}</option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div className="lg:flex-none lg:w-auto w-full">
-                <button className=" h-14 border-0 px-[20px] mr-[13px] rounded-[27px] text-white bg-primary transition-colors">
-                  Find Companies
+                <button
+                  onClick={() => {
+                    handleSubmitApi();
+                  }}
+                  className=" h-14 border-0 px-[20px] mr-[13px] rounded-[27px] text-white bg-primary transition-colors"
+                >
+                  Find Candidates
                 </button>
               </div>
             </div>
@@ -73,13 +102,13 @@ const CandidatePage = ({ data }) => {
       </div>
       <div className="mt-[100px]">
         <CardLayout>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 pb-[30px] md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-8">
             {candidates?.map((str, index) => (
               <div className="col-span-1 min-h-[300px]" key={index}>
                 <div className="border border-borderColor bg-white p-7 rounded-[30px] flex flex-col justify-between h-full no-underline">
                   <div className="text-center">
                     <img
-                      className="w-[100px] mx-auto h-[100px] rounded-[50%] object-contain"
+                      className="w-[100px] mx-auto h-[100px] rounded-[50%] object-cover"
                       src={str.ImageUrl ? str.ImageUrl : "/image/no-image.png"}
                       alt="Profile"
                     />
@@ -87,18 +116,24 @@ const CandidatePage = ({ data }) => {
                       {str.FirstName} {str.LastName}
                     </p>
                     <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
-                      Business Development & Management
+                      {
+                        functionalAreas?.find(
+                          (el) =>
+                            el?.Id ===
+                            str?.CareerInfos?.[0]?.CurrentFunctionalArea
+                        )?.TitleEng
+                      }
                     </p>
                     <p className="block text-widgetColor  cursor-pointer text-[15px] font-light">
-                      Full Time
+                      {str?.CareerInfos?.[0]?.JobType}
                     </p>
                     <div>
                       {str?.Address?.length > 0 && (
-                        <div className=" flex cursor-pointer  gap-1 mt-[30px] text-sm text-widgetColor">
+                        <div className=" flex cursor-pointer justify-center   gap-1 mt-[30px] text-sm text-widgetColor">
                           <Earth
                             width="14px"
-                            height="14px"
                             className="mt-[3px]"
+                            height="14px"
                           />
                           {str?.Address}
                         </div>

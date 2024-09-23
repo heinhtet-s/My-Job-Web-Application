@@ -8,6 +8,7 @@ import {
   GetEmployerJobPostList,
   UpdatApplicationList,
 } from "@/modules/services/employer_jobposts";
+import { downlaodCV } from "@/modules/services/generated_cv";
 import { getJobPost } from "@/modules/services/jobPost_service";
 import { getCareefInfo } from "@/modules/services/seeker_careerInfo";
 import { Button } from "flowbite-react";
@@ -115,7 +116,7 @@ const page = () => {
         filter += " and Status eq 'ShortListed'";
         break;
       case 2:
-        filter += " and IsExpired eq 'Rejected'";
+        filter += " and Status eq 'Rejected'";
         break;
 
       default:
@@ -129,6 +130,22 @@ const page = () => {
       console.log(data?.value);
       setJobAppInfo(data?.value);
       setTotalPage(data?.["@odata.count"]);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const handleViewCv = async (CvId, SeekerId) => {
+    try {
+      const data = await downlaodCV(`?seekerId=${SeekerId}&cvId=${CvId}`);
+      router.push(`/employer/jobpost/candidate/${JobId}/CV?url=${data}`);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const handleDownloadCv = async (CvId, SeekerId) => {
+    try {
+      const data = await downlaodCV(`?seekerId=${SeekerId}&cvId=${CvId}`);
+      window.open(data);
     } catch (e) {
       console.log(e);
     }
@@ -285,7 +302,12 @@ const page = () => {
                   : ""
                 : el?.Status}
             </div>
-            <div className="py-[20px] w-full  flex justify-around">
+            <div
+              className={cn(
+                "py-[20px] w-full gap-[5px]  flex justify-around px-[10px]",
+                el?.Status === "None" && !el?.IsViewed && "px-0"
+              )}
+            >
               <img
                 src="/image/no-image.png"
                 className="w-[150px] block h-[150px] rounded-full"
@@ -301,10 +323,10 @@ const page = () => {
                   </span>
                 </p>
                 <p className="font-[300]">
-                  {el?.Seeker?.CareerInfos?.CurrentPosition}
+                  {el?.Seeker?.CareerInfos?.[0]?.CurrentPosition}
                 </p>
                 <p className="font-[300]">
-                  {el?.Seeker?.CareerInfos?.YearsOfExperience} experiences{" "}
+                  {el?.Seeker?.CareerInfos?.[0].YearsOfExperience} experiences{" "}
                   {el?.Seeker?.Address}
                 </p>
               </div>
@@ -355,14 +377,21 @@ const page = () => {
                   <button
                     onClick={() => {
                       SubmitEmployerView(() => {
-                        router.push(`/job-seekers/${el?.Seeker?.Id}`);
+                        handleDownloadCv(el?.CvId, el?.SeekerId);
                       }, el?.Id);
                     }}
                     className="bg-primary p-[7px] flex text-white  items-center justify-center  text-[14px] font-medium transition-[background-color] rounded-md"
                   >
                     VIEW CV
                   </button>
-                  <button className="bg-primary p-[7px] text-white  flex items-center justify-center  text-[14px] font-medium transition-[background-color] rounded-md">
+                  <button
+                    onClick={() => {
+                      SubmitEmployerView(() => {
+                        handleDownloadCv(el?.CvId, el?.SeekerId);
+                      }, el?.Id);
+                    }}
+                    className="bg-primary p-[7px] text-white  flex items-center justify-center  text-[14px] font-medium transition-[background-color] rounded-md"
+                  >
                     DOWNLOALD CV
                   </button>
                 </div>

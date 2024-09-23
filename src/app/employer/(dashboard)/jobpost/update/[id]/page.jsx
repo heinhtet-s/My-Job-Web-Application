@@ -5,7 +5,7 @@ import PrimaryBtn from "@/components/ui/primaryBtn";
 import { Switch } from "@/components/ui/switch";
 import TinyEditor from "@/components/ui/TinyEditor";
 import ApiReq from "@/lib/axiosHandler";
-import { Currency, EXPCONST, JobType } from "@/lib/const";
+import { CareerLevel, Currency, EXPCONST, JobType } from "@/lib/const";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -38,7 +38,7 @@ const page = () => {
   const fetchMasterData = async () => {
     try {
       const masterData = await ApiReq.get(
-        `/api/master/get?include=country,city,state`
+        `/api/master/get?include=country,city,state,degreeLevels`
       );
 
       setMasterData(masterData.data);
@@ -140,7 +140,10 @@ const page = () => {
   useEffect(() => {
     console.log(jobDetail);
     reset(jobDetail);
-  }, [jobDetail]);
+  }, [jobDetail, masterData]);
+
+  console.log(watch("Gender"));
+  console.log(watch("SalaryOption"));
   const onSubmit = async (data) => {
     try {
       const updateData = {
@@ -152,16 +155,13 @@ const page = () => {
         JobType: data?.JobType,
 
         UpdatedAt: getCurrentDate(),
-        CareerLevel: "NoExperience",
         HideSalary: false,
         NoOfPosition: 0,
-        Gender: null,
+
         YearsOfExperience: data?.YearsOfExperience,
-        OtherSkill: null,
+
         Applie: false,
         RejectReason: null,
-
-        DegreeLevelId: null,
         UpdatedAt: getCurrentDate(),
         // "CreatedAt": "2024-09-03T03:39:07.039555Z",
         // "UpdatedAt": "2024-09-03T03:39:07.039556Z",
@@ -511,6 +511,131 @@ const page = () => {
           />
         </div>
         <div className={JobPostCard}>
+          <p className="text-[16px] mb-[0.5rem]">Employee Information </p>
+          <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <select
+                className={selectStyle}
+                {...register("CareerLevel", {
+                  required: "This field is required",
+                })}
+              >
+                <option value={""}>Select Career Level</option>
+                {CareerLevel.map((el) => (
+                  <option value={el} key={el}>
+                    {el}
+                  </option>
+                ))}
+                {/* Populate with country options */}
+              </select>
+              {errors.CareerLevel && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+            <div className="col-span-1">
+              <select
+                // defaultValue={personalData?.StateId}
+                className={selectStyle}
+                {...register("DegreeLevelId", {
+                  required: "This field is required",
+                })}
+              >
+                <option value={""}>Select Required Degree Level</option>
+                {masterData?.degreeLevels?.map((el) => (
+                  <option value={el?.Id} key={el?.Id}>
+                    {el?.TitleEng}
+                  </option>
+                ))}
+              </select>
+              {errors.DegreeLevelId && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="mb-[20px]">
+            <label className={labelStyle}>Skill</label>
+            <TinyEditor
+              text={watch("OtherSkill")}
+              setTextEditor={(data) => {
+                setValue("OtherSkill", data);
+              }}
+            />
+          </div>
+          <p className="text-[16px] mb-[0.5rem]">Select Gender</p>
+          <div className="flex  items-center  gap-8  ">
+            <div className="flex items-center ">
+              <input
+                id="gender-1"
+                type="radio"
+                {...register("Gender", {
+                  required: "This field is required",
+                })}
+                onChange={() => {
+                  setValue("Gender", "Female");
+                }}
+                checked={watch("Gender") === "Female"}
+                value=""
+                name="gender"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0 "
+              />
+              <label
+                htmlFor="gender-1"
+                className="ms-2 text-sm font-[300] text-gray-900 "
+              >
+                Female
+              </label>
+            </div>
+            <div className="flex items-center ">
+              <input
+                id="gender-2"
+                type="radio"
+                {...register("Gender", {
+                  required: "This field is required",
+                })}
+                onChange={() => {
+                  setValue("Gender", "Male");
+                }}
+                checked={watch("Gender") === "Male"}
+                value=""
+                name="gender"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+              />
+              <label
+                htmlFor="gender-2"
+                className="ms-2 text-sm font-[300] text-gray-900 "
+              >
+                Male
+              </label>
+            </div>
+            <div className="flex items-center ">
+              <input
+                id="gender-3"
+                type="radio"
+                {...register("Gender", {
+                  required: "This field is required",
+                })}
+                onChange={() => {
+                  setValue("Gender", "Both");
+                }}
+                checked={watch("Gender") === "Both"}
+                value=""
+                name="gender"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+              />
+              <label
+                htmlFor="gender-3"
+                className="ms-2 text-sm font-[300] text-gray-900 "
+              >
+                Both
+              </label>
+            </div>
+          </div>
+        </div>
+        <div className={JobPostCard}>
           <p className="text-[16px] mb-[0.5rem]">Location Information </p>
           <div className="grid mb-[1.5rem] grid-cols-3 gap-4">
             <div className="col-span-1">
@@ -714,7 +839,7 @@ const page = () => {
         <PrimaryBtn
           // disable={disableGenBtn}
           fullWidth={true}
-          text="Create"
+          text="Update"
           handleClick={() => {}}
         />
       </form>

@@ -9,9 +9,10 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 export async function POST(request) {
   const session = await getServerSession(authOptions);
-  const { Name } = await request.json();
+  const { Name, YearsOfExperience } = await request.json();
   const createData = await createSkill({
     Name,
+    YearsOfExperience,
     SeekerId: session?.user?.Id ? session.user.Id : null,
     CreatedAt: getCurrentDate(),
     UpdatedAt: getCurrentDate(),

@@ -1,10 +1,23 @@
+"use server";
 import axios from "axios";
-import { EmployersURL, SeekersURL } from "../../lib/apiConst";
+import { EmployersURL, SeekerInfo, SeekersURL } from "../../lib/apiConst";
 import { REQUEST_HEADER } from "../../lib/config";
 
 async function GetSeekerList(url) {
+  console.log(`${SeekersURL}${url}`);
   return await axios
     .get(encodeURI(`${SeekersURL}${url}`), REQUEST_HEADER)
+    .then(({ data }) => {
+      return data;
+    })
+    .catch(() => {
+      return { error: "Client and server connection error" };
+    });
+}
+
+async function GetSeekerProfilePercentage(url) {
+  return await axios
+    .get(encodeURI(`${SeekerInfo}${url}`), REQUEST_HEADER)
     .then(({ data }) => {
       return data;
     })
@@ -45,4 +58,4 @@ async function GetSeekerById(url) {
     });
 }
 
-export { GetSeekerList, UpdateSeekerList };
+export { GetSeekerList, UpdateSeekerList, GetSeekerProfilePercentage };

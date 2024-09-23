@@ -8,16 +8,12 @@ import DynamicButton from "@/components/Button";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import toast from "react-hot-toast";
-import {
-  signInWithPopup,
-  GoogleAuthProvider,
-  getAuth,
-  signInWithCustomToken,
-} from "firebase/auth";
+import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
 import { app } from "../../../../../firebaseConfig";
 import axios from "axios";
 import { GetLinkedInInfo } from "@/modules/services/auth";
-const Login = () => {
+
+const page = () => {
   const {
     register,
     handleSubmit,
@@ -25,7 +21,7 @@ const Login = () => {
     formState: { errors },
   } = useForm();
   const handleApiSubmit = () => {
-    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86mahzgm15lxm7&redirect_uri=http://localhost:3000//login&scope=email openid profile`;
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86mahzgm15lxm7&redirect_uri=http://localhost:3000//page&scope=email openid profile`;
     window.location.href = authUrl;
   };
   const firebaseAuth = getAuth(app);
@@ -331,4 +327,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default page;

@@ -12,7 +12,31 @@ import { getServerSession } from "next-auth";
 export async function POST(request) {
   const session = await getServerSession(authOptions);
   const { CVFileName, CVS3Url } = await request.json();
-
+  console.log({
+    CVFileName,
+    CVS3Url,
+    CVType: "Uploaded",
+    Active: false,
+    ImageUrl: null,
+    CvGeneratedUIType: "generated",
+    FullName: null,
+    Email: null,
+    PhoneNumber: null,
+    Address: null,
+    Education: null,
+    Experience: null,
+    Skills: null,
+    Lanuages: null,
+    Certifications: null,
+    Projects: null,
+    ExpectedSalary: null,
+    Other: null,
+    SeekerId: session?.user?.Id ? session.user.Id : null,
+    CreatedAt: getCurrentDate(),
+    UpdatedAt: getCurrentDate(),
+    CreatedBy: session?.user?.Id ? session.user.Id : null,
+    UpdatedBy: session?.user?.Id ? session.user.Id : null,
+  });
   const createData = await createCV({
     CVFileName,
     CVS3Url,

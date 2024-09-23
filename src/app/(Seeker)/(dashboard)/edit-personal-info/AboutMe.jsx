@@ -115,45 +115,6 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
   // };
   const [careerInfoData, setCareerInfoData] = useState({});
 
-  const getCareerInfoData = async () => {
-    try {
-      const data = await ApiReq.get("api/seeker_info/career_info_list/getById");
-
-      setCareerInfoData(data?.data?.[0]);
-    } catch (e) {
-      console.log(e);
-    }
-  };
-  const handleSubmitCareerInfo = async (data) => {
-    console.log(data);
-    try {
-      if (data?.Id) {
-        await ApiReq.post("api/seeker_info/career_info_list/update", {
-          ...careerInfoData,
-          ...data,
-        });
-        getCareerInfoData();
-
-        setOpenModal(false);
-        toast.success("Successfully Updated");
-      } else {
-        await ApiReq.post("api/seeker_info/career_info_list/create", {
-          ...CareerInfoConts,
-          ...careerInfoData,
-          ...data,
-        });
-        getCareerInfoData();
-
-        setOpenModal(false);
-        toast.success("Successfully Updated");
-      }
-    } catch (e) {
-      toast.error("something wrong");
-    }
-  };
-  useEffect(() => {
-    getCareerInfoData();
-  }, []);
   const handleSubmit = async (AboutMe) => {
     try {
       await ApiReq.post("api/seekers/update", {
@@ -177,7 +138,7 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
           </p>
         </div>
         <div className="col-span-8">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col justify-center gap-4">
             <img
               src={
                 personalData?.ImageUrl
@@ -186,7 +147,7 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
               }
               className="w-[230px] object-cover object-center  h-[230px] block rounded-full"
             />
-            <div className="flex flex-col">
+            <div className="flex flex-col w-[230px]">
               <div className="mb-[10px]">
                 <input
                   type="file"
@@ -208,7 +169,6 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
                 handleClick={() => {}}
                 text={"Edit Photo"}
                 color="#002745"
-                fullWidth={true}
               />
             </div>
           </div>
@@ -243,8 +203,8 @@ const AboutMe = ({ fetchInfoData, personalData, masterData }) => {
         personalData={personalData}
       />
       <EditCareerInfo
-        handleSubmit={handleSubmitCareerInfo}
-        personalData={careerInfoData}
+        handleSubmit={handleSubmit}
+        personalData={personalData}
         openModal={openModal}
         setOpenModal={setOpenModal}
       />

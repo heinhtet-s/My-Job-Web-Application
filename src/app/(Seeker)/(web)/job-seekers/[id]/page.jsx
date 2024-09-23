@@ -220,7 +220,8 @@ const page = () => {
                 {" "}
                 {session?.user?.Id === SeekerId ||
                 session?.user?.role === "employeer"
-                  ? infoData?.seekerData?.PhoneNum
+                  ? infoData?.seekerData?.PhoneNum ||
+                    infoData?.seekerData?.ContactPhoneNumber
                   : "locked"}
               </p>
             </div>
@@ -230,7 +231,8 @@ const page = () => {
                 {" "}
                 {session?.user?.Id === SeekerId ||
                 session?.user?.role === "employeer"
-                  ? infoData?.seekerData?.PhoneNum
+                  ? infoData?.seekerData?.PhoneNum ||
+                    infoData?.seekerData?.ContactPhoneNumber
                   : "locked"}
               </p>
             </div>

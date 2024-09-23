@@ -11,11 +11,12 @@ import { getServerSession } from "next-auth";
 
 export async function POST(request) {
   const session = await getServerSession(authOptions);
-  const { JobId, EmployerId } = await request.json();
+  const { JobId, EmployerId, CVsId } = await request.json();
 
   const createData = await createAppliedJobPost({
     Status: "None",
     EmployerId: EmployerId,
+    CvId: CVsId,
     JobId: JobId,
     IsDisplay: true,
     SeekerId: session?.user?.Id ? session.user.Id : null,

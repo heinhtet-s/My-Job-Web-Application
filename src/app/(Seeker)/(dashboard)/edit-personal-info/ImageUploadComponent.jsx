@@ -167,6 +167,7 @@ const ImageCropper = ({ handleSubmit }) => {
         onChange={onSelectFile}
       />
       <PrimaryBtn
+        fullWidth={true}
         size="small"
         handleClick={fileExplore}
         text={"Upload Photo"}

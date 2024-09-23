@@ -27,7 +27,7 @@ export async function POST(request) {
     CountryId,
     StateId,
     CityId,
-    StartDate,
+  StartDate,
     EndDate,
     Active,
     SeekerId: session?.user?.Id ? session.user.Id : null,

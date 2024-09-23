@@ -49,10 +49,21 @@ const personalInfo = [
     value: "",
   },
   {
-    title: "Preferred Location",
-    key: "PreferedJobLocation",
+    title: "Preferred Country",
+    key: "CountryId",
     value: "Single",
   },
+  {
+    title: "Preferred State",
+    key: "StateId",
+    value: "Single",
+  },
+  {
+    title: "Preferred City",
+    key: "CityId",
+    value: "Single",
+  },
+
   {
     title: "Preferred Job Types",
     key: "JobType",
@@ -73,6 +84,7 @@ const personalInfo = [
 const CareerInfo = ({ fetchInfoData, masterData }) => {
   const [functionalArea, setFuncaionalArea] = useState([]);
   const [personalData, setPersonalData] = useState({});
+  const [cityData, setCity] = useState([]);
   const getFunctionalArea = async () => {
     try {
       const data = await ApiReq.get("api/functional_area/get");
@@ -91,6 +103,15 @@ const CareerInfo = ({ fetchInfoData, masterData }) => {
       console.log(e);
     }
   };
+  // const getCity = async () => {
+  //   try {
+  //     const data = await ApiReq.get("api/master/get_city");
+
+  //     setCity(data?.data?.value);
+  //   } catch (e) {
+  //     console.log(e);
+  //   }
+  // };
   useEffect(() => {
     getFunctionalArea();
     getCareerInfoData();
@@ -123,6 +144,19 @@ const CareerInfo = ({ fetchInfoData, masterData }) => {
   };
   const FormattedData = (key) => {
     switch (key) {
+      case "CountryId":
+        return masterData?.country?.filter(
+          (el) => el?.Id === personalData?.[key]
+        )?.[0]?.Name;
+
+      case "CityId":
+        return masterData?.city?.filter(
+          (el) => el?.Id === personalData?.[key]
+        )?.[0]?.Name;
+      case "StateId":
+        return masterData?.state?.filter(
+          (el) => el?.Id === personalData?.[key]
+        )?.[0]?.Name;
       case "CurrentFunctionalArea":
         return functionalArea?.filter(
           (el) => el?.Id === personalData?.[key]
@@ -165,6 +199,7 @@ const CareerInfo = ({ fetchInfoData, masterData }) => {
         </div>
       </div>
       <EditCareerInfo
+        cityData={cityData}
         functionalArea={functionalArea}
         openModal={openModal}
         setOpenModal={setOpenModal}
@@ -179,7 +214,7 @@ const CareerInfo = ({ fetchInfoData, masterData }) => {
 const EditCareerInfo = ({
   openModal,
   functionalArea,
-
+  cityData,
   setOpenModal,
   handleSubmitApi,
   personalData,
@@ -214,7 +249,7 @@ const EditCareerInfo = ({
           <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
             <div className="col-span-1">
               <label className={labelStyle}>
-                Professional Headline (Current Position){" "}
+                Professional Headline (Current Position)
               </label>
               <input className={inputStyle} {...register("CurrentPosition")} />
               {errors.CurrentPosition && (
@@ -326,23 +361,78 @@ const EditCareerInfo = ({
             </div>
             <div className="col-span-1">
               <label className={labelStyle}>
-                Preferred Location
-                <span className="text-red-800">*</span>
+                Preferred Country <span className="text-red-800">*</span>
               </label>
               <select
                 className={selectStyle}
-                {...register("PreferedJobLocation", {
-                  required: "This field is required",
-                })}
+                {...register("CountryId", { required: true })}
+                defaultValue={personalData?.CountryId}
               >
-                <option value={""}>Select Preferred Location</option>
-                {PreferredLoaction?.map((el) => (
-                  <option value={el} key={el}>
-                    {el}
+                <option value="">Select Country</option>
+                {masterData?.country?.map((el) => (
+                  <option value={el?.Id} key={el?.Id}>
+                    {el?.Name}
                   </option>
                 ))}
+                {/* Populate with country options */}
               </select>
-              {errors.PreferredLoaction && (
+              {errors.CountryId && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid mb-[1.5rem] grid-cols-2 gap-4">
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                Preferred State <span className="text-red-800">*</span>
+              </label>
+              <select
+                defaultValue={personalData?.StateId}
+                className={selectStyle}
+                {...register("StateId", { required: true })}
+              >
+                <option>Select State</option>
+                {masterData?.state
+                  ?.filter((ele) => {
+                    return ele?.CountryId == watch("CountryId");
+                  })
+                  .map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.Name}
+                    </option>
+                  ))}
+              </select>
+              {errors.StateId && (
+                <p className="text-red-800 text-[13px] mt-[2px]">
+                  This field is required
+                </p>
+              )}
+            </div>
+
+            <div className="col-span-1">
+              <label className={labelStyle}>
+                Preferred City <span className="text-red-800">*</span>
+              </label>
+              <select
+                className={selectStyle}
+                {...register("CityId", { required: true })}
+              >
+                <option>Select City</option>
+                {masterData?.city
+                  ?.filter((ele) => {
+                    return ele?.CountryId == watch("CountryId");
+                  })
+                  .map((el) => (
+                    <option value={el?.Id} key={el?.Id}>
+                      {el?.Name}
+                    </option>
+                  ))}
+                {/* Populate with city options */}
+              </select>
+              {errors.TownshipId && (
                 <p className="text-red-800 text-[13px] mt-[2px]">
                   This field is required
                 </p>

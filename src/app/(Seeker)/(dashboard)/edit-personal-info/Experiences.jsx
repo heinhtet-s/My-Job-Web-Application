@@ -183,7 +183,7 @@ const ExperiencesForm = ({
     defaultValues: personalData,
   });
   useEffect(() => {
-    if (personalData)
+    if (personalData) {
       reset({
         ...personalData,
         StartDate: personalData?.StartDate
@@ -193,7 +193,20 @@ const ExperiencesForm = ({
           ? moment(personalData?.EndDate).format("YYYY-MM-DD")
           : personalData?.EndDate,
       });
-  }, [personalData, masterData]);
+    } else {
+      reset({
+        Title: "",
+        CompanyName: "",
+        CountryId: "",
+        StateId: "",
+        CityId: "",
+        Active: false,
+        StartDate: "",
+        EndDate: "",
+        JobDescription: "",
+      });
+    }
+  }, [personalData, masterData, open]);
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };

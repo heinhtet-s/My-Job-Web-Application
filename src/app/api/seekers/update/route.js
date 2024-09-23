@@ -61,7 +61,7 @@ export async function POST(request) {
       Nationality,
       ImageUrl,
       About,
-      // NationalId,
+      NationalId,
       FromSalary,
       ToSalary,
 

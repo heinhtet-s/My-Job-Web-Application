@@ -8,7 +8,6 @@ async function getEdu(url) {
       return data;
     })
     .catch((e) => {
-      
       return { error: "Client and server connection error" };
     });
 }
@@ -20,7 +19,6 @@ async function createEdu(data) {
       return data;
     })
     .catch((e) => {
-     
       return { error: "Client and server connection error" };
     });
 }
@@ -42,7 +40,8 @@ async function deleteEdu(id) {
     .then(({ data }) => {
       return data;
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log(e);
       return { error: "Client and server connection error" };
     });
 }

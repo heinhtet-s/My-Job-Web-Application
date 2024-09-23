@@ -9,8 +9,8 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 export async function POST(request) {
   const session = await getServerSession(authOptions);
-  const { Id } = await request.json();
-  const createData = await deleteEdu(Id);
+  const { id } = await request.json();
+  const createData = await deleteEdu(id);
   if (createData.error) {
     return errorResponse();
   }

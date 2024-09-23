@@ -6,12 +6,17 @@ import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import ApiReq from "@/lib/axiosHandler";
 import { AppliedJobPostConst, GeneratedCvConst } from "@/lib/queryConst";
+import {
+  GetSeekerProfilePercentage,
+  UpdateSeekerList,
+} from "@/modules/services/seeker_service";
 import axios from "axios";
 import { CircleUser, Eye, FileText, Mail } from "lucide-react";
 import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 const page = () => {
   const { data: session } = useSession();
@@ -20,6 +25,7 @@ const page = () => {
   const [loading, setLoading] = useState(false);
   const [applicationcount, setApplicationCount] = useState(0);
   const [filter, setFilter] = useState(GeneratedCvConst.filter);
+  const [ProfilePercentages, setProfilePercentage] = useState({});
   const [recJobs, setRecJobs] = useState([]);
   const [applicationFilter, setApplicationFilter] = useState(
     AppliedJobPostConst.filter
@@ -90,6 +96,17 @@ const page = () => {
       console.log(error);
     }
   }
+  // async function getProfilePercentage() {
+  //   try {
+  //     const data = await GetSeekerProfilePercentage(
+  //       `ProfilePercentages?&$filter=SeekerId eq ${session?.user?.Id}`
+  //     );
+  //     console.log(data);
+  //     setProfilePercentage(data?.data?.value);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // }
   const [infoData, setInfoData] = useState({});
   const router = useRouter();
   const fetchInfoData = async () => {
@@ -100,6 +117,7 @@ const page = () => {
       const personalData = await axios.get(
         `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/seekers/getSeekerById?id=${session?.user?.Id}`
       );
+      console.log(personalData.data);
       setInfoData(personalData.data);
     } catch (e) {}
   };
@@ -107,6 +125,7 @@ const page = () => {
   useEffect(() => {
     fetchInfoData();
     getRecJobs();
+    // getProfilePercentage();
     if (filter.SeekerId.value) {
       getCvs(paging.pageNumber, paging.perPage);
     }
@@ -139,6 +158,31 @@ const page = () => {
       setLoading(false);
     }
   }
+  const getTotalPercentage =
+    Number(infoData?.ProfilePercentage?.SeekerCompletion) +
+    Number(infoData?.ProfilePercentage?.CareerCompletion) +
+    Number(infoData?.ProfilePercentage?.JobExperienceCompletion) +
+    Number(infoData?.ProfilePercentage?.EducationCompletion) +
+    Number(infoData?.ProfilePercentage?.CVCompletion) +
+    Number(infoData?.ProfilePercentage?.SkillCompletion) +
+    Number(infoData?.ProfilePercentage?.LanguageCompletion);
+  const handleShowcase = async () => {
+    try {
+      if (getTotalPercentage < 80) {
+        toast.error("please fill personal info");
+        return;
+      }
+      await UpdateSeekerList(
+        {
+          IsPublic: !infoData?.IsPublic,
+        },
+        session?.user?.Id
+      );
+      toast.success("successfully updated");
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     if (filter.SeekerId.value) {
@@ -232,7 +276,7 @@ const page = () => {
                   <p className="mb-[1rem] text-[13px] font-light">
                     Enhance your professional branding to potential employers
                   </p>
-                  <div className="w-[100px]">
+                  <div className="w-[100px]" onClick={handleShowcase}>
                     <IconSwitcher defaultValue={infoData?.IsPublic} />
                   </div>
                 </div>
@@ -300,17 +344,14 @@ const page = () => {
           <div className="flex justify-between mb-[48px] gap-8">
             <div>
               <h1 className="text-[1.5rem] text-[700]">
-                {infoData?.ProfileCompletion} %
+                {getTotalPercentage} %
               </h1>
               <p className="break-words font-light">
                 of your profile is complete
               </p>
             </div>
             <div className="w-[60%]">
-              <Progress
-                value={+infoData?.ProfileCompletion}
-                className="w-[100%]"
-              />
+              <Progress value={getTotalPercentage} className="w-[100%]" />
               <p className="text-[1rem] font-[500]">
                 Complete 100% to boost your profile!
               </p>
@@ -319,27 +360,43 @@ const page = () => {
           <div>
             <div className="flex justify-between mb-[16px]">
               <p className="text-[1rem] font-[400]">Personal Information</p>
-              <p className="text-[1rem] font-[400]">0%</p>
+              <p className="text-[1rem] font-[400]">
+                {infoData?.ProfilePercentage?.SeekerCompletion || 0}%
+              </p>
             </div>
             <div className="flex justify-between mb-[16px]">
               <p className="text-[1rem] font-[400]">Career Information</p>
-              <p className="text-[1rem] font-[400]">0%</p>
+              <p className="text-[1rem] font-[400]">
+                {infoData?.ProfilePercentage?.CareerCompletion || 0}%
+              </p>
             </div>
             <div className="flex justify-between mb-[16px]">
               <p className="text-[1rem] font-[400]">Working Experiences</p>
-              <p className="text-[1rem] font-[400]">0%</p>
+              <p className="text-[1rem] font-[400]">
+                {infoData?.ProfilePercentage?.JobExperienceCompletion || 0}%
+              </p>
             </div>
             <div className="flex justify-between mb-[16px]">
               <p className="text-[1rem] font-[400]">Education</p>
-              <p className="text-[1rem] font-[400]">0%</p>
+              <p className="text-[1rem] font-[400]">
+                {infoData?.ProfilePercentage?.EducationCompletion || 0}%
+              </p>
             </div>
             <div className="flex justify-between mb-[16px]">
               <p className="text-[1rem] font-[400]">Upload CV</p>
-              <p className="text-[1rem] font-[400]">0%</p>
+              <p className="text-[1rem] font-[400]">
+                {infoData?.ProfilePercentage?.CVCompletion || 0}%
+              </p>
             </div>
             <div className="flex justify-between mb-[16px]">
               <p className="text-[1rem] font-[400]">Languages & Skills</p>
-              <p className="text-[1rem] font-[400]">0%</p>
+              <p className="text-[1rem] font-[400]">
+                {Number(infoData?.ProfilePercentage?.SkillCompletion ?? 0) +
+                  Number(
+                    infoData?.ProfilePercentage?.LanguageCompletion ?? 0
+                  )}{" "}
+                %
+              </p>
             </div>
           </div>
         </div>
@@ -356,27 +413,30 @@ const page = () => {
             <p className="text-muteColor mb-[1rem] text-[13px] font-light ">
               Always keep your CV up to date to get great opportunities
             </p>
-            <Table className="border ">
-              <TableBody>
-                <TableRow>
-                  <TableCell className="border ">
-                    <p className="text-primary font-[500]">
-                      {lastestCv?.CVFileName}
-                    </p>
-                  </TableCell>
-                  <TableCell className="border ">
-                    <p className="text-primary font-[500]">
-                      {moment(lastestCv?.CreatedAt).format("DD MMM YYYY")}
-                    </p>
-                  </TableCell>
-                  <TableCell className="border ">
-                    <p className="text-primary font-[500]">
-                      {lastestCv?.Active ? "Not Default" : "Default"}
-                    </p>
-                  </TableCell>
-                </TableRow>
-              </TableBody>
-            </Table>
+            {lastestCv?.CVFileName && (
+              <Table className="border ">
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="border ">
+                      <p className="text-primary font-[500]">
+                        {lastestCv?.CVFileName}
+                      </p>
+                    </TableCell>
+                    <TableCell className="border ">
+                      <p className="text-primary font-[500]">
+                        {moment(lastestCv?.CreatedAt).format("DD MMM YYYY")}
+                      </p>
+                    </TableCell>
+                    <TableCell className="border ">
+                      <p className="text-primary font-[500]">
+                        {lastestCv?.Active ? "Not Default" : "Default"}
+                      </p>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            )}
+
             <div className="flex justify-between items-center mt-[20px]">
               <button
                 onClick={() => {

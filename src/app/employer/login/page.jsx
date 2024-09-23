@@ -10,7 +10,7 @@ import { getSession, signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import { app } from "../../../../firebaseConfig";
 import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
-const Login = () => {
+const page = () => {
   const {
     register,
     handleSubmit,
@@ -22,7 +22,6 @@ const Login = () => {
 
   const router = useRouter();
   const onSubmit = async (data) => {
-   
     try {
       setError("");
       const res = await signIn("credentials", {
@@ -40,7 +39,6 @@ const Login = () => {
       toast.success("Successfully  Login");
       // router.push("/");
     } catch (error) {
- 
       setError("Invalid Email or Password");
     }
   };
@@ -64,7 +62,7 @@ const Login = () => {
           isSso: true,
           token: user.accessToken,
           email: user.email,
-          role: "employer",
+          role: "employeer",
         }),
         redirect: false,
         callbackUrl: "/login",
@@ -75,7 +73,6 @@ const Login = () => {
       }
       toast.success("Successfully  Login");
       router.push("/");
-      
     } catch (err) {
       // Handle errors here.
       const errorMessage = err.message;
@@ -108,7 +105,7 @@ const Login = () => {
       }
     }
   };
- 
+
   return (
     <div className="w-full h-screen flex items-start">
       <div className="hidden lg:flex bg-jobBg lg:w-1/2 relative h-full flex-col">
@@ -297,4 +294,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default page;

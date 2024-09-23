@@ -22,7 +22,7 @@ import { EmployersConst } from "@/lib/queryConst";
 import { comma } from "postcss/lib/list";
 
 const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
-  console.log(jobPosts, "jobPosts");
+  console.log(candidates, "jobPosts");
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState(EmployersConst.filter);
@@ -34,7 +34,7 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
     total: 0,
   });
   const router = useRouter();
-
+  console.log();
   async function getEmployers(pageNumber, perPage) {
     setLoading(true);
     try {
@@ -105,14 +105,19 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
                       str?.LastName?.slice(1)}
                   </p>
                   <p className="text-white text-center font-normal text-[10px] leading-normal flex items-center gap-2 p-[4px_6px_4px_8px] rounded-br-[12px] bg-[#F47920] absolute top-0 left-0">
-                    full time
+                    {str?.CareerInfos?.[0]?.JobType}
                   </p>
                 </div>
               </div>
               <div>
                 <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
                   <BriefcaseBusiness width={"12px"} />
-                  Information Technology
+                  {
+                    functionalAreas?.find(
+                      (el) =>
+                        el?.Id === str?.CareerInfos?.[0]?.CurrentFunctionalArea
+                    )?.TitleEng
+                  }
                 </div>
                 <div className="text-left text-[#666] text-[12px] font-normal leading-normal flex justify-start items-center gap-2">
                   <MapPin width={"12px"} />
@@ -641,7 +646,7 @@ const BannerComponent = () => {
 <SwiperSlide>Slide 3</SwiperSlide>
 <SwiperSlide>Slide 4</SwiperSlide> */}
       </Swiper>
-      <div className="max-w-[1250px] z-10 mx-auto absolute bottom-[-2rem] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+      {/* <div className="max-w-[1250px] z-10 mx-auto absolute bottom-[-2rem] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <p className="flex items-center mb-[16px] gap-2 bg-black bg-opacity-80 text-[#f2f2f2] text-sm font-medium leading-normal max-w-[162px] whitespace-nowrap p-1">
           Most Recent Searches
         </p>
@@ -676,7 +681,7 @@ const BannerComponent = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

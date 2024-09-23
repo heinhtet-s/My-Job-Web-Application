@@ -28,6 +28,7 @@ const Education = ({ masterData }) => {
       if (selectedIndex === null) {
         await ApiReq.post("api/seeker_info/education_list/create", {
           ...data,
+          DegreeLevelTitle: masterData?.data?.De,
         });
         toast.success("Successfully Created");
       } else {
@@ -57,6 +58,7 @@ const Education = ({ masterData }) => {
     }
   };
   const handleConfirmDelete = (id) => {
+    console.log(id);
     Swal.fire({
       title: "Do you want to delete?",
       text: "Delete Job Experience",
@@ -175,7 +177,7 @@ const EduForm = ({
     defaultValues: personalData,
   });
   useEffect(() => {
-    if (personalData)
+    if (personalData) {
       reset({
         ...personalData,
         StartDate: personalData?.StartDate
@@ -185,7 +187,20 @@ const EduForm = ({
           ? moment(personalData?.EndDate).format("YYYY-MM-DD")
           : personalData?.EndDate,
       });
-  }, [personalData, masterData]);
+    } else {
+      reset({
+        StartDate: "",
+        EndDate: "",
+        Title: "",
+        University: "",
+        DegreeLevelId: "",
+        CountryId: "",
+        CityId: "",
+        StateId: "",
+        Active: false,
+      });
+    }
+  }, [personalData, masterData, open]);
   const onSubmit = (data) => {
     handleSubmitApi(data);
   };

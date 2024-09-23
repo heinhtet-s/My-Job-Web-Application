@@ -46,7 +46,7 @@ const CompanyDetail = ({ companyLists }) => {
           </CardLayout>
         </div>
       </div>
-      <div className="mt-100">
+      <div className="mt-100 py-20">
         <CardLayout>
           <div className="grid mt-[15px]   gap-8 grid-cols-12">
             <div className=" lg:col-span-7 xl:col-span-8">

@@ -9,7 +9,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
+} from "@/components/ui/stripedTable";
 import PrimaryBtn from "@/components/ui/primaryBtn";
 import PaginatedItems from "@/components/share/pagination";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
@@ -22,6 +22,8 @@ import moment from "moment";
 import { Earth } from "lucide-react";
 import { inputStyle, labelStyle, selectStyle } from "@/components/ui/form";
 import { CareerLevel, EXPCONST, HighestQua, JobType } from "@/lib/const";
+import { getJobPost } from "@/modules/services/jobPost_service";
+import ApiReq from "@/lib/axiosHandler";
 
 const Page = () => {
   const [functionalArea, setFuncaionalArea] = useState([]);
@@ -42,6 +44,8 @@ const Page = () => {
   const [filter, setFilter] = useState(AppliedJobPostConst.filter);
   const SEEKERID = session?.user?.Id;
   const [data, setData] = useState([]);
+  const [totalPage, setTotal] = useState(0);
+
   const [paging, setPaging] = useState({
     pageNumber: 1,
     perPage: 10,
@@ -49,19 +53,20 @@ const Page = () => {
   });
   const [countData, setCountData] = useState([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`/api/employer_lists/jobposts`);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const res = await getJobPost(
+  //         `?$filter=EmployerId eq ${session?.user?.Id}&$top=100&$expand=FunctionalArea`
+  //       );
 
-        setCountData(res.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
-  }, []);
+  //       setCountData(res?.value);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   };
+  //   if (session?.user?.Id) fetchData();
+  // }, [session?.user?.Id]);
   const [currentPage, setCurrentPage] = useState(1);
   useEffect(() => {
     if (SEEKERID) {
@@ -77,9 +82,22 @@ const Page = () => {
   const getFavJobList = async () => {
     setLoading(true);
     try {
-      const data = await GetCandidateList(session?.user?.Id);
-      console.log(data);
+      const data = await GetCandidateList(
+        session?.user?.Id,
+        `&$top=${paging?.perPage}&$skip=${
+          (paging?.pageNumber - 1) * paging?.perPage
+        }`
+      );
+      setTotal(data?.["@odata.count"]);
       setData(data?.value);
+
+      const res = await getJobPost(
+        `?$filter=EmployerId eq ${session?.user?.Id} and Id in (${data?.value
+          ?.map((el) => el?.JobId)
+          .join(",")}) &$expand=FunctionalArea`
+      );
+
+      setCountData(res?.value);
     } catch (e) {
     } finally {
       setLoading(false);
@@ -90,12 +108,8 @@ const Page = () => {
     if (session?.user?.Id) {
       getFavJobList();
     }
-  }, [session?.user?.Id]);
-  console.log(
-    countData?.jobs?.filter(
-      (el) => el?.Id === "84b76980-0ed3-4546-bb3c-1604edbc453b"
-    )
-  );
+  }, [session?.user?.Id, paging]);
+
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Candidate</h1>
@@ -200,16 +214,14 @@ const Page = () => {
                   </TableCell>
                   <TableCell>
                     {
-                      countData?.jobs?.filter(
-                        (el) => el?.Id === item?.JobId
-                      )?.[0]?.Title
+                      countData?.filter((el) => el?.Id === item?.JobId)?.[0]
+                        ?.Title
                     }
                   </TableCell>
                   <TableCell>
                     {
-                      countData?.jobs?.filter(
-                        (el) => el?.Id === item?.JobId
-                      )?.[0]?.FunctionalArea?.TitleEng
+                      countData?.filter((el) => el?.Id === item?.JobId)?.[0]
+                        ?.FunctionalArea?.TitleEng
                     }
                   </TableCell>
                   <TableCell>
@@ -225,18 +237,31 @@ const Page = () => {
                     {item?.Seeker?.CareerInfos?.[0]?.CareerLevel}
                   </TableCell>
                   <TableCell>
-                    {moment(item?.Seeker?.CreatedAt).format("DD MMM YYYY")}
+                    {moment(item?.CreatedAt).format("DD MMM YYYY")}
                   </TableCell>
                 </TableRow>
               );
             })
           ) : (
             <TableRow>
-              <TableCell colSpan="5">No applications found.</TableCell>
+              <TableCell colSpan="5">No Candidate found.</TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
+      <PaginatedItems
+        itemsPerPage={paging.perPage}
+        totalPage={Math.ceil(totalPage / paging.perPage)}
+        currentPage={paging.pageNumber}
+        setCurrentPage={(el) => {
+          setPaging((prev) => {
+            return {
+              ...prev,
+              pageNumber: el,
+            };
+          });
+        }}
+      />
     </div>
   );
 };

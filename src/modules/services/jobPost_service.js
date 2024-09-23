@@ -45,6 +45,7 @@ async function createJobPost(data) {
     });
 }
 async function getJobPost(url) {
+  console.log(encodeURI(`${EmployerInfo}JobPosts${url}`));
   return await axios
     .get(encodeURI(`${EmployerInfo}JobPosts${url}`))
     .then(({ data }) => {

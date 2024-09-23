@@ -24,7 +24,7 @@ export default async function Home() {
           SeekersConst.filter,
           SeekersConst.order,
           SeekersConst.fields,
-          "no_child",
+          "normal",
           { top: 10, skip: 0 },
           GetSeekerList
         ),
@@ -52,7 +52,7 @@ export default async function Home() {
           FunctionalAreasConst.order,
           FunctionalAreasConst.fields,
           "no_child",
-          { top: 10, skip: 0 },
+          { top: 100, skip: 0 },
           GetFunctionalAreaLists
         ),
       ]);
