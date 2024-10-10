@@ -12,6 +12,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import {
+  CheckPackage,
+  GetEmployerPackage,
+} from "../../../../modules/services/package_service";
+
 const menuItem = [
   "All Job Listings",
   "Active Jobs",
@@ -31,6 +36,19 @@ const page = () => {
     perPage: 10,
     total: 0,
   });
+  const checkPackageList = async (id) => {
+    try {
+      const data = await CheckPackage(session?.user?.Id);
+      if (data?.error) {
+        throw "error";
+      }
+      router.push(`/employer/jobpost/clone/${id}`);
+    } catch (e) {
+      toast.error("not enough unit");
+      console.log(d);
+    }
+  };
+  const [employerPackage, setEmployerPackate] = useState({});
   const [totalCount, setTotalCount] = useState(0);
   const [activeCount, setActiveCount] = useState(0);
   const [expireCount, setExpireCount] = useState(0);
@@ -54,45 +72,54 @@ const page = () => {
       console.log(e);
     }
   };
+  const getPackageList = async () => {
+    try {
+      const data = await GetEmployerPackage(session?.user?.Id);
+      setEmployerPackate(data?.value?.[0]);
+    } catch (e) {}
+  };
   useEffect(() => {
     if (session?.user?.Id) {
       getApplicationCount();
+      getPackageList();
     }
   }, [session?.user?.Id]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get(`/api/employer_lists/jobposts`);
-        setCountData(res.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const res = await axios.get(`/api/employer_lists/jobposts`);
+  //       setCountData(res.data);
+  //     } catch (error) {
+  //       console.error("Error fetching data:", error);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
-  const formattedDate = (CreatedAt, expireMonth) => {
-    const month = {
-      Onemonth: 1,
-      Twomonth: 2,
-      Threemonth: 3,
-    };
-    console.log(month[expireMonth]);
-    const targetDate = moment(CreatedAt).add(month[expireMonth], "months"); // Add 2 months to the CreatedAt date
+  //   fetchData();
+  // }, []);
+  const formattedDate = () => {
+    // Check if employerPackage and ExpiredAt exist
+    if (!employerPackage?.ExpiredAt) return "No expiration date available";
 
     // Format the date to "21 June 2021"
-    const formattedDate = targetDate.format("DD MMMM YYYY");
+    const formattedDate = moment(employerPackage.ExpiredAt).format(
+      "DD MMMM YYYY"
+    );
 
-    // Calculate the difference in days from now
-    const daysDifference = targetDate.diff(moment(), "days");
+    // Calculate the difference in days from today
+    const today = moment().startOf("day"); // Ensure it's based on the start of the day
+    const expirationDate = moment(employerPackage.ExpiredAt).startOf("day");
+    const daysDifference = expirationDate.diff(today, "days");
+
+    // Generate the text for the time difference
     const timeText =
-      daysDifference >= 0
-        ? `in ${daysDifference} days`
-        : `${Math.abs(daysDifference)} days ago`;
+      daysDifference > 0
+        ? `in ${daysDifference} days` // Expiring in the future
+        : daysDifference === 0
+        ? "today" // Expiring today
+        : `${Math.abs(daysDifference)} days ago`; // Already expired
 
     // Combine the formatted date and time text
-
     return `${formattedDate} (${timeText})`;
   };
   const summarizeJobs = (jobs) => {
@@ -139,7 +166,8 @@ const page = () => {
         break;
       default:
     }
-    if (searchText?.length > 0) filter += `and contains(Title,'${searchText}')`;
+    if (searchText?.length > 0)
+      filter += ` and contains(tolower(Title),tolower('${searchText}'))`;
     try {
       const url = `?$count=true&$filter=${filter}&${orderBy}&$top=${
         paging?.perPage
@@ -289,6 +317,11 @@ const page = () => {
               onClick={() => {
                 setActiveIndex(index);
                 setPage(1);
+                setPaging({
+                  pageNumber: 1,
+                  perPage: 10,
+                  total: 0,
+                });
               }}
             >
               <p
@@ -329,7 +362,7 @@ const page = () => {
                   onClick={() => {
                     job?.IsExpired == false
                       ? handeExpireJob(job?.Id)
-                      : router.push(`/employer/jobpost/clone/${job?.Id}`);
+                      : checkPackageList(job?.Id);
                   }}
                 >
                   <Switch />

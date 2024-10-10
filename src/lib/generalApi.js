@@ -64,8 +64,8 @@ async function getEmployerById(lists) {
     for (let l of target) {
       urlString =
         urlString === ""
-          ? `EmployerId eq ${l}`
-          : `${urlString} and EmployerId eq ${l}`;
+          ? `EmployerId eq ${l} and JobStatus eq 'Active' and IsExpired eq false`
+          : `${urlString} and EmployerId eq ${l} and JobStatus eq 'Active' and IsExpired eq false`;
     }
 
     const titleList = await GetEmployerJobPostList(

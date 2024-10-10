@@ -2,8 +2,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { NextAuthOptions } from "next-auth";
 import axios from "axios";
 import {
+  EmployerLinkedin,
   EmployerLogin,
   EmployerSsoLogin,
+  SeekerLinkedin,
   SeekerLogin,
   SeekerSsoLogin,
 } from "../modules/services/auth";
@@ -27,10 +29,20 @@ export const authOptions = {
       },
       authorize: async (credentials) => {
         const maxAge = 24 * 60 * 60;
+        console.log(process.env.NEXTAUTH_SECRET, "authOptions");
+
         const user = JSON.parse(credentials?.credentials);
         if (user.role === "seeker") {
           if (user.isSso) {
             const data = await SeekerSsoLogin(user);
+            return {
+              email: user.email,
+              ...data.data[0],
+              role: user.role,
+            };
+          }
+          if (user.linkedin) {
+            const data = await SeekerLinkedin(user);
             return {
               email: user.email,
               ...data.data[0],
@@ -46,6 +58,14 @@ export const authOptions = {
         } else {
           if (user.isSso) {
             const data = await EmployerSsoLogin(user);
+            return {
+              email: user.email,
+              ...data.data[0],
+              role: user.role,
+            };
+          }
+          if (user.linkedin) {
+            const data = await EmployerLinkedin(user);
             return {
               email: user.email,
               ...data.data[0],

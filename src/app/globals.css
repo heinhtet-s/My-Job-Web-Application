@@ -7,6 +7,13 @@
   font-family: "Poppins", sans-serif;
   color: #17171d;
 }
+.BlogSwiper .swiper-button-prev {
+  color: white !important;
+}
+.BlogSwiper .swiper-button-next {
+  color: white !important;
+}
+
 input,
 select {
   border-color: #e5e7eb !important;
@@ -147,3 +154,34 @@ select {
   background-color: #5865f6;
   color: #fff;
 } */
+@keyframes scrollLeftToRight {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+@keyframes scrollLeftToRight {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+.scrollable-right-animation {
+  animation: scrollLeftToRight 1s linear infinite;
+  animation-play-state: running;
+}
+.scrollable-left-animation {
+  animation: scrollLeftToRight 1s linear infinite;
+  animation-play-state: running;
+}
+
+.scrollable-animation.paused {
+  animation-play-state: paused;
+}
+.text-child-white * {
+  color: white !important;
+}

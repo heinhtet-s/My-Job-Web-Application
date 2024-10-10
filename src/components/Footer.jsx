@@ -45,7 +45,7 @@ export default function Footer() {
             </div>
           ))}
         </div>{" "}
-        <div className="flex space-x-4 justify-center">
+        {/* <div className="flex space-x-4 justify-center">
           <a
             href="https://www.facebook.com/MyJobsMyanmar"
             target="_blank"
@@ -53,7 +53,6 @@ export default function Footer() {
             className="text-white hover:text-blue-400"
           >
             Facebook
-            {/* <Facebook className="w-6 h-6" /> */}
           </a>
           <a
             href="https://www.linkedin.com/company/myjobsmyanmar/"
@@ -62,7 +61,6 @@ export default function Footer() {
             className="text-white hover:text-blue-400"
           >
             Linkedin
-            {/* <Linkedin className="w-6 h-6" /> */}
           </a>
           <a
             href="https://invite.viber.com/?g2=AQB5dKmasEkSskshfzPT9MHDsTXWrkyf6i0N4Kf82lz6%2B%2F7JOWfRKLpLLE7gvydu&lang=en"
@@ -71,7 +69,6 @@ export default function Footer() {
             className="text-white hover:text-blue-400"
           >
             Viber
-            {/* <Viber className="w-6 h-6" /> */}
           </a>
           <a
             href="https://t.me/myjobsmyanmartelegram"
@@ -80,7 +77,6 @@ export default function Footer() {
             className="text-white hover:text-blue-400"
           >
             Telegram
-            {/* <Telegram className="w-6 h-6" /> */}
           </a>
           <a
             href="https://www.youtube.com/@MyJobsMyanmarMyJobsMyanmar"
@@ -89,9 +85,8 @@ export default function Footer() {
             className="text-white hover:text-blue-400"
           >
             Youtube
-            {/* <Youtube className="w-6 h-6" /> */}
           </a>
-        </div>
+        </div> */}
       </footer>
       <div className="bg-[#0a0a45] py-7 w-full text-center ">
         <p className="text-[#fff]">

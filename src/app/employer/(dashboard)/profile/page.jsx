@@ -11,10 +11,10 @@ import PrimaryBtn from "@/components/ui/primaryBtn";
 import toast from "react-hot-toast";
 import { inputStyle, labelStyle, selectStyle } from "@/components/ui/form";
 import dynamic from "next/dynamic";
-// import TinyEditor from "@/components/ui/TinyEditor";
-const TinyEditor = dynamic(() => import("@/components/ui/TinyEditor"), {
-  ssr: false,
-});
+import TinyEditor from "@/components/ui/TinyEditor";
+// const TinyEditor = dynamic(() => import("@/components/ui/TinyEditor"), {
+//   ssr: false,
+// });
 const OwnerShipType = ["Public", "Private", "Government", "NGO"];
 const page = () => {
   const [infoData, setInfoData] = useState({});

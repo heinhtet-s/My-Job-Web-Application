@@ -81,8 +81,12 @@ async function updateJobPost(id, data) {
       throw { error: e?.response || "No enough unit" };
     });
 }
+async function updateJobPostCount(id, data, callback) {
+  return await axios.patch(encodeURI(`${EmployerInfo}JobPosts(${id})`), data);
+}
 export {
   getGenerateData,
+  updateJobPostCount,
   getJobPost,
   getJobPostById,
   createJobPost,

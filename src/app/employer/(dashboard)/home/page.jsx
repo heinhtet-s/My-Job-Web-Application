@@ -9,11 +9,40 @@ import moment from "moment";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../../../../../firebaseConfig";
+import { EmployerInfo } from "@/lib/apiConst";
+import axios from "axios";
+import { GetEmployerProfileViewCount } from "@/modules/services/employer_service";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js/auto";
+import { Line } from "react-chartjs-2";
+import { getJobPost } from "@/modules/services/jobPost_service";
+import { GetCandidate } from "@/modules/services/employer_jobposts";
 
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip
+);
 const page = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const [overviewData, setOverviewData] = useState({});
+  const [employerView, setEmployerView] = useState([]);
+  const [applicationCount, setApplicationCount] = useState([]);
+
   const fetchOverviewData = async () => {
     try {
       const data = await ApiReq.get(
@@ -24,9 +53,191 @@ const page = () => {
       console.log(e);
     }
   };
+
+  const [chat, setChat] = useState(0);
+  async function getSeekerViewsPerDay() {
+    // Calculate the current date and 7 days before today
+
+    try {
+      // Get the current date and 7 days ago using moment
+      const endDate = moment().toISOString(); // Current date in ISO format
+      const startDate = moment().subtract(7, "days").toISOString(); // 7 days ago in ISO format
+
+      // Construct OData query URL with moment-generated dates
+      const odataUrl = `?$filter=EmployerId eq ${session?.user?.Id} and View eq 'Seeker' and Date ge ${startDate} and Date le ${endDate}`;
+
+      // Make the API call
+      const response = await GetEmployerProfileViewCount(odataUrl);
+
+      // Assuming 'response.data' contains the job posts
+      const jobPosts = response?.value;
+
+      // Create an object to store view counts by day
+      const viewsByDay = {};
+
+      // Iterate through job posts and group view counts by day
+      jobPosts?.forEach((jobPost) => {
+        const createdAtDate = moment(jobPost?.Date).format("MMM DD"); // Format the date as 'MMM DD'
+
+        if (!viewsByDay[createdAtDate]) {
+          viewsByDay[createdAtDate] = 1;
+        }
+        viewsByDay[createdAtDate]++;
+      });
+
+      // Ensure all days in the last 7 days are represented, even if they have 0 views
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const day = moment().subtract(i, "days").format("MMM DD"); // Get each day in 'MMM DD' format
+        days.push({ date: day, views: viewsByDay[day] || 0 });
+      }
+      setEmployerView(days);
+    } catch (error) {
+      console.error("Error fetching seeker views by day:", error);
+    }
+  }
+  async function getApplicationViewsPerDay() {
+    // Calculate the current date and 7 days before today
+
+    try {
+      // Get the current date and 7 days ago using moment
+      const endDate = moment().toISOString(); // Current date in ISO format
+      const startDate = moment().subtract(7, "days").toISOString(); // 7 days ago in ISO format
+
+      // Construct OData query URL with moment-generated dates
+      const odataUrl = `?$filter=EmployerId eq ${session?.user?.Id} and CreatedAt ge ${startDate} and CreatedAt le ${endDate}`;
+
+      // Make the API call
+      const response = await GetCandidate(odataUrl);
+
+      // Assuming 'response.data' contains the job posts
+      const jobPosts = response?.value;
+
+      // Create an object to store view counts by day
+      const viewsByDay = {};
+
+      // Iterate through job posts and group view counts by day
+      jobPosts?.forEach((jobPost) => {
+        const createdAtDate = moment(jobPost?.Date).format("MMM DD"); // Format the date as 'MMM DD'
+
+        if (!viewsByDay[createdAtDate]) {
+          viewsByDay[createdAtDate] = 1;
+        }
+        viewsByDay[createdAtDate]++;
+      });
+
+      // Ensure all days in the last 7 days are represented, even if they have 0 views
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const day = moment().subtract(i, "days").format("MMM DD"); // Get each day in 'MMM DD' format
+        days.push({ date: day, views: viewsByDay[day] || 0 });
+      }
+      setApplicationCount(days);
+    } catch (error) {
+      console.error("Error fetching seeker views by day:", error);
+    }
+  }
+  useEffect(() => {
+    if (session?.user?.Id) {
+      getSeekerViewsPerDay();
+      getApplicationViewsPerDay();
+    }
+  }, [session?.user?.Id]);
+  useEffect(() => {
+    if (session?.user?.Id) {
+      const chatCollectionRef = collection(db, "chat");
+      const q = query(
+        chatCollectionRef,
+        where("employerId", "==", session?.user?.Id),
+        where("isEmployerRead", "==", false)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const chatData = [];
+        querySnapshot.forEach((doc) => {
+          chatData.push({ ...doc.data(), id: doc.id });
+        });
+
+        setChat(chatData.length);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [session?.user?.Id]);
   useEffect(() => {
     fetchOverviewData();
   }, []);
+
+  const EmployerChartData = {
+    labels: employerView.flatMap((obj) => obj?.date),
+
+    datasets: [
+      {
+        label: "Employer View",
+        data: employerView.flatMap((obj) => obj?.views),
+        fill: true,
+        backgroundColor: "rgb(217, 235, 247)",
+        borderColor: "rgb(0, 112, 201)",
+        options: {
+          label: {
+            display: false,
+          },
+          legend: {
+            display: false, // Hides the legend
+          },
+          title: {
+            display: false, // Hides the title
+          },
+        },
+      },
+    ],
+  };
+  const option = {
+    plugins: {
+      legend: {
+        display: false, // Disable the legend
+      },
+      label: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+  const ApplicationChartData = {
+    labels: applicationCount?.flatMap((obj) => obj?.date),
+
+    datasets: [
+      {
+        label: "Application View",
+        data: applicationCount.flatMap((obj) => obj?.views),
+        fill: true,
+        backgroundColor: "rgb(217, 235, 247)",
+        borderColor: "rgb(0, 112, 201)",
+        options: {
+          label: {
+            display: false,
+          },
+          legend: {
+            display: false, // Hides the legend
+          },
+          title: {
+            display: false, // Hides the title
+          },
+        },
+      },
+    ],
+  };
   return (
     <div>
       <h1 className="text-[38px] font-[700]">Welcome</h1>
@@ -62,7 +273,7 @@ const page = () => {
             </p> */}
           </div>
           <div className="col-span-9 flex items-center gap-8">
-            <div className=" flex-wrap lg:flex-nowrap flex gap-[10px] ">
+            <div className=" flex-wrap lg:flex-nowrap flex gap-[15px] ">
               <div>
                 <div className="mb-2">
                   <p className="mb-1 text-white text-[25px] font-[600]  break-words ">
@@ -92,10 +303,10 @@ const page = () => {
         </div>
       </div>
       <div className="grid grid-cols-12 gap-4 ">
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="45"
@@ -120,10 +331,10 @@ const page = () => {
             <p className="text-[14px] font-[300]">Total Jobs</p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="45"
@@ -148,10 +359,10 @@ const page = () => {
             <p className="text-[14px] font-[300]">Online Jobs</p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="45"
@@ -176,10 +387,10 @@ const page = () => {
             <p className="text-[14px] font-[300]">Offline Jobs</p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="45"
@@ -204,10 +415,10 @@ const page = () => {
             <p className="text-[14px] font-[300]">Spotlight Jobs</p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="50"
@@ -231,10 +442,10 @@ const page = () => {
             <p className="text-[14px] font-[300]">Total Applications</p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="50"
@@ -259,10 +470,10 @@ const page = () => {
             <p className="text-[14px] font-[300]">Total Job Views</p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="50"
@@ -280,16 +491,22 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#17171D]">0</p>
+            <p className="text-[36px] font-bold text-[#17171D]">{chat}</p>
             <p className="text-[14px] font-[300] text-[#17171D]">
               Unread messages
             </p>
           </div>
         </div>
-        <div className=" gap-[10px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] ">
+        <div
+          style={{
+            whiteSpace: "normal", // Allow text to wrap
+            wordBreak: "break-word", // Break words if needed
+          }}
+          className=" gap-[15px] mt-[20px] py-[30px] bg-[#e6f0f9] col-span-3 flex items-center justify-center  relative rounded-[30px] overflow-hidden px-[15px] "
+        >
           <div
-            style={{ flex: "0 0 100px" }}
-            className="w-[100px]   bg-white h-[100px] flex items-center justify-center rounded-[30px] "
+            style={{ flex: "0 0 80px" }}
+            className="w-[80px]   bg-white h-[80px] flex items-center justify-center rounded-[30px] "
           >
             <svg
               width="50"
@@ -307,14 +524,59 @@ const page = () => {
             </svg>
           </div>
           <div>
-            <p className="text-[36px] font-bold text-[#002745]">
+            <p className="text-[25px] font-bold text-[#002745]">
               {(
                 (overviewData?.JobApplication / overviewData?.totalJob) *
                 100
               ).toFixed(2) || 0}
               %
             </p>
-            <p className="text-[14px] font-[300]">Average Applications /jobs</p>
+            <p
+              style={{
+                whiteSpace: "normal", // Allow text to wrap
+                wordBreak: "break-word", // Break words if needed
+              }}
+              className="text-[14px] font-[300]"
+            >
+              Average Applications /jobs
+            </p>
+          </div>
+        </div>
+      </div>
+      <div className="grid grid-cols-12 mt-6 gap-4 ">
+        <div className="col-span-6 ">
+          <p className="text-[24px] font-[500] mb-[20px]">
+            Company Profile Visits
+          </p>
+          <div className="bg-white  p-[15px] relative rounded-[15px] border border-[#DEDEDE] overflow-hidden  ">
+            <div className="flex justify-between items-center">
+              <p className="text-[24px] font-[500] mb-[20px]">
+                {employerView.reduce((total, obj) => {
+                  return total + (obj?.views || 0);
+                }, 0)}
+              </p>
+              <p className="text-[16px] font-[500] mb-[20px]"> Last 7 days</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <Line data={EmployerChartData} options={option} />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-6 ">
+          <p className="text-[24px] font-[500] mb-[20px]">Applications</p>
+          <div className="bg-white  p-[15px] relative rounded-[15px] border border-[#DEDEDE] overflow-hidden  ">
+            <div className="flex justify-between items-center">
+              <p className="text-[24px] font-[500] mb-[20px]">
+                {applicationCount.reduce((total, obj) => {
+                  return total + (obj?.views || 0);
+                }, 0)}
+              </p>
+              <p className="text-[16px] font-[500] mb-[20px]"> Last 7 days</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <Line data={ApplicationChartData} options={option} />
+            </div>
           </div>
         </div>
       </div>

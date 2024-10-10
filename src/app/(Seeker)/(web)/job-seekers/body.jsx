@@ -1,5 +1,6 @@
 "use client";
 import CardLayout from "@/components/share/CardLayout";
+import PaginatedItems from "@/components/share/pagination";
 import { workTypes } from "@/lib/const";
 import { GetSeekerList } from "@/modules/services/seeker_service";
 import axios from "axios";
@@ -11,6 +12,13 @@ const CandidatePage = ({ data, functionalAreas }) => {
   console.log(functionalAreas);
   const [jobType, setJobType] = useState("");
   const [candidates, setCandidates] = useState();
+  const [paging, setPaging] = useState({
+    pageNumber: 1,
+    perPage: 10,
+    total: 0,
+  });
+  const [totalPage, setTotal] = useState(0);
+
   const handleSubmitApi = async () => {
     try {
       let filter = "&$filter=IsPublic eq true";
@@ -18,11 +26,13 @@ const CandidatePage = ({ data, functionalAreas }) => {
         filter = `&$expand=CareerInfos($filter=JobType eq '${jobType}')&$filter=IsPublic eq true and CareerInfos/any(c: c/JobType eq '${jobType}')`;
       }
       const data = await GetSeekerList(`?$count=true${filter}`);
+      setTotal(data?.["@odata.count"]);
       setCandidates(data?.value);
     } catch (e) {
       console.log(e);
     }
   };
+
   useEffect(() => {
     handleSubmitApi();
   }, []);
@@ -157,6 +167,21 @@ const CandidatePage = ({ data, functionalAreas }) => {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="mb-[20px]">
+            <PaginatedItems
+              itemsPerPage={paging.perPage}
+              totalPage={Math.ceil(totalPage / paging.perPage)}
+              currentPage={paging.pageNumber}
+              setCurrentPage={(el) => {
+                setPaging((prev) => {
+                  return {
+                    ...prev,
+                    pageNumber: el,
+                  };
+                });
+              }}
+            />
           </div>
         </CardLayout>
       </div>

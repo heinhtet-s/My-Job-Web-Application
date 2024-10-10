@@ -1,15 +1,24 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { LogIn, UserRoundPlus, PhoneCall } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import DynamicButton from "@/components/Button";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 import { app } from "../../../../firebaseConfig";
-import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  getAuth,
+  FacebookAuthProvider,
+} from "firebase/auth";
+import {
+  LinkedinAccessToken,
+  SeekerLinkedinLogin,
+} from "@/modules/services/auth";
 const page = () => {
   const {
     register,
@@ -19,7 +28,58 @@ const page = () => {
   } = useForm();
   const pathName = usePathname();
   const [error, setError] = useState("");
+  const handleApiSubmit = () => {
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID}&redirect_uri=${window.location.origin}/employer/login&state=foobar&scope=email openid profile`;
+    window.location.href = authUrl;
+  };
+  const searchParams = useSearchParams();
 
+  const LinkedinCode = searchParams.get("code");
+
+  const firebaseLinkinedAuth = async (code) => {
+    const params = {
+      grant_type: "authorization_code", // or any other required parameters
+      code: code, // assuming you have the authorization code in the search object
+      redirect_uri: `${window.location.origin}/employer/login`, // your redirect URI
+      client_id: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID, // your LinkedIn client ID
+      client_secret: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_SECRET, // your LinkedIn client secret
+    };
+
+    const redirectUri = window.location.origin + "/employer/login";
+    LinkedinAccessToken(code, redirectUri)
+      .then(async (token) => {
+        try {
+          console.log(token);
+          const response = await SeekerLinkedinLogin(token?.access_token);
+          console.log(response);
+          const res = await signIn("credentials", {
+            credentials: JSON.stringify({
+              linkedin: true,
+              email: response?.email,
+              role: "employeer",
+            }),
+            redirect: false,
+            callbackUrl: "/",
+          });
+          if (res?.error) {
+            throw res?.error;
+          }
+          toast.success("Successfully  Login");
+          router.push("/employer/home");
+        } catch (e) {
+          toast.error("please register");
+          console.log(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching LinkedIn access token:", error);
+      });
+  };
+  useEffect(() => {
+    if (LinkedinCode?.length > 0) {
+      firebaseLinkinedAuth(LinkedinCode);
+    }
+  }, []);
   const router = useRouter();
   const onSubmit = async (data) => {
     try {
@@ -27,6 +87,7 @@ const page = () => {
       const res = await signIn("credentials", {
         credentials: JSON.stringify({
           ...data,
+
           role: "employeer",
         }),
         redirect: false,
@@ -42,6 +103,7 @@ const page = () => {
       setError("Invalid Email or Password");
     }
   };
+
   const auth = getAuth(app);
   const [googleErrorMessage, setGoogleErrorMessage] = useState("");
   const handleGoogleSignUp = async (e) => {
@@ -105,7 +167,67 @@ const page = () => {
       }
     }
   };
+  const handleFacebookSignUp = async (e) => {
+    e.preventDefault();
 
+    // Instantiate a GoogleAuthProvider object
+    const provider = new FacebookAuthProvider();
+
+    try {
+      // Sign in with a pop-up window
+      const result = await signInWithPopup(auth, provider);
+
+      // Pull signed-in user credential.
+      const user = result.user;
+
+      const res = await signIn("credentials", {
+        credentials: JSON.stringify({
+          isSso: true,
+          token: user.accessToken,
+          email: user.email,
+          role: "employeer",
+        }),
+        redirect: false,
+        callbackUrl: "/login",
+      });
+      if (res?.error) {
+        setError(res?.error);
+        throw res?.error;
+      }
+      toast.success("Successfully  Login");
+      router.push("/");
+    } catch (err) {
+      // Handle errors here.
+      const errorMessage = err.message;
+      const errorCode = err.code;
+
+      // setError(true);
+
+      switch (errorCode) {
+        case "auth/operation-not-allowed":
+          setGoogleErrorMessage("Email/password accounts are not enabled.");
+          break;
+        case "auth/operation-not-supported-in-this-environment":
+          setGoogleErrorMessage(
+            "HTTP protocol is not supported. Please use HTTPS."
+          );
+          break;
+        case "auth/popup-blocked":
+          setGoogleErrorMessage(
+            "Popup has been blocked by the browser. Please allow popups for this website."
+          );
+          break;
+        case "auth/popup-closed-by-user":
+          setGoogleErrorMessage(
+            "Popup has been closed by the user before finalizing the operation. Please try again."
+          );
+          break;
+        default:
+          setGoogleErrorMessage(errorMessage);
+          break;
+      }
+    }
+  };
   return (
     <div className="w-full h-screen flex items-start">
       <div className="hidden lg:flex bg-jobBg lg:w-1/2 relative h-full flex-col">
@@ -258,7 +380,10 @@ const page = () => {
               <span> Google</span>
             </Button>
 
-            <Button className="flex items-center w-1/2 bg-white border border-gray-300 rounded-lg max-w-xs  py-7 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none ">
+            <Button
+              onClick={handleApiSubmit}
+              className="flex items-center w-1/2 bg-white border border-gray-300 rounded-lg max-w-xs  py-7 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none "
+            >
               <svg
                 className="h-6 w-6 mr-2"
                 xmlns="http://www.w3.org/2000/svg"

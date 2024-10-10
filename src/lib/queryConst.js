@@ -103,7 +103,6 @@ const EmployerConst = {
     "LinkedIn",
     "Viber",
     "Telegram",
-    "ExpiredAt",
     "FirebaseUserId",
     "Status",
     "Subscribed",
@@ -182,7 +181,6 @@ const EmployersConst = {
     "LinkedIn",
     "Viber",
     "Telegram",
-    "ExpiredAt",
     "FirebaseUserId",
     "Status",
     "Subscribed",
@@ -199,6 +197,12 @@ const EmployersConst = {
   ],
   filter: {
     CompanyName: { value: "", type: "string", label: "CompanyName" },
+    Status: {
+      value: "Accepted",
+      type: "enum",
+      enum: ["Accepted", "Pending"],
+      label: "JobStatus",
+    },
   },
   order: { CompanyName: "asc" },
   children: [
@@ -237,7 +241,6 @@ const EmployerJobPosts = {
     "OtherSkill",
     "Applie",
     "RejectReason",
-    "Expired",
     "IsExpired",
     "JobStatus",
     "DegreeLevelId",
@@ -252,7 +255,7 @@ const EmployerJobPosts = {
   ],
 
   filter: {
-    Title: { value: "", type: "string", label: "Title" },
+    Title: { value: "", type: "search", label: "Title" },
     JobStatus: {
       value: "Active",
       type: "enum",

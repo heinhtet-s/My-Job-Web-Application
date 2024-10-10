@@ -5,7 +5,7 @@ import {
   IndustriesConst,
 } from "@/lib/queryConst";
 import { GetEmployerJobPostList } from "@/modules/services/employer_jobposts";
-import JobPostPage from "./body";
+import JobPostPage from "./body.jsx";
 import { GetInsdustriesList } from "@/modules/services/industries";
 import { GetFunctionalAreaLists } from "@/modules/services/employer_service";
 

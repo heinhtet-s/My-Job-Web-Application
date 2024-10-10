@@ -17,7 +17,27 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js/auto";
+import { Line } from "react-chartjs-2";
+import { GetEmployerProfileViewCount } from "@/modules/services/employer_service";
+import { GetCandidate } from "@/modules/services/employer_jobposts";
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip
+);
 const page = () => {
   const { data: session } = useSession();
   const [cvcount, setCvcount] = useState(0);
@@ -30,8 +50,9 @@ const page = () => {
   const [applicationFilter, setApplicationFilter] = useState(
     AppliedJobPostConst.filter
   );
+  const [employerView, setEmployerView] = useState([]);
+  const [applicationChartCount, setApplicationChartCount] = useState([]);
   const SEEKERID = session?.user?.Id;
-  const [data, setData] = useState([]);
   const [paging, setPaging] = useState({
     pageNumber: 1,
     perPage: 100,
@@ -107,6 +128,88 @@ const page = () => {
   //     console.log(error);
   //   }
   // }
+  async function getSeekerViewsPerDay() {
+    // Calculate the current date and 7 days before today
+
+    try {
+      // Get the current date and 7 days ago using moment
+      const endDate = moment().toISOString(); // Current date in ISO format
+      const startDate = moment().subtract(7, "days").toISOString(); // 7 days ago in ISO format
+
+      // Construct OData query URL with moment-generated dates
+      const odataUrl = `?$filter=SeekerId eq ${session?.user?.Id} and View eq 'Employer' and Date ge ${startDate} and Date le ${endDate}`;
+
+      // Make the API call
+      const response = await GetEmployerProfileViewCount(odataUrl);
+
+      // Assuming 'response.data' contains the job posts
+      const jobPosts = response?.value;
+
+      // Create an object to store view counts by day
+      const viewsByDay = {};
+
+      // Iterate through job posts and group view counts by day
+      jobPosts?.forEach((jobPost) => {
+        const createdAtDate = moment(jobPost?.Date).format("MMM DD"); // Format the date as 'MMM DD'
+
+        if (!viewsByDay[createdAtDate]) {
+          viewsByDay[createdAtDate] = 1;
+        }
+        viewsByDay[createdAtDate]++;
+      });
+
+      // Ensure all days in the last 7 days are represented, even if they have 0 views
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const day = moment().subtract(i, "days").format("MMM DD"); // Get each day in 'MMM DD' format
+        days.push({ date: day, views: viewsByDay[day] || 0 });
+      }
+      setEmployerView(days);
+    } catch (error) {
+      console.error("Error fetching seeker views by day:", error);
+    }
+  }
+  async function getApplicationViewsPerDay() {
+    // Calculate the current date and 7 days before today
+
+    try {
+      // Get the current date and 7 days ago using moment
+      const endDate = moment().toISOString(); // Current date in ISO format
+      const startDate = moment().subtract(7, "days").toISOString(); // 7 days ago in ISO format
+
+      // Construct OData query URL with moment-generated dates
+      const odataUrl = `?$filter=SeekerId eq ${session?.user?.Id} and CreatedAt ge ${startDate} and CreatedAt le ${endDate}`;
+
+      // Make the API call
+      const response = await GetCandidate(odataUrl);
+
+      // Assuming 'response.data' contains the job posts
+      const jobPosts = response?.value;
+
+      // Create an object to store view counts by day
+      const viewsByDay = {};
+
+      // Iterate through job posts and group view counts by day
+      jobPosts?.forEach((jobPost) => {
+        const createdAtDate = moment(jobPost?.Date).format("MMM DD"); // Format the date as 'MMM DD'
+
+        if (!viewsByDay[createdAtDate]) {
+          viewsByDay[createdAtDate] = 1;
+        }
+        viewsByDay[createdAtDate]++;
+      });
+
+      // Ensure all days in the last 7 days are represented, even if they have 0 views
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const day = moment().subtract(i, "days").format("MMM DD"); // Get each day in 'MMM DD' format
+        days.push({ date: day, views: viewsByDay[day] || 0 });
+      }
+      setApplicationChartCount(days);
+    } catch (error) {
+      console.error("Error fetching seeker views by day:", error);
+    }
+  }
   const [infoData, setInfoData] = useState({});
   const router = useRouter();
   const fetchInfoData = async () => {
@@ -167,11 +270,11 @@ const page = () => {
     Number(infoData?.ProfilePercentage?.SkillCompletion) +
     Number(infoData?.ProfilePercentage?.LanguageCompletion);
   const handleShowcase = async () => {
+    if (getTotalPercentage < 80 || !getTotalPercentage) {
+      toast.error("please fill personal info");
+      return;
+    }
     try {
-      if (getTotalPercentage < 80) {
-        toast.error("please fill personal info");
-        return;
-      }
       await UpdateSeekerList(
         {
           IsPublic: !infoData?.IsPublic,
@@ -183,7 +286,94 @@ const page = () => {
       console.log(e);
     }
   };
+  const handleAviliableJob = async () => {
+    try {
+      await UpdateSeekerList(
+        {
+          AvailableJob: !infoData?.AvailableJob,
+        },
+        session?.user?.Id
+      );
+      toast.success("successfully updated");
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const EmployerChartData = {
+    labels: employerView.flatMap((obj) => obj?.date),
 
+    datasets: [
+      {
+        label: "Employer View",
+        data: employerView.flatMap((obj) => obj?.views),
+        fill: true,
+        backgroundColor: "rgb(217, 235, 247)",
+        borderColor: "rgb(0, 112, 201)",
+        options: {
+          label: {
+            display: false,
+          },
+          legend: {
+            display: false, // Hides the legend
+          },
+          title: {
+            display: false, // Hides the title
+          },
+        },
+      },
+    ],
+  };
+  const option = {
+    plugins: {
+      legend: {
+        display: false, // Disable the legend
+      },
+      label: {
+        display: false,
+      },
+      title: {
+        display: false,
+      },
+      tooltip: {
+        display: false,
+      },
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+      },
+    },
+  };
+  const ApplicationChartData = {
+    labels: applicationChartCount?.flatMap((obj) => obj?.date),
+
+    datasets: [
+      {
+        label: "Application View",
+        data: applicationChartCount.flatMap((obj) => obj?.views),
+        fill: true,
+        backgroundColor: "rgb(217, 235, 247)",
+        borderColor: "rgb(0, 112, 201)",
+        options: {
+          label: {
+            display: false,
+          },
+          legend: {
+            display: false, // Hides the legend
+          },
+          title: {
+            display: false, // Hides the title
+          },
+        },
+      },
+    ],
+  };
+  useEffect(() => {
+    if (session?.user?.Id) {
+      getSeekerViewsPerDay();
+      getApplicationViewsPerDay();
+    }
+  }, [session?.user?.Id]);
   useEffect(() => {
     if (filter.SeekerId.value) {
       getApplications(paging.pageNumber, paging.perPage);
@@ -277,7 +467,10 @@ const page = () => {
                     Enhance your professional branding to potential employers
                   </p>
                   <div className="w-[100px]" onClick={handleShowcase}>
-                    <IconSwitcher defaultValue={infoData?.IsPublic} />
+                    <IconSwitcher
+                      defaultValue={infoData?.IsPublic}
+                      disable={getTotalPercentage < 80 || !getTotalPercentage}
+                    />
                   </div>
                 </div>
               </div>
@@ -287,7 +480,7 @@ const page = () => {
                   <p className="mb-[1rem] text-[13px] font-light">
                     Let employers know you are actively seeking a job
                   </p>
-                  <div className="w-[100px]">
+                  <div className="w-[100px]" onClick={handleAviliableJob}>
                     <IconSwitcher2 defaultValue={infoData?.AvailableJob} />
                   </div>
                 </div>
@@ -344,7 +537,7 @@ const page = () => {
           <div className="flex justify-between mb-[48px] gap-8">
             <div>
               <h1 className="text-[1.5rem] text-[700]">
-                {getTotalPercentage} %
+                {getTotalPercentage || 0} %
               </h1>
               <p className="break-words font-light">
                 of your profile is complete
@@ -479,6 +672,41 @@ const page = () => {
           </div>
         </div>
       </div>
+      <div className="grid grid-cols-12 mt-6 gap-4 ">
+        <div className="col-span-6 ">
+          <p className="text-[24px] font-[500] mb-[20px]">Employer View</p>
+          <div className="bg-white  p-[15px] relative rounded-[15px] border border-[#DEDEDE] overflow-hidden  ">
+            <div className="flex justify-between items-center">
+              <p className="text-[24px] font-[500] mb-[20px]">
+                {employerView.reduce((total, obj) => {
+                  return total + (obj?.views || 0);
+                }, 0)}
+              </p>
+              <p className="text-[16px] font-[500] mb-[20px]"> Last 7 days</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <Line data={EmployerChartData} options={option} />
+            </div>
+          </div>
+        </div>
+
+        <div className="col-span-6 ">
+          <p className="text-[24px] font-[500] mb-[20px]">Applications</p>
+          <div className="bg-white  p-[15px] relative rounded-[15px] border border-[#DEDEDE] overflow-hidden  ">
+            <div className="flex justify-between items-center">
+              <p className="text-[24px] font-[500] mb-[20px]">
+                {applicationChartCount.reduce((total, obj) => {
+                  return total + (obj?.views || 0);
+                }, 0)}
+              </p>
+              <p className="text-[16px] font-[500] mb-[20px]"> Last 7 days</p>
+            </div>
+            <div className="flex items-center justify-end">
+              <Line data={ApplicationChartData} options={option} />
+            </div>
+          </div>
+        </div>
+      </div>
       <p className="text-[24px] font-[600]">Recommended Jobs</p>
       <Table>
         <TableBody>
@@ -519,7 +747,7 @@ const page = () => {
     </div>
   );
 };
-const IconSwitcher = ({ defaultValue = false }) => {
+const IconSwitcher = ({ defaultValue = false, disable }) => {
   const [isSwitched, setIsSwitched] = useState(false);
   useEffect(() => {
     setIsSwitched(defaultValue);
@@ -527,7 +755,12 @@ const IconSwitcher = ({ defaultValue = false }) => {
   return (
     <div
       className="relative w-[82px] h-[32px] cursor-pointer"
-      onClick={() => setIsSwitched(!isSwitched)}
+      onClick={() => {
+        if (disable) {
+          return;
+        }
+        setIsSwitched(!isSwitched);
+      }}
     >
       {/* First Icon */}
       <svg

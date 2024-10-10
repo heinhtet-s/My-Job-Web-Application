@@ -2,12 +2,38 @@
 import CardLayout from "@/components/share/CardLayout";
 import { Earth } from "lucide-react";
 import { useParams, useSearchParams } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import moment from "moment";
+import QrModal from "@/components/share/QrModal";
+import { QrCode } from "lucide-react";
+import useFullUrl from "@/lib/useFullUrl";
+import { useSession } from "next-auth/react";
+import { CreateViewCount } from "@/modules/services/employer_service";
 
 const CompanyDetail = ({ companyLists }) => {
   const params = useParams();
   const { id: JobId } = params;
+
+  const [qrOpenModal, setQrOpenModal] = useState(false);
+  const handleOpenQrModal = () => {
+    setQrOpenModal(false);
+  };
+  const { data: session, status } = useSession();
+  useEffect(() => {
+    if (status !== "loading") {
+      handeAddViewCount();
+    }
+  }, [session, JobId]);
+  const handeAddViewCount = async () => {
+    try {
+      await CreateViewCount({
+        EmployerId: JobId,
+        SeekerId: session?.user?.Id,
+        View: "Seeker",
+      });
+    } catch (e) {}
+  };
+  const getLocation = useFullUrl();
   const data = companyLists?.value?.filter((el) => el?.Id === JobId)?.[0];
 
   return (
@@ -29,9 +55,19 @@ const CompanyDetail = ({ companyLists }) => {
                 className="w-[120px] h-[120px]"
               />
               <div className="ml-[20px]">
-                <p className="text-[34px] font-[700] text-white">
-                  {data?.CompanyName}
-                </p>
+                <div className="flex items-center gap-[10px]">
+                  <p className="text-[34px] font-[700] text-white">
+                    {data?.CompanyName}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setQrOpenModal(true);
+                    }}
+                    className="w-[50px] bg-white flex justify-center items-center h-[50px] rounded-[10px] p-0 cursor-pointer outline-offset-4 text-black border border-primary"
+                  >
+                    <QrCode />
+                  </button>
+                </div>
                 <div className="flex items-center">
                   <Earth
                     width="12px"
@@ -82,7 +118,11 @@ const CompanyDetail = ({ companyLists }) => {
                 </div>
                 <div className="mt-[1.5rem]">
                   <p className="opacity-70 text-[13px]">Phone </p>
-                  <p className="font-[500]">{data?.CompanyPhoneNum}</p>
+                  <p className="font-[500]">
+                    {session?.user?.Id === JobId
+                      ? data?.CompanyPhoneNum
+                      : "locked"}
+                  </p>
                 </div>
                 <div className="mt-[1.5rem]">
                   <p className="opacity-70 text-[13px]">Email </p>
@@ -100,6 +140,11 @@ const CompanyDetail = ({ companyLists }) => {
             </div>
           </div>
         </CardLayout>
+        <QrModal
+          qrVal={getLocation}
+          openModal={qrOpenModal}
+          handleModalClose={handleOpenQrModal}
+        />
       </div>
     </div>
   );

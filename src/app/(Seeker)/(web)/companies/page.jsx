@@ -1,7 +1,7 @@
 import { odataQueryHandler } from "@/lib/apiQueryHandler";
-import {  EmployersConst } from "@/lib/queryConst";
+import { EmployersConst } from "@/lib/queryConst";
 
-import CompanyPage from "./body";
+import CompanyPage from "./body.jsx";
 import { GetEmployersList } from "@/modules/services/employer_service";
 
 export default async function JobPost() {
@@ -17,11 +17,6 @@ export default async function JobPost() {
     );
     return <CompanyPage companyLists={data} />;
   } catch (error) {
-    
     return <CompanyPage companyLists={{ count: 0, value: [] }} />;
   }
 }
-
-
-
-

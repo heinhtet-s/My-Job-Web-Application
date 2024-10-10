@@ -16,6 +16,7 @@ import ApiReq from "@/lib/axiosHandler";
 import { UploadedCv } from "@/modules/services/uploadcv_service";
 import { getFavJob, postFavJob } from "@/modules/services/jobFav_service";
 import toast from "react-hot-toast";
+import { updateCv } from "@/modules/services/generated_cv";
 const JobDetailComponent = ({ data }) => {
   console.log(data);
   const [openModal, setOpenModal] = useState(false);
@@ -62,7 +63,19 @@ const JobDetailComponent = ({ data }) => {
   useEffect(() => {
     setFavoJob(!!favList?.filter((el) => el?.id === JobId)?.[0]);
   }, [favList]);
-
+  const handleRemoveActive = async () => {
+    try {
+      const ActiveCv = cvList?.filter((el) => el?.Active && el?.Id !== id);
+      console.log(ActiveCv);
+      if (ActiveCv) {
+        await updateCv(ActiveCv?.[0]?.Id, {
+          Active: false,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   useEffect(() => {
     setAlreadyApply(data?.ApplyedJob);
   }, [data?.ApplyedJob]);
@@ -70,7 +83,22 @@ const JobDetailComponent = ({ data }) => {
     if (!seerkerId) {
       router.push("/login");
     }
+    if (selectedCvForm) {
+      try {
+        const appliedJob = await ApiReq.post("/api/appliedJobpost/create", {
+          JobId,
+          EmployerId,
+          CVsId: selectedCvForm,
+        });
+
+        toast.success("Apply Successfully");
+        handleModalClose();
+        setAlreadyApply(true);
+      } catch (e) {}
+      return;
+    }
     if (selectedFile) {
+      await handleRemoveActive();
       const formData = new FormData();
       formData.append("SeekerId", session?.user?.Id);
       formData.append("CvType", "1");
@@ -99,21 +127,20 @@ const JobDetailComponent = ({ data }) => {
       } catch (e) {}
       return;
     }
-    if (selectedCvForm) {
-      try {
-        const appliedJob = await ApiReq.post("/api/appliedJobpost/create", {
-          JobId,
-          EmployerId,
-          CVsId: selectedCvForm,
-        });
-
-        toast.success("Apply Successfully");
-        handleModalClose();
-        setAlreadyApply(true);
-      } catch (e) {}
-      return;
-    }
   };
+  const [masterData, setMasterData] = useState({});
+  const fetchMasterData = async () => {
+    try {
+      const masterData = await ApiReq.get(
+        `/api/master/get?include=country,city,state,degreeLevels`
+      );
+
+      setMasterData(masterData.data);
+    } catch (e) {}
+  };
+  useEffect(() => {
+    fetchMasterData();
+  }, []);
   const handleModalClose = () => {
     setOpenModal(false);
     setSelectedFile(null); // Clear the selected fil  e state
@@ -158,9 +185,11 @@ const JobDetailComponent = ({ data }) => {
                   class=" border border-[#ced4da]   bg-white text-gray-900 text-sm rounded-lg block w-full p-2.5 outline-none ring-0 "
                 >
                   <option value={null}>Select CV</option>
-                  {cvList?.map?.((el) => {
-                    return <option value={el?.Id}>{el?.CVFileName}</option>;
-                  })}
+                  {cvList
+                    ?.filter((el) => el?.Active)
+                    .map((el) => {
+                      return <option value={el?.Id}>{el?.CVFileName}</option>;
+                    })}
                 </select>
               </div>
               <div className="col-span-2 text-[13px] text-center">OR</div>
@@ -202,7 +231,11 @@ const JobDetailComponent = ({ data }) => {
               <div>
                 <img
                   className="w-[114px] h-[114px] mx-auto mt-[-60px]"
-                  src="https://myjobs-company-logo.s3.ap-south-1.amazonaws.com/bb2e01ff-5e10-4ee0-8ba6-2bf377fbb865.jfif"
+                  src={
+                    data?.Employer?.CompanyLogo
+                      ? data?.Employer?.CompanyLogo
+                      : "/image/no-image.png"
+                  }
                 />
               </div>
             </div>
@@ -270,6 +303,20 @@ const JobDetailComponent = ({ data }) => {
                       dangerouslySetInnerHTML={{ __html: data?.Requirement }}
                     />
                   </div>
+                  <div className="mb-[16px]">
+                    <h1 className="mb-[20px] text-[18px]">Benefits</h1>
+                    <div
+                      className="text-[#212529]"
+                      dangerouslySetInnerHTML={{ __html: data?.Benefits }}
+                    />
+                  </div>
+                  <div className="mb-[16px]">
+                    <h1 className="mb-[20px] text-[18px]"> Skills</h1>
+                    <div
+                      className="text-[#212529]"
+                      dangerouslySetInnerHTML={{ __html: data?.OtherSkill }}
+                    />
+                  </div>
                 </div>
                 <div className="col-span-6 lg:col-span-5 xxl:col-span-4  gap-[20px] flex flex-col justify-center items-center">
                   <div className="bg-jobBg w-full p-[30px] rounded-[30px]">
@@ -290,12 +337,18 @@ const JobDetailComponent = ({ data }) => {
                     </div>
                     <div className="mt-[1.5rem]">
                       <p className="opacity-70 text-[13px]">Qualification</p>
-                      <p className="font-[500]">Degree</p>
+                      <p className="font-[500]">
+                        {
+                          masterData?.degreeLevels?.find(
+                            (el) => el?.Id === data?.DegreeLevelId
+                          )?.TitleEng
+                        }
+                      </p>
                     </div>
                     <div className="mt-[1.5rem]">
                       <p className="opacity-70 text-[13px]">Salary</p>
                       <p className="font-[500]">
-                        {data?.HideSalary
+                        {data?.SalaryOption === "Confidential"
                           ? "Hide"
                           : data?.Fromsalary + " - " + data?.Tosalary}
                       </p>
@@ -311,7 +364,12 @@ const JobDetailComponent = ({ data }) => {
                         <p className="break-words">
                           {data?.Employer?.CompanyName}
                         </p>
-                        <p className="text-[#007bff] text-[13px]">
+                        <p
+                          onClick={() => {
+                            router.push(`/companies/${data?.Employer?.Id}`);
+                          }}
+                          className="text-[#007bff] text-[13px]"
+                        >
                           View Profile
                         </p>
                       </div>
@@ -320,7 +378,7 @@ const JobDetailComponent = ({ data }) => {
                     <div className="mt-[1.5rem]">
                       <p className="opacity-70 text-[13px]">Industry </p>
                       <p className="font-[500]">
-                        {data?.Employer?.Industry?.Title}
+                        {data?.Employer?.Industry?.TitleEng}
                       </p>
                     </div>
                     <div className="mt-[1.5rem]">
@@ -341,7 +399,7 @@ const JobDetailComponent = ({ data }) => {
                     </div>
                     <div className="mt-[1.5rem]">
                       <p className="opacity-70 text-[13px]">Location</p>
-                      <p className="font-[500]">{data?.MapAddress}</p>
+                      <p className="font-[500]">{data?.Employer?.MapAddress}</p>
                     </div>
                   </div>
                 </div>

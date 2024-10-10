@@ -24,6 +24,7 @@ import { GetCountry } from "@/modules/services/master";
 import { MasterdataURL } from "@/lib/apiConst";
 import { getJobPost } from "@/modules/services/jobPost_service";
 import PaginatedItems from "@/components/share/pagination";
+import useAddViewCount from "@/lib/useAddViewCount";
 
 const JobPostPage = ({ industries, functionalAreas }) => {
   const [jobs, setJobs] = useState([]);
@@ -75,7 +76,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
       jobTypeHome !== "null" && jobTypeHome?.length > 0 ? jobTypeHome : ""
     );
     setSelectedTime(TimeHome);
-    setIndustrialId(functionalId);
+    setIndustrialId(industrialId);
     setFunctionalAreaId(functionalId);
     setCountryId(countryID);
     setFilter((prevFilter) => ({
@@ -208,6 +209,18 @@ const JobPostPage = ({ industries, functionalAreas }) => {
           ...EmployerJobPosts.filter.CreatedAt,
           value: createdAtFilter,
         },
+        CountryId: {
+          ...EmployerJobPosts.filter.CountryId,
+          value: countryID,
+        },
+        StateId: {
+          ...EmployerJobPosts.filter.StateId,
+          value: stateID,
+        },
+        CityId: {
+          ...EmployerJobPosts.filter.CityId,
+          value: cityID,
+        },
       },
       order,
       EmployerJobPosts.fields,
@@ -248,7 +261,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
 
     const queryParams = new URLSearchParams({
       title: title.toLowerCase(),
-      jobType: `'${jobType}'`,
+      jobType: jobType?.length > 0 ? `'${jobType}'` : null,
       industryId: industrialId,
       functionalAreaId: functionalAreaId,
       selectedTime,
@@ -257,7 +270,9 @@ const JobPostPage = ({ industries, functionalAreas }) => {
       CityId: cityId,
     });
 
-    router.push(`/jobs?${queryParams.toString()}`);
+    router.push(`/jobs?${queryParams.toString()}`, {
+      scroll: false,
+    });
   };
 
   // useEffect(() => {
@@ -355,7 +370,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                       backgroundSize: "16px 12px",
                     }}
                   >
-                    <option>Select Industry</option>
+                    <option value="">Select Industry</option>
                     {industry?.map((work) => {
                       return (
                         <option key={work.Id} value={work.Id}>
@@ -413,7 +428,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                       backgroundSize: "16px 12px",
                     }}
                   >
-                    <option>Select Functional Area</option>
+                    <option value="">Select Functional Area</option>
                     {functionalArea?.map((work) => {
                       return (
                         <option
@@ -448,7 +463,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                       // backgroundSize: "16px 12px",
                     }}
                   >
-                    <option>Any Time</option>
+                    <option value="">Any Time</option>
                     {chooseTime?.map((work) => {
                       return (
                         <option key={work.label} value={work.value}>
@@ -486,6 +501,28 @@ const JobPostPage = ({ industries, functionalAreas }) => {
               loop={true}
               navigation={true}
               spaceBetween={20}
+              breakpoints={{
+                0: {
+                  slidesPerView: 1,
+                  spaceBetween: 15,
+                  slidesPerGroup: 1,
+                },
+                600: {
+                  slidesPerView: 1,
+                  spaceBetween: 15,
+                  slidesPerGroup: 1,
+                },
+                960: {
+                  slidesPerView: 2,
+                  spaceBetween: 15,
+                  slidesPerGroup: 2,
+                },
+                1280: {
+                  slidesPerView: 3,
+                  spaceBetween: 15,
+                  slidesPerGroup: 3,
+                },
+              }}
               pagination={{
                 clickable: true,
               }}
@@ -495,7 +532,7 @@ const JobPostPage = ({ industries, functionalAreas }) => {
               }}
               speed={700}
               modules={[Autoplay, Navigation]}
-              className="mySwiper"
+              className="jobSwiper"
             >
               {sportLightJob?.map((str, index) => (
                 <SwiperSlide>
@@ -535,11 +572,15 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                     value={stateId}
                   >
                     <option value="">Select State</option>
-                    {matchStates?.map((state) => (
-                      <option key={state.Id} value={state.Id}>
-                        {state.Name}
-                      </option>
-                    ))}
+                    {states
+                      ?.filter((el) => {
+                        return el?.CountryId === countryId;
+                      })
+                      .map((state) => (
+                        <option key={state.Id} value={state.Id}>
+                          {state.Name}
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <div className="mt-2 lg:mt-3">
@@ -550,11 +591,15 @@ const JobPostPage = ({ industries, functionalAreas }) => {
                     value={cityId}
                   >
                     <option value="">Select City</option>
-                    {matchCity?.map((city) => (
-                      <option key={city.Id} value={city.Id}>
-                        {city.Name}
-                      </option>
-                    ))}
+                    {city
+                      ?.filter((el) => {
+                        return el?.CountryId === countryId;
+                      })
+                      .map((city) => (
+                        <option key={city.Id} value={city.Id}>
+                          {city.Name}
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <Button className="mt-4" onClick={handleSubmit}>
@@ -604,9 +649,13 @@ const JobPostPage = ({ industries, functionalAreas }) => {
 const JobPostComponent = ({ job }) => {
   const parsedDate = new Date(job.CreatedAt);
   const router = useRouter();
+  const { handleAddJobCount } = useAddViewCount();
+
   return (
     <div
-      onClick={() => router.push(`/jobs/${job?.Id}`)}
+      onClick={() => {
+        handleAddJobCount(job?.Id);
+      }}
       className="bg-white p-8 mr-5 cursor-pointer rounded-[30px] text-decoration-none flex flex-col justify-between h-full border border-[#dcdcdc]"
       style={{
         width: "100%",

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 import SearchIcon from "@/asset/Icon/SearchIcon";
@@ -20,10 +20,12 @@ import { chooseTime, workTypes } from "@/lib/const";
 import { apiQueryHandler } from "@/lib/apiQueryHandler";
 import { EmployersConst } from "@/lib/queryConst";
 import { comma } from "postcss/lib/list";
-
-const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
-  console.log(candidates, "jobPosts");
+import { getJobPost } from "@/modules/services/jobPost_service";
+import useAddViewCount from "@/lib/useAddViewCount";
+const HomePage = ({ candidates, industries, functionalAreas }) => {
   const { data: session } = useSession();
+  const [spotlightJobs, setSportLightJobs] = useState([]);
+  const [hilightJobs, setHilightJobs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState(EmployersConst.filter);
   const [companies, setCompnanies] = useState([]);
@@ -34,7 +36,37 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
     total: 0,
   });
   const router = useRouter();
-  console.log();
+  const [jobCount, setJobCount] = useState(0);
+  const fetchJobsCount = async () => {
+    try {
+      const TotalCount = await getJobPost(
+        `/$count?$filter=isExpired eq false and JobStatus eq 'Active'`
+      );
+      setJobCount(TotalCount);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const fetchSportLightJob = async () => {
+    try {
+      const data = await getJobPost(
+        "?$filter=isExpired eq false and JobStatus eq 'Active' and JobUnitType eq 'Spotlight'&$top=100&$skip=0&$expand=Employer,FunctionalArea"
+      );
+      setSportLightJobs(data?.value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  const fetchHilightJob = async () => {
+    try {
+      const data = await getJobPost(
+        "?$filter=isExpired eq false and JobStatus eq 'Active' and JobUnitType eq 'Highlight'&$top=100&$skip=0&$expand=Employer,FunctionalArea"
+      );
+      setHilightJobs(data?.value);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   async function getEmployers(pageNumber, perPage) {
     setLoading(true);
     try {
@@ -68,6 +100,9 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
   }
   useEffect(() => {
     getEmployers(paging.pageNumber, paging.perPage);
+    fetchSportLightJob();
+    fetchHilightJob();
+    fetchJobsCount();
   }, []);
 
   return (
@@ -78,19 +113,29 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
         functionalAreas={functionalAreas}
       />
       <FeatureCampanyComponent companies={companies} />
-      <FeatureJobPostComponent jobPosts={jobPosts} />
+      <FeatureJobPostComponent
+        jobCount={jobCount}
+        spotlightJobs={spotlightJobs}
+        hilightJobs={hilightJobs}
+      />
       <SubBannerComponent />
 
       <div className="w-full py-10 bg-[#ffefdc]">
-        <p className="text-[#111] text-4xl font-poppins font-semibold leading-normal text-center">
+        <p className="text-[#111] text-2xl sm:text-3xl md:text-4xl font-poppins font-semibold leading-normal text-center">
           Candidates Showcase for Organizations
         </p>
-        <p className="text-[#666] text-sm font-normal leading-normal mt-2 text-center">
+        <p className="text-[#666] text-xs sm:text-sm font-normal leading-normal mt-2 text-center">
           Discover top candidates who perfectly match your company's success.
         </p>
-        <div className="max-w-[1250px] mx-auto my-8 grid grid-cols-6 gap-4">
+        <div className="max-w-[1250px] mx-auto my-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {candidates?.map((str, index) => (
-            <div className="rounded-lg cursor-pointer  bg-white flex p-4 flex-col items-center gap-4 relative overflow-hidden w-[195px] h-[240px] transition-all duration-300 ease hover:bg-[#eee]">
+            <div
+              onClick={() => {
+                router.push(`/job-seekers/${str?.Id}`);
+              }}
+              key={index}
+              className="rounded-lg mx-auto cursor-pointer bg-white flex p-4 flex-col items-center gap-4 relative overflow-hidden w-[195px] h-[240px] transition-all duration-300 ease hover:bg-[#eee]"
+            >
               <img
                 src={str.ImageUrl ? str.ImageUrl : "/image/no-image.png"}
                 alt="description"
@@ -198,16 +243,10 @@ const HomePage = ({ candidates, industries, jobPosts, functionalAreas }) => {
 //   );
 // };
 
-const FeatureJobPostComponent = ({ jobPosts }) => {
+const FeatureJobPostComponent = ({ spotlightJobs, hilightJobs, jobCount }) => {
   const router = useRouter();
 
   // Separate jobs into Spotlight and Highlight
-  const spotlightJobs = jobPosts?.filter(
-    (job) => job.JobUnitType === "Spotlight"
-  );
-  const highlightJobs = jobPosts?.filter(
-    (job) => job.JobUnitType === "Highlight"
-  );
 
   return (
     <div className="bg-jobBg">
@@ -216,7 +255,8 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
           Featured Jobs Offer
         </p>
         <p className="text-[#666] text-sm font-normal leading-normal mt-2 text-center">
-          Search your career opportunity through {jobPosts?.length || 0} jobs
+          Search your career opportunity through {jobCount} jobs
+          {/* {jobPosts?.length || 0} jobs */}
         </p>
 
         {/* Spotlight Jobs Section */}
@@ -233,11 +273,31 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
                 style={{ width: "100%" }}
                 loop={true}
                 navigation={true}
-                spaceBetween={15}
                 pagination={{ clickable: true }}
-                slidesPerView={3}
                 autoplay={{ delay: 7000 }}
                 speed={700}
+                breakpoints={{
+                  0: {
+                    slidesPerView: 1,
+                    spaceBetween: 15,
+                    slidesPerGroup: 1,
+                  },
+                  600: {
+                    slidesPerView: 1,
+                    spaceBetween: 15,
+                    slidesPerGroup: 1,
+                  },
+                  960: {
+                    slidesPerView: 2,
+                    spaceBetween: 15,
+                    slidesPerGroup: 2,
+                  },
+                  1280: {
+                    slidesPerView: 3,
+                    spaceBetween: 15,
+                    slidesPerGroup: 3,
+                  },
+                }}
                 modules={[Autoplay, Navigation]}
                 className="mySwiper"
               >
@@ -252,7 +312,7 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
         )}
 
         {/* Highlight Jobs Section */}
-        {highlightJobs?.length > 0 && (
+        {hilightJobs?.length > 0 && (
           <div className="mt-[32px] relative">
             <div className="flex items-center mb-[8px]">
               <HilightIcon />
@@ -260,8 +320,8 @@ const FeatureJobPostComponent = ({ jobPosts }) => {
                 Highlight Jobs
               </p>
             </div>
-            <div className="relative flex-wrap flex justify-start items-center max-w-[1440px] mx-auto overflow-hidden gap-4 my-2 mb-6">
-              {highlightJobs?.map((job, index) => (
+            <div className="relative   grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 justify-start items-center max-w-[1440px] mx-auto overflow-hidden my-2 mb-6">
+              {hilightJobs?.map((job, index) => (
                 <JobCardComponent
                   key={job.Id || index}
                   isFeatureCard={false}
@@ -288,9 +348,11 @@ const ViewMoreBtn = ({ text }) => {
 };
 const FeatureCampanyComponent = ({ companies }) => {
   const router = useRouter();
+  const scrollableRef = useRef(null);
+
   return (
     <div
-      className="w-full  bg-cover bg-no-repeat pt-[40px] overflow-x-hidden  "
+      className="w-full bg-cover bg-no-repeat pt-[40px] overflow-x-hidden"
       style={{
         backgroundImage: "url('/image/jobBanner.jpg')",
         backgroundPosition: "50%",
@@ -302,32 +364,45 @@ const FeatureCampanyComponent = ({ companies }) => {
       <p className="text-[#f2f2f2] font-poppins text-[14px] text-sm font-normal leading-normal text-center">
         Work for the best companies in Myanmar
       </p>
-      <div className="w-full flex  mx-auto overflow-x-scroll scrollable-no-scrollbar pr-10">
-        <div className="flex gap-4 cursor-pointer my-10 mr-10  ">
+
+      {/* Container with scroll animation */}
+      <div
+        className="w-full flex mx-auto overflow-x-scroll scrollable-no-scrollbar pr-10"
+        // ref={scrollableRef}
+        // onMouseEnter={() => setIsHovered(true)}
+        // onMouseLeave={() => setIsHovered(false)}
+      >
+        <div
+          ref={scrollableRef}
+          className="flex gap-4 cursor-pointer my-10 mr-10 scrollable-animation"
+        >
           {companies?.map((str, index) => (
-            <div
-              onClick={() => router.push(`/companies/${str.Id}`)}
-              className={cn(
-                "cursor-pointer hover:translate-y-[-10px] relative flex flex-col min-w-0 break-words flex-none basis-[200px] h-[260px] p-4 pt-2 items-center rounded-md bg-white border border-[rgba(0,0,0,0.125)] gap-1 transition-all duration-500 ease-in-out",
-                index === 0 ? "ml-[8rem]" : ""
-              )}
-            >
-              <div>
-                <img
-                  className="w-[120px] h-[120px] object-contain"
-                  src={
-                    str.companyLogo ? str.companyLogo : "/image/no-image.png"
-                  }
-                  alt="logo"
-                />
+            <>
+              <div
+                onClick={() => router.push(`/companies/${str.Id}`)}
+                key={str.Id}
+                className={cn(
+                  "cursor-pointer hover:translate-y-[-10px] relative flex flex-col min-w-0 break-words flex-none basis-[200px] h-[260px] p-4 pt-2 items-center rounded-md bg-white border border-[rgba(0,0,0,0.125)] gap-1 transition-all duration-500 ease-in-out",
+                  index === 0 ? "md:ml-[8rem] ml-[2rem]" : ""
+                )}
+              >
+                <div>
+                  <img
+                    className="w-[120px] h-[120px] object-contain"
+                    src={
+                      str.CompanyLogo ? str.CompanyLogo : "/image/no-image.png"
+                    }
+                    alt="logo"
+                  />
+                </div>
+                <p className="text-[#111] mb-[16px] text-center font-poppins text-sm font-medium leading-normal">
+                  {str?.CompanyName}
+                </p>
+                <p className="text-[#f47920] text-center font-poppins text-xs font-normal leading-normal">
+                  {str?.["JobPosts@odata.count"]} Open Positions
+                </p>
               </div>
-              <p className="text-[#111] mb-[16px] text-center font-poppins text-sm font-medium leading-normal">
-                {str?.CompanyName}
-              </p>
-              <p className="text-[#f47920] text-center font-poppins text-xs font-normal leading-normal">
-                {str?.OpenPositionCount} Open Positions
-              </p>
-            </div>
+            </>
           ))}
         </div>
       </div>
@@ -369,31 +444,37 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
 
     fetchCountries();
   }, []);
-
+  console.log(
+    process.env.NEXTAUTH_SECRET,
+    process.env.NEXT_PUBLIC_API_URL,
+    process.env.NEXT_PUBLIC_WEBSITE_URL,
+    process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID,
+    process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_SECRET
+  );
   return (
     <div
       style={{
         background:
           "linear-gradient(0deg, #ffd5a5 0%, #ffd5a5 100%), lightgray 50% / cover no-repeat",
       }}
-      className="w-full  bg-cover bg-no-repeat relative flex flex-col items-center justify-center gap-2.5 py-10 flex-col"
+      className="w-full bg-cover bg-no-repeat relative flex flex-col items-center justify-center gap-4 py-10"
     >
-      <div className="flex justify-center gap-4 items-center">
-        <div className="flex items-center justify-center gap-4 p-2 rounded-[8px] border-2 border-[#f47920] bg-white">
-          <div className="flex justify-center items-center gap-4 mx-4">
+      <div className="flex flex-col md:flex-row justify-center gap-4 items-center  w-full max-w-[1250px] mx-auto px-4 md:px-0">
+        <div className="flex flex-col md:flex-row items-center justify-center gap-4 p-2 rounded-[8px] border-2 border-[#f47920] bg-white w-full md:w-full ">
+          <div className="flex justify-center items-center gap-4 mx-4 md-w-ful  w-full">
             <SearchIcon />
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Job Title or Keyword"
-              className="text-[#666] font-poppins border-none outline-none  text-base font-normal leading-normal border-0 focus:ring-0 "
+              className="text-[#666] font-poppins border-none outline-none text-base font-normal leading-normal border-0 focus:ring-0 w-full"
             />
           </div>
-          <div className="h-12 w-px bg-[#ccc]" />
-          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <div className="h-12 w-px bg-[#ccc] hidden md:block" />
+          <div className="w-full md:basis-[223px] shrink-0 h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
-              className="block w-full py-1 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              className="block w-full py-1 px-3 font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0"
               value={industrialId}
               onChange={(e) => setIndustrialId(e.target.value)}
               style={{
@@ -412,11 +493,11 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
               ))}
             </select>
           </div>
-          <div className="h-12 w-px bg-[#ccc]" />
+          <div className="h-12 w-px bg-[#ccc] hidden md:block" />
 
-          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <div className="w-full md:basis-[223px] shrink-0 h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
             <select
-              className="block font w-full text-[14px] py-1 px-3  font-normal text-gray-800 bg-white  border-none rounded-md appearance-none outline-none focus:ring-0 "
+              className="block w-full py-1 px-3 font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0"
               value={jobType}
               onChange={(e) => setJobType(e.target.value)}
               style={{
@@ -428,38 +509,32 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
               }}
             >
               <option value="">Select Work Type</option>
-              {workTypes?.map((work) => {
-                return (
-                  <option key={work.label} value={work.value}>
-                    {work.label}
-                  </option>
-                );
-              })}
+              {workTypes?.map((work) => (
+                <option key={work.label} value={work.value}>
+                  {work.label}
+                </option>
+              ))}
             </select>
           </div>
-          <div onClick={FilterFunction} className="cursor-pointer">
+          <div onClick={FilterFunction} className="cursor-pointer ">
             <FilterIcon />
           </div>
         </div>
-        <div
-          style={{
-            flex: "0 0 auto",
-            width: "auto",
-          }}
-        >
+        <div className="basis-[150px]">
           <button
-            className=" h-[56px] border-0 px-[20px] mr-[13px] rounded-[8px] text-white bg-primary transition-colors"
+            className="w-full md:w-full h-[56px] border-0 px-[20px] mr-[13px] rounded-[8px] text-white bg-primary transition-colors"
             onClick={handleSearch}
           >
             Find Jobs
           </button>
         </div>
       </div>
+
       {showFilter && (
-        <div className="flex">
-          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+        <div className="flex flex-col items-center justify-center md:flex-row gap-4 md:mt-4 w-full px-4 md:px-0">
+          <div className="w-full md:w-[223px] h-auto box-border relative flex justify-center items-center gap-1.5">
             <select
-              className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              className="block w-full py-2 px-3 font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0"
               value={functionalId}
               onChange={(e) => setFunctionalId(e.target.value)}
               style={{
@@ -478,14 +553,14 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
               ))}
             </select>
           </div>
-          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <div className="w-full md:w-[223px] h-auto box-border relative flex justify-center items-center gap-1.5">
             <select
-              className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              className="block w-full py-2 px-3 font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0"
               value={countryId}
               onChange={(e) => setCountryId(e.target.value)}
               style={{
                 backgroundImage:
-                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "right 0.75rem center",
                 backgroundSize: "16px 12px",
@@ -499,27 +574,25 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
               ))}
             </select>
           </div>
-          <div className="w-[223px] h-auto box-border relative mx-4 flex justify-center items-center gap-1.5">
+          <div className="w-full md:w-[223px] h-auto box-border relative flex justify-center items-center gap-1.5">
             <select
-              className="block w-full py-2 px-3  font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0  "
+              className="block w-full py-2 px-3 font-normal text-[14px] text-gray-800 bg-white outline-none border-none rounded-md appearance-none focus:ring-0"
               value={selectedTime}
               onChange={(e) => setSelectedTime(e.target.value)}
               style={{
                 backgroundImage:
-                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%27%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
+                  "url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 16 16%27%3e%3cpath fill=%27none%27 stroke=%23343a40%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%272%27 d=%27M2 5l6 6 6-6%27/%3e%3c/svg%3e')",
                 backgroundRepeat: "no-repeat",
                 backgroundPosition: "right 0.75rem center",
                 backgroundSize: "16px 12px",
               }}
             >
               <option>Any Time</option>
-              {chooseTime?.map((work) => {
-                return (
-                  <option key={work.label} value={work.value}>
-                    {work.label}
-                  </option>
-                );
-              })}
+              {chooseTime?.map((work) => (
+                <option key={work.label} value={work.value}>
+                  {work.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -528,6 +601,8 @@ const FilterJobComponent = ({ industries, functionalAreas }) => {
   );
 };
 const JobCardComponent = ({ isFeatureCard, jobPost }) => {
+  const { handleAddJobCount } = useAddViewCount();
+
   let parsedDate;
   try {
     if (jobPost?.CreatedAt) {
@@ -543,12 +618,14 @@ const JobCardComponent = ({ isFeatureCard, jobPost }) => {
 
   return (
     <div
-      onClick={() => router.push(`/jobs/${jobPost?.Id}`)}
+      onClick={() => {
+        handleAddJobCount(jobPost?.Id, jobPost?.ViewCount);
+      }}
       className={cn(
         "flex  h-[230px] p-4 flex-col items-start gap-3 rounded-lg flex-nowrap transition-all duration-300 ease-in-out ",
         isFeatureCard
-          ? "bg-secondary hover:bg-secondaryHover w-[405px] text-white "
-          : "bg-white hover:bg-[#f2f2f2] text-textBlack flex-none basis-[405px]  "
+          ? "bg-secondary hover:bg-secondaryHover w-full text-white "
+          : "bg-white hover:bg-[#f2f2f2] text-textBlack flex-none  "
       )}
     >
       <div className=" flex  mb-[1rem] justify-between items-center w-full min-h-[58px]">

@@ -92,24 +92,36 @@ const Page = () => {
       getCvs(paging.pageNumber, paging.perPage);
     }
   }, [paging.pageNumber, paging.perPage, filter]);
-
+  const handleRemoveActive = async () => {
+    try {
+      const ActiveCv = data?.filter((el) => el?.Active && el?.Id !== id);
+      console.log(ActiveCv);
+      if (ActiveCv) {
+        await updateCv(ActiveCv?.[0]?.Id, {
+          Active: false,
+        });
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
   const handleChange = async (event) => {
     if (event.target.files) {
       const formData = new FormData();
       formData.append("SeekerId", session?.user?.Id);
       formData.append("CvType", "1");
-      formData.append("Active", "false");
+      formData.append("Active", "true");
       formData.append("file", event.target.files[0]);
 
       try {
+        await handleRemoveActive();
         const data = await UploadedCv(formData);
         console.log(data);
         if (data.error) {
           toast.error("Something's wrong");
           return;
         }
-        console.log("ddd");
-        console.log(data?.url);
+
         // await ApiReq.post("api/generate_cv/create", {
         //   CVFileName: event.target.files[0]?.name,
         //   CVS3Url: data?.url,
@@ -136,15 +148,8 @@ const Page = () => {
     }
   };
   const handleChangeActive = async (id) => {
-    console.log(id);
     try {
-      const ActiveCv = data?.filter((el) => el?.Active && el?.Id !== id);
-      console.log(ActiveCv);
-      if (ActiveCv) {
-        await updateCv(ActiveCv?.[0]?.Id, {
-          Active: false,
-        });
-      }
+      await handleRemoveActive();
       const getChangeCv = data?.filter((el) => el?.Id === id);
       await updateCv(id, {
         Active: !Boolean(getChangeCv?.[0]?.Active),
@@ -214,15 +219,17 @@ const Page = () => {
           })}
         </TableBody>
       </Table>
-      <input
-        type="file"
-        id="file"
-        ref={file}
-        accept="application/pdf"
-        style={{ display: "none" }}
-        onChange={handleChange}
-      />
-      <PrimaryBtn text="Upload" handleClick={fileExplore} />
+      <div className="mt-[20px]">
+        <input
+          type="file"
+          id="file"
+          ref={file}
+          accept="application/pdf"
+          style={{ display: "none" }}
+          onChange={handleChange}
+        />
+        <PrimaryBtn text="Upload" handleClick={fileExplore} />
+      </div>
     </div>
   );
 };

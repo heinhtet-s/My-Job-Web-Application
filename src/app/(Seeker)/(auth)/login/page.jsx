@@ -5,13 +5,27 @@ import { LogIn, UserRoundPlus, PhoneCall } from "lucide-react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import DynamicButton from "@/components/Button";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 import { getSession, signIn } from "next-auth/react";
 import toast from "react-hot-toast";
-import { signInWithPopup, GoogleAuthProvider, getAuth } from "firebase/auth";
+import {
+  signInWithPopup,
+  GoogleAuthProvider,
+  getAuth,
+  FacebookAuthProvider,
+} from "firebase/auth";
 import { app } from "../../../../../firebaseConfig";
 import axios from "axios";
-import { GetLinkedInInfo } from "@/modules/services/auth";
+import {
+  GetLinkedInInfo,
+  LinkedinAccessToken,
+  SeekerLinkedinLogin,
+} from "@/modules/services/auth";
 
 const page = () => {
   const {
@@ -21,25 +35,59 @@ const page = () => {
     formState: { errors },
   } = useForm();
   const handleApiSubmit = () => {
-    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=86mahzgm15lxm7&redirect_uri=http://localhost:3000//page&scope=email openid profile`;
+    const authUrl = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID}&redirect_uri=${window.location.origin}/login&state=foobar&scope=email openid profile`;
     window.location.href = authUrl;
   };
-  const firebaseAuth = getAuth(app);
-  const firebaseLinkinedAuth = async (search) => {
-    try {
-      const data = await GetLinkedInInfo(search);
-    } catch (e) {
-      console.log(e);
-    }
+  const searchParams = useSearchParams();
+
+  const LinkedinCode = searchParams.get("code");
+
+  const firebaseLinkinedAuth = async (code) => {
+    const params = {
+      grant_type: "authorization_code", // or any other required parameters
+      code: code, // assuming you have the authorization code in the search object
+      redirect_uri: `${window.location.origin}/login`, // your redirect URI
+      client_id: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID, // your LinkedIn client ID
+      client_secret: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_SECRET, // your LinkedIn client secret
+    };
+
+    const redirectUri = window.location.origin + "/login";
+    LinkedinAccessToken(code, redirectUri)
+      .then(async (token) => {
+        try {
+          console.log(token);
+          const response = await SeekerLinkedinLogin(token?.access_token);
+          console.log(response);
+
+          const res = await signIn("credentials", {
+            credentials: JSON.stringify({
+              linkedin: true,
+              email: response?.email,
+              role: "seeker",
+            }),
+            redirect: false,
+            callbackUrl: "/login",
+          });
+          if (res?.error) {
+            throw res?.error;
+          }
+          toast.success("Successfully  Login");
+          router.push("/");
+        } catch (e) {
+          toast.error("please register");
+          console.log(e);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching LinkedIn access token:", error);
+      });
   };
   const pathName = usePathname();
-  const searchParams = useSearchParams();
-  const search = searchParams.get("code");
   useEffect(() => {
-    if (search?.length > 0) {
-      firebaseLinkinedAuth(search);
+    if (LinkedinCode?.length > 0) {
+      firebaseLinkinedAuth(LinkedinCode);
     }
-  }, [search]);
+  }, []);
   const router = useRouter();
   const [error, setError] = useState("");
   const auth = getAuth(app);
@@ -68,6 +116,67 @@ const page = () => {
         callbackUrl: "/login",
       });
       if (res?.error) {
+        throw res?.error;
+      }
+      toast.success("Successfully  Login");
+      router.push("/");
+    } catch (err) {
+      // Handle errors here.
+      const errorMessage = err.message;
+      const errorCode = err.code;
+
+      // setError(true);
+
+      switch (errorCode) {
+        case "auth/operation-not-allowed":
+          setGoogleErrorMessage("Email/password accounts are not enabled.");
+          break;
+        case "auth/operation-not-supported-in-this-environment":
+          setGoogleErrorMessage(
+            "HTTP protocol is not supported. Please use HTTPS."
+          );
+          break;
+        case "auth/popup-blocked":
+          setGoogleErrorMessage(
+            "Popup has been blocked by the browser. Please allow popups for this website."
+          );
+          break;
+        case "auth/popup-closed-by-user":
+          setGoogleErrorMessage(
+            "Popup has been closed by the user before finalizing the operation. Please try again."
+          );
+          break;
+        default:
+          setGoogleErrorMessage(errorMessage);
+          break;
+      }
+    }
+  };
+  const handleFacebookSignUp = async (e) => {
+    e.preventDefault();
+
+    // Instantiate a GoogleAuthProvider object
+    const provider = new FacebookAuthProvider();
+
+    try {
+      // Sign in with a pop-up window
+      const result = await signInWithPopup(auth, provider);
+
+      // Pull signed-in user credential.
+      const user = result.user;
+
+      const res = await signIn("credentials", {
+        credentials: JSON.stringify({
+          isSso: true,
+          token: user.accessToken,
+          email: user.email,
+          role: "seeker",
+        }),
+        redirect: false,
+        callbackUrl: "/login",
+      });
+      if (res?.error) {
+        setError(res?.error);
         throw res?.error;
       }
       toast.success("Successfully  Login");

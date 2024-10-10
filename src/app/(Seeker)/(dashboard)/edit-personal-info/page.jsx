@@ -32,6 +32,7 @@ const page = () => {
   const [openModal, setOpenModal] = useState(false);
   const [infoData, setInfoData] = useState({});
   const { data: session } = useSession();
+
   const fetchMasterData = async () => {
     if (!session?.user?.Id) {
       return;

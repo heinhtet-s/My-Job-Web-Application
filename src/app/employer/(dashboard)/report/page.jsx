@@ -147,7 +147,7 @@ const page = () => {
                     )?.[0]?.ApplicationCount || 0}
                   </TableCell>
                   <TableCell>
-                    0
+                    {item?.ViewCount}
                     {/* {moment(item?.Seeker?.CreatedAt).format("DD MMM YYYY")} */}
                   </TableCell>
                 </TableRow>

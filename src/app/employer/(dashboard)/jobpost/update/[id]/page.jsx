@@ -32,6 +32,7 @@ const page = () => {
   } = useForm({
     Anonymous: false,
   });
+  const [loading, setLoading] = useState(false);
 
   const [industryList, setIndustryList] = useState([]);
   const [masterData, setMasterData] = useState({});
@@ -90,7 +91,6 @@ const page = () => {
   const handleGenerateAi = async () => {
     const JobUnitType = watch("JobUnitType");
     const makeAnonymous = watch("Anonymous");
-    const Expired = watch("Expired");
     const FunctionalAreaId = watch("FunctionalAreaId");
     const Title = watch("Title");
     const IndustryId = watch("IndustryId");
@@ -99,7 +99,6 @@ const page = () => {
     const Benefits = watch("Benefits");
     if (
       JobUnitType === null ||
-      !Expired ||
       !FunctionalAreaId ||
       !Title ||
       !IndustryId ||
@@ -146,6 +145,7 @@ const page = () => {
   console.log(watch("SalaryOption"));
   const onSubmit = async (data) => {
     try {
+      setLoading(true);
       const updateData = {
         ...data,
 
@@ -169,6 +169,7 @@ const page = () => {
         // "UpdatedBy": null
         UpdatedBy: session?.user?.Id,
       };
+      console.log(updateData);
       const filteredObj = Object.fromEntries(
         Object.entries(updateData).filter(
           ([key, value]) =>
@@ -181,15 +182,20 @@ const page = () => {
       router.push("/employer/jobpost");
     } catch (e) {
       toast.error("Something Wrong");
+    } finally {
+      setLoading(false);
     }
   };
+  if (!masterData?.country) {
+    return <></>;
+  }
   return (
     <div>
       <form onSubmit={handleSubmit(onSubmit)}>
         <h1 className="text-[38px] font-[700]">Edit Job</h1>
         <p className="opactiy-70 mb-[30px]">Edit Your Job details</p>
         <div className=" grid grid-cols-12 mb-[10px] items-center gap-[15px]">
-          <div className="col-span-6">
+          <div className="col-span-12">
             <div className={JobPostCard}>
               <p className="text-[16px] mb-[0.5rem]">Select Job unit type </p>
               <div className="flex items-center gap-8">
@@ -276,86 +282,6 @@ const page = () => {
               </label>
             </div>
           </div>
-          <div className="col-span-6">
-            <div className={JobPostCard}>
-              <p className="text-[16px] mb-[0.5rem]">Select Job expiry date </p>
-              <div className="flex  items-center  gap-8  ">
-                <div className="flex items-center ">
-                  <input
-                    {...register("Expired", {
-                      required: "This field is required",
-                    })}
-                    onChange={() => {
-                      setValue("Expired", "Onemonth");
-                    }}
-                    checked={watch("Expired") === "Onemonth"}
-                    id="default-radios-4"
-                    type="radio"
-                    value=""
-                    name="default-radios"
-                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0 "
-                  />
-                  <label
-                    htmlFor="default-radios-4"
-                    className="ms-2 text-sm font-[300] text-gray-900 "
-                  >
-                    1 Month
-                  </label>
-                </div>
-                <div className="flex items-center ">
-                  <input
-                    {...register("Expired", {
-                      required: "This field is required",
-                    })}
-                    onChange={() => {
-                      setValue("Expired", "Twomonth");
-                    }}
-                    checked={watch("Expired") === "Twomonth"}
-                    id="default-radios-5"
-                    type="radio"
-                    value=""
-                    name="default-radios"
-                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
-                  />
-                  <label
-                    htmlFor="default-radios-5"
-                    className="ms-2 text-sm font-[300] text-gray-900 "
-                  >
-                    2 Months{" "}
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    id="default-radios-6"
-                    {...register("Expired", {
-                      required: "This field is required",
-                    })}
-                    onChange={() => {
-                      setValue("Expired", "Threemonth");
-                    }}
-                    checked={watch("Expired") === "Threemonth"}
-                    type="radio"
-                    value=""
-                    name="default-radios-6"
-                    className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
-                  />
-                  <label
-                    htmlFor="default-radios-6"
-                    className="ms-2 text-sm font-[300] text-gray-900 "
-                  >
-                    3 Months
-                  </label>
-                </div>
-              </div>
-              <label className="inline-flex items-center opacity-0  cursor-pointer mt-[10px]">
-                <input type="checkbox" value="" className="sr-only peer" />
-                <div className="relative w-[30px] h-[16px] bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300  rounded-full peer  peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-[12px] after:h-[12px] after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-                <span className="ms-3 text-sm font-[300] text-gray-900 dark:text-gray-300">
-                  Make Anonymous
-                </span>
-              </label>
-            </div>
-          </div>
         </div>
 
         <div className={JobPostCard}>
@@ -401,7 +327,7 @@ const page = () => {
                 <select
                   className={selectStyle}
                   {...register("IndustryId", {
-                    required: "Functional Area is required",
+                    required: "Industry  is required",
                   })}
                 >
                   <option value={""}>Select Industry</option>
@@ -467,7 +393,25 @@ const page = () => {
               </div>
             </div>
           </div>
+          <label className={labelStyle}>Employer Benefit</label>
+          <TinyEditor
+            text={watch("Benefits")}
+            setTextEditor={(data) => {
+              setValue("Benefits", data, { shouldValidate: true });
+            }}
+          />
+          {errors.Benefits && (
+            <p className="text-red-500 text-start text-xs italic">
+              {errors.Benefits.message}
+            </p>
+          )}
           <input
+            type="hidden"
+            {...register("Benefits", {
+              required: "Employer Benefit is required", // validation rule
+            })}
+          />
+          {/* <input
             className={inputStyle}
             placeholder="Employer Benefit"
             {...register("Benefits", { required: "This field is required" })}
@@ -476,7 +420,7 @@ const page = () => {
             <p className="text-red-500 text-start text-xs italic">
               {errors.Benefits.message}
             </p>
-          )}
+          )} */}
         </div>
         <div className="mt-[20px]">
           <PrimaryBtn
@@ -501,6 +445,17 @@ const page = () => {
                 setValue("Description", data);
               }}
             />
+            {errors.Description && (
+              <p className="text-red-500 text-start text-xs italic">
+                {errors.Description.message}
+              </p>
+            )}
+            <input
+              type="hidden"
+              {...register("Description", {
+                required: "This field is required", // validation rule
+              })}
+            />
           </div>
           <label className={labelStyle}>Requirement</label>
           <TinyEditor
@@ -508,6 +463,17 @@ const page = () => {
             setTextEditor={(data) => {
               setValue("Requirement", data);
             }}
+          />
+          {errors.Requirement && (
+            <p className="text-red-500 text-start text-xs italic">
+              {errors.Requirement.message}
+            </p>
+          )}
+          <input
+            type="hidden"
+            {...register("Requirement", {
+              required: "This field is required", // validation rule
+            })}
           />
         </div>
         <div className={JobPostCard}>
@@ -564,10 +530,21 @@ const page = () => {
                 setValue("OtherSkill", data);
               }}
             />
+            {errors.OtherSkill && (
+              <p className="text-red-500 text-start text-xs italic">
+                {errors.OtherSkill.message}
+              </p>
+            )}
+            <input
+              type="hidden"
+              {...register("OtherSkill", {
+                required: "This field is required", // validation rule
+              })}
+            />
           </div>
           <p className="text-[16px] mb-[0.5rem]">Select Gender</p>
-          <div className="flex  items-center  gap-8  ">
-            <div className="flex items-center ">
+          <div className="flex items-center gap-8">
+            <div className="flex items-center">
               <input
                 id="gender-1"
                 type="radio"
@@ -577,19 +554,20 @@ const page = () => {
                 onChange={() => {
                   setValue("Gender", "Female");
                 }}
+                value="Female" // Set the correct value
                 checked={watch("Gender") === "Female"}
-                value=""
                 name="gender"
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0 "
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
               />
               <label
                 htmlFor="gender-1"
-                className="ms-2 text-sm font-[300] text-gray-900 "
+                className="ms-2 text-sm font-[300] text-gray-900"
               >
                 Female
               </label>
             </div>
-            <div className="flex items-center ">
+
+            <div className="flex items-center">
               <input
                 id="gender-2"
                 type="radio"
@@ -599,19 +577,20 @@ const page = () => {
                 onChange={() => {
                   setValue("Gender", "Male");
                 }}
+                value="Male" // Set the correct value
                 checked={watch("Gender") === "Male"}
-                value=""
                 name="gender"
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
               />
               <label
                 htmlFor="gender-2"
-                className="ms-2 text-sm font-[300] text-gray-900 "
+                className="ms-2 text-sm font-[300] text-gray-900"
               >
                 Male
               </label>
             </div>
-            <div className="flex items-center ">
+
+            <div className="flex items-center">
               <input
                 id="gender-3"
                 type="radio"
@@ -621,14 +600,14 @@ const page = () => {
                 onChange={() => {
                   setValue("Gender", "Both");
                 }}
+                value="Both" // Set the correct value
                 checked={watch("Gender") === "Both"}
-                value=""
                 name="gender"
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
               />
               <label
                 htmlFor="gender-3"
-                className="ms-2 text-sm font-[300] text-gray-900 "
+                className="ms-2 text-sm font-[300] text-gray-900"
               >
                 Both
               </label>
@@ -708,6 +687,7 @@ const page = () => {
             </div>
           </div>
         </div>
+
         <div className={JobPostCard}>
           <p className="text-[16px] mb-[0.5rem]">Salary Information </p>
           <div className="grid mb-[1.5rem] grid-cols-3 gap-4">
@@ -766,80 +746,86 @@ const page = () => {
               )}
             </div>
           </div>
-          <p className="text-[16px] mb-[0.5rem]"> Select Salary Type</p>
-          <div className="flex  items-center  gap-8  ">
-            <div className="flex items-center ">
-              <input
-                id="salary-1"
-                type="radio"
-                {...register("SalaryOption", {
-                  required: "This field is required",
-                })}
-                onChange={() => {
-                  setValue("SalaryOption", "Confidential");
-                }}
-                checked={watch("SalaryOption") === "Confidential"}
-                value=""
-                name="salary"
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0 "
-              />
-              <label
-                htmlFor="salary-1"
-                className="ms-2 text-sm font-[300] text-gray-900 "
-              >
-                Confidential
-              </label>
+
+          <>
+            <p className="text-[16px] mb-[0.5rem]"> Select Salary Type</p>
+            <div className="flex items-center gap-8">
+              <div className="flex items-center">
+                <input
+                  id="salary-1"
+                  type="radio"
+                  {...register("SalaryOption", {
+                    required: "This field is required",
+                  })}
+                  onChange={() => {
+                    setValue("SalaryOption", "Confidential");
+                  }}
+                  checked={watch("SalaryOption") === "Confidential"}
+                  value="Confidential"
+                  name="salary"
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
+                />
+                <label
+                  htmlFor="salary-1"
+                  className="ms-2 text-sm font-[300] text-gray-900"
+                >
+                  Confidential
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  id="salary-2"
+                  type="radio"
+                  {...register("SalaryOption", {
+                    required: "This field is required",
+                  })}
+                  onChange={() => {
+                    setValue("SalaryOption", "Nego");
+                  }}
+                  checked={watch("SalaryOption") === "Nego"}
+                  value="Nego"
+                  name="salary"
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
+                />
+                <label
+                  htmlFor="salary-2"
+                  className="ms-2 text-sm font-[300] text-gray-900"
+                >
+                  Negotiable
+                </label>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  id="salary-3"
+                  type="radio"
+                  {...register("SalaryOption", {
+                    required: "This field is required",
+                  })}
+                  onChange={() => {
+                    setValue("SalaryOption", "PlusComission");
+                  }}
+                  checked={watch("SalaryOption") === "PlusComission"}
+                  value="PlusComission"
+                  name="salary"
+                  className="w-4 h-4 text-primary bg-gray-100 border-gray-300 focus:ring-0"
+                />
+                <label
+                  htmlFor="salary-3"
+                  className="ms-2 text-sm font-[300] text-gray-900"
+                >
+                  Plus Commission
+                </label>
+              </div>
             </div>
-            <div className="flex items-center ">
-              <input
-                id="salary-2"
-                type="radio"
-                {...register("SalaryOption", {
-                  required: "This field is required",
-                })}
-                onChange={() => {
-                  setValue("SalaryOption", "Nego");
-                }}
-                checked={watch("SalaryOption") === "Nego"}
-                value=""
-                name="salary"
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
-              />
-              <label
-                htmlFor="salary-2"
-                className="ms-2 text-sm font-[300] text-gray-900 "
-              >
-                Negotiable
-              </label>
-            </div>
-            <div className="flex items-center ">
-              <input
-                id="salary-3"
-                type="radio"
-                {...register("SalaryOption", {
-                  required: "This field is required",
-                })}
-                onChange={() => {
-                  setValue("SalaryOption", "PlusComission");
-                }}
-                checked={watch("SalaryOption") === "PlusComission"}
-                value=""
-                name="salary"
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300  focus:ring-0  "
-              />
-              <label
-                htmlFor="salary-3"
-                className="ms-2 text-sm font-[300] text-gray-900 "
-              >
-                Plus Commission
-              </label>
-            </div>
-          </div>
+          </>
         </div>
         <PrimaryBtn
+          disable={disableGenBtn && loading}
           // disable={disableGenBtn}
           fullWidth={true}
-          text="Update"
+          text="Create"
           handleClick={() => {}}
         />
       </form>

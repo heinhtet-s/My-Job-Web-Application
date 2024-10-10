@@ -23,7 +23,6 @@ async function apiFilterHandler(filter_object, query_filter) {
     ) {
       const target = filter_object[key];
       const query = query_filter[key];
-      console.log(query, "query");
       switch (true) {
         // case target.value === "null":
         //   console.log("dd");
@@ -48,6 +47,10 @@ async function apiFilterHandler(filter_object, query_filter) {
           };
           break;
         case target.type === "string":
+          // if (target.value === "null")
+          filter = { ...filter, [key]: { value: query.value } };
+          break;
+        case target.type === "search":
           // if (target.value === "null")
           filter = { ...filter, [key]: { value: query.value } };
           break;
@@ -92,8 +95,8 @@ async function apiQueryHandler(
 ) {
   // get filter
   const filter = await apiFilterHandler(queryObject.filter, query_filter);
+
   // get order
-  console.log(filter, "filter");
   const order = await apiOrderHandler(queryObject.order, query_order);
   // check fields
   const selectedFields = queryObject.fields?.filter((value) =>
@@ -130,6 +133,13 @@ async function filterHandler(filter, query_filter) {
       const query = query_filter[key];
 
       switch (true) {
+        case target.type === "search":
+          filterString = `${
+            filterString === "" ? "" : `${filterString} and `
+          }contains(${`tolower(${key})`},${decodeURIComponent(
+            `tolower('${query.value}')`
+          )})`;
+          break;
         case target.type === "isNull":
           filterString = `${
             filterString === "" ? "" : `${filterString} and `
@@ -314,7 +324,6 @@ async function odataQueryHandler(
 
   // pagination
   queryString = `${queryString}&$top=${pagination.top}&$skip=${pagination.skip}`;
-
   let response = await odataFunction(queryString);
 
   if (

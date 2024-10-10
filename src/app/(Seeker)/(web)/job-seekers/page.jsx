@@ -1,6 +1,6 @@
 import { odataQueryHandler } from "@/lib/apiQueryHandler";
 import { FunctionalAreasConst, SeekersConst } from "@/lib/queryConst";
-import CandidatePage from "./body";
+import CandidatePage from "./body.jsx";
 import { GetSeekerList } from "@/modules/services/seeker_service";
 import { GetFunctionalAreaLists } from "@/modules/services/employer_service";
 

@@ -3,6 +3,7 @@ import axios from "axios";
 import { REQUEST_HEADER } from "../../lib/config";
 import { EmployeerAuth, SeekerAuth, UploadCVURL } from "@/lib/apiConst";
 import { signOut } from "next-auth/react";
+import ApiReq from "@/lib/axiosHandler";
 async function SeekerLogin({ email, password }) {
   const urlString = `${SeekerAuth}login`;
   try {
@@ -10,15 +11,21 @@ async function SeekerLogin({ email, password }) {
       email,
       password,
     });
-    console.log(email, "email");
+    console.log(
+      email,
+      `${
+        process.env.NEXT_PUBLIC_WEBSITE_URL
+      }api/seekers/getSeekerByEmail?email=${encodeURIComponent(email)}`
+    );
     const data = await axios.get(
-      `http://localhost:3000/api/seekers/getSeekerByEmail?email=${encodeURIComponent(
-        email
-      )}`
+      `${
+        process.env.NEXT_PUBLIC_WEBSITE_URL
+      }/api/seekers/getSeekerByEmail?email=${encodeURIComponent(email)}`
     );
 
     return data;
   } catch (e) {
+    console.log(e);
     throw e;
   }
 }
@@ -39,18 +46,71 @@ const GetLinkedInInfo = async (customToken) => {
     console.error("Error authenticating with Firebase:", error);
   }
 };
+async function LinkedinAccessToken(code, redirect_uri) {
+  const params = new URLSearchParams({
+    grant_type: "authorization_code",
+    code: code,
+    redirect_uri: redirect_uri, // Pass the correct redirect URI dynamically
+    client_id: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID,
+    client_secret: process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_SECRET,
+  });
+
+  try {
+    const { data } = await axios.post(
+      `https://www.linkedin.com/oauth/v2/accessToken`,
+      params.toString(), // Send the parameters as URL-encoded form data
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+    return data; // The token information is in `data`
+  } catch (e) {
+    console.error(e.response?.data || e.message);
+    throw e;
+  }
+}
+
+async function SeekerLinkedinLogin(token) {
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/LinkedIn`;
+  try {
+    const data = await axios.post(urlString, {
+      accesstoken: token,
+    });
+    console.log(data);
+    // const data = await ApiReq.get(
+    //   `/api/seekers/getSeekerByEmail?email=${encodeURI(email)}`
+    // );
+
+    return data?.data;
+  } catch (e) {
+    console.log(e);
+    return "error";
+  }
+}
+async function SeekerLinkedin({ email }) {
+  const data = await ApiReq.get(
+    `/api/seekers/getSeekerByEmail?email=${encodeURI(email)}`
+  );
+  return data;
+}
+async function EmployerLinkedin({ email }) {
+  const data = await ApiReq.get(
+    `api/company_lists/getSeekerByEmail?email=${email}`
+  );
+  return data;
+}
 async function SeekerSsoLogin({ token, email }) {
-  const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/SignIns/seeker`;
+  const urlString = `${process.env.NEXT_PUBLIC_API_URL}seeker/v1/SignIns/SSO`;
   try {
     await axios.post(urlString, {
       accesstoken: token,
       login: true,
     });
 
-    const data = await axios.get(
-      `http://localhost:3000/api/seekers/getSeekerByEmail?email=${encodeURI(
-        email
-      )}`
+    const data = await ApiReq.get(
+      `/api/seekers/getSeekerByEmail?email=${encodeURI(email)}`
     );
 
     return data;
@@ -65,8 +125,8 @@ async function EmployerSsoLogin({ token, email }) {
     await axios.post(urlString, {
       accesstoken: token,
     });
-    const data = await axios.get(
-      `http://localhost:3000/api/company_lists/getSeekerByEmail?email=${email}`
+    const data = await ApiReq.get(
+      `api/company_lists/getSeekerByEmail?email=${email}`
     );
 
     return data;
@@ -83,10 +143,8 @@ async function EmployerLogin({ email, password }) {
       password,
     });
 
-    const data = await axios.get(
-      `http://localhost:3000/api/company_lists/getSeekerByEmail?email=${encodeURI(
-        email
-      )}`
+    const data = await ApiReq.get(
+      `api/company_lists/getSeekerByEmail?email=${encodeURI(email)}`
     );
 
     return data;
@@ -193,9 +251,13 @@ export {
   EmployerLogin,
   SeekerRegister,
   Logout,
+  SeekerLinkedin,
+  EmployerLinkedin,
   SeekerSsoLogin,
   GetLinkedInInfo,
+  LinkedinAccessToken,
   EmployerSsoLogin,
+  SeekerLinkedinLogin,
   EmployeerRegister,
   EmailVerifyEmployer,
   UploadCv,

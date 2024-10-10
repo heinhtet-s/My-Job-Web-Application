@@ -18,9 +18,12 @@ import {
   Mail,
   Pencil,
 } from "lucide-react";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+
 import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React from "react";
+import { redirect, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
+import { db } from "../../../../firebaseConfig";
 const DashboardConst = [
   {
     icon: (
@@ -101,12 +104,43 @@ const DashboardConst = [
   },
 ];
 export default function Layout({ children }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const [chat, setChat] = useState(0);
   const router = useRouter();
   const Logout = async () => {
     await signOut({ redirect: false });
-    router.push("/login");
+    router.replace("/login");
   };
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+      if (status === "authenticated" && session?.user?.role !== "seeker") {
+        router.push("/");
+      }
+    }
+  }, [status, session]);
+  useEffect(() => {
+    if (session?.user?.Id) {
+      const chatCollectionRef = collection(db, "chat");
+      const q = query(
+        chatCollectionRef,
+        where("seekerId", "==", session?.user?.Id),
+        where("isSeekerRead", "==", false)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const chatData = [];
+        querySnapshot.forEach((doc) => {
+          chatData.push({ ...doc.data(), id: doc.id });
+        });
+        console.log(chatData);
+        setChat(chatData.length);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [session?.user?.Id]);
   return (
     <div className="bg-widgetBgColor min-h-screen">
       <div className="fixed w-[320px] bg-widgetBgColor top-0 left-0 bottom-0 overflow-y-auto p-7 hidden lg:block">
@@ -125,7 +159,12 @@ export default function Layout({ children }) {
               {el?.header}
             </div>
           ))}
-          <div className="px-4 py-[1rem]  mt-[50px]  cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center justify-between ">
+          <div
+            onClick={() => {
+              router.push("/chat");
+            }}
+            className="px-4 py-[1rem]  mt-[50px]  cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center justify-between "
+          >
             <div className="flex items-center gap-3 no-underline transition-all duration-500 ease-in-out text-[15px] leading-[18px] hover:text-primary group">
               <Mail
                 className="group-hover:stroke-primary  transition-all duration-500 "
@@ -135,7 +174,7 @@ export default function Layout({ children }) {
               Messages
             </div>
             <span className="inline-block rounded-xl px-2.5 py-1 text-xs font-bold leading-none text-white text-center whitespace-nowrap align-baseline bg-blue-400">
-              1
+              {chat}
             </span>
           </div>
         </div>
@@ -190,7 +229,12 @@ export default function Layout({ children }) {
             >
               My Profile
             </div>
-            <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
+            <div
+              onClick={() => {
+                router.push(`employer-view`);
+              }}
+              className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline "
+            >
               Employer View
             </div>
             <div className="mx-3">

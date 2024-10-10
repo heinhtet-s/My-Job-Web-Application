@@ -21,7 +21,12 @@ import {
 } from "lucide-react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { CheckPackage } from "../../../modules/services/package_service";
+import toast from "react-hot-toast";
+import axios from "axios";
+import { collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../../../../firebaseConfig";
 const DashboardConst = [
   {
     icon: (
@@ -77,16 +82,75 @@ const DashboardConst = [
       />
     ),
     header: "Job Report",
-    link: "/employer/candidate",
+    link: "/employer/report",
   },
 ];
 export default function Layout({ children }) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const [infoData, setInfoData] = useState({});
   const router = useRouter();
   const Logout = async () => {
     await signOut({ redirect: false });
-    router.push("/login");
+    router.replace("/login");
   };
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/");
+      if (status === "authenticated" && session?.user?.role !== "employeer") {
+        router.push("/");
+      }
+    }
+  }, [status, session]);
+  const [chat, setChat] = useState(0);
+  const fetchInfoData = async () => {
+    if (!session?.user?.Id) {
+      return;
+    }
+    try {
+      const personalData = await axios.get(
+        `${process.env.NEXT_PUBLIC_WEBSITE_URL}/api/employer_lists/getById`
+      );
+      console.log(personalData.data);
+      setInfoData(personalData.data);
+    } catch (e) {}
+  };
+  useEffect(() => {
+    fetchInfoData();
+  }, [session?.user?.Id]);
+  const checkPackageList = async () => {
+    try {
+      const data = await CheckPackage(session?.user?.Id);
+      if (data?.error) {
+        throw "error";
+      }
+      router.push("/employer/jobpost/create");
+    } catch (e) {
+      toast.error("not enough unit");
+      console.log(d);
+    }
+  };
+  useEffect(() => {
+    if (session?.user?.Id) {
+      const chatCollectionRef = collection(db, "chat");
+      const q = query(
+        chatCollectionRef,
+        where("employerId", "==", session?.user?.Id),
+        where("isEmployerRead", "==", false)
+      );
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const chatData = [];
+        querySnapshot.forEach((doc) => {
+          chatData.push({ ...doc.data(), id: doc.id });
+        });
+
+        setChat(chatData.length);
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [session?.user?.Id]);
   return (
     <div className="bg-widgetBgColor min-h-screen">
       <div className="fixed w-[320px] bg-widgetBgColor top-0 left-0 bottom-0 overflow-y-auto p-7 hidden lg:block">
@@ -105,7 +169,12 @@ export default function Layout({ children }) {
               {el?.header}
             </div>
           ))}
-          <div className="px-4 py-[1rem]  mt-[50px]  cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center justify-between ">
+          <div
+            onClick={() => {
+              router.push("/employer/chat");
+            }}
+            className="px-4 py-[1rem]  mt-[50px]  cursor-pointer  rounded-[30px] text-widgetColor font-medium flex items-center justify-between "
+          >
             <div className="flex items-center gap-3 no-underline transition-all duration-500 ease-in-out text-[15px] leading-[18px] hover:text-primary group">
               <Mail
                 className="group-hover:stroke-primary  transition-all duration-500 "
@@ -115,7 +184,7 @@ export default function Layout({ children }) {
               Messages
             </div>
             <span className="inline-block rounded-xl px-2.5 py-1 text-xs font-bold leading-none text-white text-center whitespace-nowrap align-baseline bg-blue-400">
-              1
+              {chat}
             </span>
           </div>
         </div>
@@ -123,7 +192,7 @@ export default function Layout({ children }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
-                className="   ring-0 outline-none  p-0 bg-transparent hover:bg-transparent border-none focus:ring-0  "
+                className="   ring-0 outline-none  p-0 bg-transparent hover:bg-transparent border-none !focus:ring-0 border-0 !focus:border-0 focus:ring-white !focus-visible:ring-0 "
                 variant="outline"
                 style={{
                   whiteSpace: "normal",
@@ -145,22 +214,18 @@ export default function Layout({ children }) {
                       style={{
                         flex: "0 0 36px",
                       }}
-                      src="image/no-image.png"
+                      src={infoData?.CompanyLogo || "/image/no-image.png"}
                       className="w-[36px] h-[36px] rounded-full"
                     />
                     <p
                       style={{
                         width: "170px",
                         whiteSpace: "normal",
+                        textAlign: "start",
                         wordWrap: "break-word",
                       }}
                     >
-                      {" "}
-                      {session?.user?.FirstName
-                        ? session?.user?.FirstName +
-                          "  " +
-                          session?.user?.LastName
-                        : session?.user?.email}
+                      {infoData?.CompanyName || infoData?.email}
                     </p>
                   </div>
                   <ChevronUp width={"18px"} strokeWidth={1.75} />
@@ -181,8 +246,12 @@ export default function Layout({ children }) {
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
               Home
             </div>
-
-            <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
+            <div
+              onClick={() => {
+                router.push("/employer/plans-subscriptions");
+              }}
+              className="px-5 py-2 font-medium cursor-pointer text-[15px] text-widgetColor no-underline "
+            >
               Products{" "}
             </div>
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
@@ -190,9 +259,7 @@ export default function Layout({ children }) {
             </div>
             <div className="px-5 py-2 font-medium text-[15px] text-widgetColor no-underline ">
               <button
-                onClick={() => {
-                  router.push("/employer/jobpost/create");
-                }}
+                onClick={checkPackageList}
                 className="bg-primary text-white text-[16px] font-[400] transition-[background-color] rounded-full  px-5 py-1.5"
               >
                 Post a Job
@@ -222,11 +289,7 @@ export default function Layout({ children }) {
                           wordWrap: "break-word",
                         }}
                       >
-                        {session?.user?.FirstName
-                          ? session?.user?.FirstName +
-                            "  " +
-                            session?.user?.LastName
-                          : session?.user?.email}
+                        {infoData?.CompanyName || infoData?.email}
                       </div>
                       <ChevronDown width={"18px"} strokeWidth={1.75} />
                     </div>

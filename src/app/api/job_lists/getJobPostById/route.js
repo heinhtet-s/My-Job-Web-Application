@@ -44,12 +44,14 @@ export async function GET(req) {
         Industry = await industryResponse.json();
       }
     }
-
-    const applyJobPostResponse = await axios.get(
-      encodeURI(
-        `https://myjobs.dev/seeker/v1/AppliedJobPosts?$filter=SeekerId eq ${seeker_id} and JobId eq ${jobPostId}`
-      )
-    );
+    let applyJobPostResponse = {};
+    if (seeker_id !== "undefined") {
+      applyJobPostResponse = await axios.get(
+        encodeURI(
+          `https://myjobs.dev/seeker/v1/AppliedJobPosts?$filter=SeekerId eq ${seeker_id} and JobId eq ${jobPostId}`
+        )
+      );
+    }
     const extendedData = {
       ...jobPostData,
       ApplyedJob: applyJobPostResponse?.data?.value?.length > 0 ? true : false,
@@ -67,7 +69,7 @@ export async function GET(req) {
     return NextResponse.json(extendedData);
     // Add industry details to employer data
   } catch (err) {
-   
+    console.log(err);
     return new Response(JSON.stringify({ error: "Internal Server Error" }), {
       status: 500,
     });

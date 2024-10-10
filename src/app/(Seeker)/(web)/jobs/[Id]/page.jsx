@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from "react";
-import JobDetailComponent from "./body";
+import JobDetailComponent from "./body.jsx";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 
@@ -13,7 +13,8 @@ export default async function page({ params, searchParams }) {
     );
 
     return <JobDetailComponent data={data?.data} />;
-  } catch (e) {
+} catch (e) {
+    console.log(e);
     return <JobDetailComponent data={{}} />;
   }
 }

@@ -2,7 +2,7 @@ import { odataQueryHandler } from "@/lib/apiQueryHandler";
 import { IndustriesConst } from "@/lib/queryConst";
 import { GetInsdustriesList } from "@/modules/services/industries";
 import React from "react";
-import RegisterComponent from "./registerComponent";
+import RegisterComponent from "./RegisterComponent.jsx";
 
 export default async function page() {
   try {
@@ -15,10 +15,9 @@ export default async function page() {
       { top: 10, skip: 0 },
       GetInsdustriesList
     );
-   
+
     return <RegisterComponent data={data.value} />;
   } catch (error) {
-  
     return <RegisterComponent data={{ count: 0, value: [] }} />;
   }
 }
